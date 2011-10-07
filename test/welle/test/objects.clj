@@ -1,4 +1,4 @@
-(ns welle.test.buckets
+(ns welle.test.objects
   (:use     [clojure.test])
   (:require [welle core buckets objects])
   (:import  (com.basho.riak.client IRiakClient IRiakObject)
