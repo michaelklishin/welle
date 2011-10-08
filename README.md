@@ -1,6 +1,6 @@
 # Welle
 
-Monger is an experimental idiomatic Clojure wrapper around Riak Java driver.
+Welle is an experimental idiomatic Clojure wrapper around Riak Java driver.
 
 
 ## Usage
