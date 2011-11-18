@@ -1,4 +1,5 @@
 (ns welle.buckets
+  (:refer-clojure :exclude [list])
   (:use     [welle.core])
   (:import (com.basho.riak.client IRiakClient IRiakObject)
            (com.basho.riak.client.bucket Bucket WriteBucket)
@@ -16,6 +17,6 @@
       (.nVal write-bucket n-val))
     (.execute write-bucket)))
 
-(defn list-buckets
+(defn list
   []
   (set (.listBuckets ^IRiakClient *riak-client*)))
