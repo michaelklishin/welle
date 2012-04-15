@@ -19,7 +19,7 @@
 (deftest test-basic-store-followed-by-a-fetch-with-r=1
   (let [bucket-name "clojurewerkz.welle.buckets/store-then-fetch-1-with-r=1"
         bucket      (wb/create bucket-name)
-        k           "key"
+        k           (str (UUID/randomUUID))
         v           "value"]
     (wo/store bucket k (.getBytes v))
     (is (= v
@@ -28,7 +28,7 @@
 (deftest test-basic-store-followed-by-a-fetch-with-pr=1
   (let [bucket-name "clojurewerkz.welle.buckets/store-then-fetch-2-with-pr=1"
         bucket      (wb/create bucket-name)
-        k           "key"
+        k           (str (UUID/randomUUID))
         v           "another value"]
     (wo/store bucket k (.getBytes v))
     (is (= v
@@ -48,7 +48,7 @@
 (deftest fetch-deleted-value
   (let [bucket-name "clojurewerkz.welle.buckets/fetch-deleted-value"
         bucket      (wb/create bucket-name)
-        k           "key"
+        k           (str (UUID/randomUUID))
         v           "another value"]
     (wo/store bucket k (.getBytes v))
     (is (= v (.getValueAsString (wo/fetch bucket k))))
