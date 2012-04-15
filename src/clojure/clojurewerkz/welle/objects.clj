@@ -38,7 +38,7 @@
 
 (defn ^IRiakObject delete
   "Delete an object"
-  [^Bucket bucket ^String key &{ :keys [r pr w dw pw rw vclock with-retrier fetch-before-delete] }]
+  [^Bucket bucket ^String key &{ :keys [r pr w dw pw rw vclock ^Retrier with-retrier fetch-before-delete] }]
   (let [^DeleteObject op (.delete bucket key)]
     (when r                     (.r  op (to-quorum r)))
     (when pr                    (.pr op (to-quorum pr)))
