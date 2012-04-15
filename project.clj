@@ -5,9 +5,10 @@
   :dependencies [[org.clojure/clojure "1.3.0"]
                  [com.basho.riak/riak-client "1.0.5"]]
   :source-paths ["src/clojure"]
-  :profiles {:1.4 { :dependencies [[org.clojure/clojure "1.4.0-beta7"]] }}
+  :profiles {:1.4 { :dependencies [[org.clojure/clojure "1.4.0"]] }}
   :aliases { "all" ["with-profile" "dev:dev,1.4"] }
-  :repositories {"sonatype" {:url "http://oss.sonatype.org/content/repositories/releases",
-                             :snapshots false
+  :repositories {"clojure-releases" "http://build.clojure.org/releases"
+                 "sonatype" {:url "http://oss.sonatype.org/content/repositories/releases"
+                             :snapshots false,
                              :releases {:checksum :fail :update :always}}}
   :warn-on-reflection true)
