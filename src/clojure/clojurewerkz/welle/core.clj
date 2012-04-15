@@ -1,5 +1,5 @@
-(ns welle.core
-  (:import (com.basho.riak.client IRiakClient RiakFactory)))
+(ns clojurewerkz.welle.core
+  (:import [com.basho.riak.client IRiakClient RiakFactory]))
 
 
 

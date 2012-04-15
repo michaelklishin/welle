@@ -1,9 +1,9 @@
-(ns welle.buckets
+(ns clojurewerkz.welle.buckets
   (:refer-clojure :exclude [list])
-  (:use     [welle.core])
-  (:import (com.basho.riak.client IRiakClient IRiakObject)
-           (com.basho.riak.client.bucket Bucket WriteBucket)
-           (com.basho.riak.client.operations StoreObject FetchObject)))
+  (:use clojurewerkz.welle.core)
+  (:import [com.basho.riak.client IRiakClient IRiakObject]
+           [com.basho.riak.client.bucket Bucket WriteBucket]
+           [com.basho.riak.client.operations StoreObject FetchObject]))
 
 
 (defn create
