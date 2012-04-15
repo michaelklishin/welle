@@ -43,3 +43,9 @@
   "Returns buckets in the cluster as a set"
   []
   (set (.listBuckets ^IRiakClient *riak-client*)))
+
+
+(defn keys-in
+  "Returns list of keys in the bucket. This is an expensive operation and typically should be avoided."
+  [^Bucket bucket]
+  (.keys bucket))

@@ -3,6 +3,15 @@
            [com.basho.riak.client.bucket TunableCAPProps]))
 
 ;;
+;; Implementation
+;;
+
+;; clojure.java.io has these as private, so we had to copy them. MK.
+(def ^{:doc "Type object for a Java primitive byte array."}
+  byte-array-type (class (make-array Byte/TYPE 0)))
+
+
+;;
 ;; API
 ;;
 
@@ -28,6 +37,21 @@
   Quorum
   (to-quorum [input]
     input))
+
+
+(defprotocol BytesConversion
+  (^bytes to-bytes [input] "Converts input to a byte array value that can be stored in a bucket"))
+
+(extend-protocol BytesConversion
+  String
+  (to-bytes [^String input]
+    (.getBytes input)))
+
+(extend byte-array-type
+  BytesConversion
+  {:to-bytes (fn [^bytes input]
+                   input) })
+
 
 
 
