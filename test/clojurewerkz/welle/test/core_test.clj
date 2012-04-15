@@ -8,9 +8,13 @@
 (deftest connect-using-pcb-client-and-default-host-and-port
   (let [client (wc/connect)]
     (dotimes [x 10]
-      (.ping client))))
+      (.ping client)
+      (wc/ping client)
+      (wc/shutdown client))))
 
 (deftest connect-using-pcb-client-default-host-and-port-and-default-client
   (wc/connect!)
   (dotimes [x 10]
-    (.ping ^IRiakClient wc/*riak-client*)))
+    (.ping ^IRiakClient wc/*riak-client*)
+    (wc/ping)
+    (wc/shutdown)))
