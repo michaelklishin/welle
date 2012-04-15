@@ -31,7 +31,8 @@
 
 
 
-(defn to-tunable-cap-props
+(defn ^com.basho.riak.client.bucket.TunableCAPProps
+  to-tunable-cap-props
   "Build a TunableCAPProps instance from Clojure map"
   [{:keys [r w dw rw pr pw basic-quorum not-found-ok] :or {not-found-ok false}}]
   (TunableCAPProps. (to-quorum r)
