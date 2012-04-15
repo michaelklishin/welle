@@ -1,5 +1,6 @@
 (ns clojurewerkz.welle.conversion
-  (:import [com.basho.riak.client.cap Quora Quorum]))
+  (:import [com.basho.riak.client.cap Quora Quorum]
+           [com.basho.riak.client.bucket TunableCAPProps]))
 
 ;;
 ;; API
@@ -27,3 +28,17 @@
   Quorum
   (to-quorum [input]
     input))
+
+
+
+(defn to-tunable-cap-props
+  "Build a TunableCAPProps instance from Clojure map"
+  [{:keys [r w dw rw pr pw basic-quorum not-found-ok] :or {not-found-ok false}}]
+  (TunableCAPProps. (to-quorum r)
+                    (to-quorum w)
+                    (to-quorum dw)
+                    (to-quorum rw)
+                    (to-quorum pr)
+                    (to-quorum pw)
+                    ^Boolean basic-quorum ^Boolean not-found-ok))
+

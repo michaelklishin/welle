@@ -1,6 +1,7 @@
 (ns clojurewerkz.welle.test.conversion-test
   (:use     clojure.test clojurewerkz.welle.conversion)
-  (:import [com.basho.riak.client.cap Quora Quorum]))
+  (:import [com.basho.riak.client.cap Quora Quorum]
+           [com.basho.riak.client.bucket TunableCAPProps]))
 
 (deftest test-quorum-conversion
   (testing "int-to-quorum conversion"
@@ -34,3 +35,16 @@
       (Quorum. 10)
       (Quorum. 50)
       (Quorum. 100))))
+
+
+(deftest test-to-tunable-cap-props
+  (let [input  {:r 1 :w 2 :dw 3 :rw 4 :pr 5 :pw 6 :basic-quorum true :not-found-ok false}
+        ^TunableCAPProps result (to-tunable-cap-props input)]
+    (is (= (Quorum. 1) (.getR result)))
+    (is (= (Quorum. 2) (.getW result)))
+    (is (= (Quorum. 3) (.getDW result)))
+    (is (= (Quorum. 4) (.getRW result)))
+    (is (= (Quorum. 5) (.getPR result)))
+    (is (= (Quorum. 6) (.getPW result)))
+    (is (.getBasicQuorum result))
+    (is (not (.getNotFoundOK result)))))
