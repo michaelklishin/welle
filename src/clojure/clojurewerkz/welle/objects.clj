@@ -5,7 +5,8 @@
            [com.basho.riak.client.bucket Bucket WriteBucket]
            [com.basho.riak.client.operations StoreObject FetchObject DeleteObject]
            [com.basho.riak.client.cap ConflictResolver Retrier]
-           [com.basho.riak.client.convert Converter]))
+           com.basho.riak.client.convert.Converter
+           com.basho.riak.client.http.util.Constants))
 
 
 (defn ^IRiakObject store
@@ -13,8 +14,11 @@
   [^Bucket bucket ^String key value &{ :keys [r pr w pw dw
                                               ^Boolean return-body if-non-match if-not-modified
                                               ^Boolean not-found-ok ^Boolean basic-quorum ^Boolean return-deleted-vclock
-                                              ^Retrier with-retrier with-mutator ^ConflictResolve with-resolver ^Converter with-converter with-value]}]
-  (let [^StoreObject op (.store bucket key (to-bytes value))]
+                                              ^Retrier with-retrier with-mutator ^ConflictResolve with-resolver ^Converter with-converter with-value
+                                              content-type]
+                                      :or {content-type Constants/CTYPE_OCTET_STREAM}}]
+  (println (serialize value content-type))
+  (let [^StoreObject op (.store bucket key (serialize value content-type))]
     (when r (.r op (to-quorum r)))
     (.execute op)))
 

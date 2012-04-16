@@ -21,12 +21,12 @@
 ;; objects/store, objects/fetch
 ;;
 
-(deftest test-basic-store-followed-by-a-fetch-with-r=1
+(deftest ^:focus test-basic-store-followed-by-a-fetch-with-r=1
   (let [bucket-name "clojurewerkz.welle.buckets/store-then-fetch-1-with-r=1"
         bucket      (wb/create bucket-name)
         k           (str (UUID/randomUUID))
         v           "value"]
-    (wo/store bucket k (.getBytes v))
+    (wo/store bucket k v)
     (is (= v
            (.getValueAsString (wo/fetch bucket k :r 1))))))
 
@@ -35,7 +35,9 @@
         bucket      (wb/create bucket-name)
         k           (str (UUID/randomUUID))
         v           "another value"]
-    (wo/store bucket k (.getBytes v))
+    (wo/store bucket k v)
+    (println (.getValue (wo/fetch bucket k :pr 1)))
+    (println (String. ^bytes (.getValue (wo/fetch bucket k :pr 1))))
     (is (= v
            (.getValueAsString (wo/fetch bucket k :pr 1))))))
 
@@ -72,7 +74,7 @@
         bucket      (wb/create bucket-name)
         k           (str (UUID/randomUUID))
         v           "another value"]
-    (wo/store bucket k (.getBytes v))
+    (wo/store bucket k v)
     (is (= v (.getValueAsString (wo/fetch bucket k))))
     (wo/delete bucket k)
     (is (nil? (wo/fetch bucket k)))))
