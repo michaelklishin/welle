@@ -2,6 +2,8 @@
   (:require [clojure.data.json :as json])
   (:import [com.basho.riak.client.cap Quora Quorum VClock]
            [com.basho.riak.client.raw StoreMeta FetchMeta DeleteMeta]
+           com.basho.riak.client.IRiakObject
+           com.basho.riak.client.builders.RiakObjectBuilder
            com.basho.riak.client.bucket.TunableCAPProps
            com.basho.riak.client.http.util.Constants
            java.util.Date))
@@ -51,12 +53,12 @@
   ""
   (^com.basho.riak.client.raw.StoreMeta
    [r dw pw return-body if-none-match if-not-modified]
-              (StoreMeta. (to-quorum r)
-                          (to-quorum dw)
-                          (to-quorum pw)
-                          ^Boolean return-body nil
-                          ^Boolean if-none-match
-                          ^Boolean if-not-modified)))
+   (StoreMeta. (to-quorum r)
+               (to-quorum dw)
+               (to-quorum pw)
+               ^Boolean return-body nil
+               ^Boolean if-none-match
+               ^Boolean if-not-modified)))
 
 (defn to-fetch-meta
   ""
@@ -82,6 +84,27 @@
                 (to-quorum pw)
                 (to-quorum rw)
                 ^VClock vclock)))
+
+
+;; Clojure <=> IRiakObject
+
+(defn to-riak-object
+  "Builds a Riak object from a map of attributes"
+  (^com.basho.riak.client.IRiakObject
+   [&{:keys [^String bucket ^String key value content-type metadata indexes vclock vtag last-modified]
+      :or {content-type Constants/CTYPE_OCTET_STREAM
+           metadata     {}}}]
+   (let [^RiakObjectBuilder bldr (doto (RiakObjectBuilder/newBuilder bucket key)
+                                   (.withValue        value)
+                                   (.withContentType  content-type)
+                                   (.withUsermeta     metadata))]
+     (when vclock        (.withVClock bldr vclock))
+     (when vtag          (.withVtag bldr vtag))
+     (when last-modified (.withLastModified bldr last-modified))
+     (doseq [[idx-key idx-vals] indexes
+             idx-val idx-vals]
+       (.addIndex bldr ^String (name idx-key) idx-val))
+     (.build bldr))))
 
 
 ;; Serialization

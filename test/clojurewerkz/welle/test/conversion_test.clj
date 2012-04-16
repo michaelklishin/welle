@@ -1,9 +1,11 @@
 (ns clojurewerkz.welle.test.conversion-test
   (:use     clojure.test clojurewerkz.welle.conversion)
   (:import [com.basho.riak.client.cap Quora Quorum BasicVClock]
-           [com.basho.riak.client.bucket TunableCAPProps]
-           [com.basho.riak.client.util CharsetUtils]
-           java.util.Date))
+           com.basho.riak.client.bucket.TunableCAPProps
+           com.basho.riak.client.util.CharsetUtils
+           com.basho.riak.client.http.util.Constants
+           com.basho.riak.client.IRiakObject
+           [java.util Date UUID]))
 
 
 (defn vclock-for
@@ -97,6 +99,22 @@
       (is (= (to-quorum 5) (.getPw meta)))
       (is (= (to-quorum 6) (.getRw meta)))
       (is (= vclock (.getVclock meta))))))
+
+(deftest test-to-riak-object
+  (testing "building an object with all fields set"
+    (let [bucket       (str (UUID/randomUUID))
+          key          (str (UUID/randomUUID))
+          value        (to-bytes "A value")
+          content-type Constants/CTYPE_OCTET_STREAM
+          metadata     {"metakey" "metavalue"}
+          indexes      {"handle"  ["johnnyriak"]}
+          vclock       (vclock-for "vclock for a riak object")
+          ro           (to-riak-object :bucket bucket :key key :value value :content-type content-type :metadata metadata :indexes indexes :vclock vclock)]
+    (is (= bucket       (.getBucket ro)))
+    (is (= key          (.getKey ro)))
+    (is (= "A value"    (.getValueAsString ro)))
+    (is (= content-type (.getContentType ro)))
+    (is (= vclock       (.getVClock ro))))))
 
 (deftest test-to-tunable-cap-props
   (let [input  {:r 1 :w 2 :dw 3 :rw 4 :pr 5 :pw 6 :basic-quorum true :not-found-ok false}
