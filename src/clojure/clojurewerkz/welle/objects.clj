@@ -11,14 +11,13 @@
 
 (defn ^IRiakObject store
   "Stores an object"
-  [^Bucket bucket ^String key value &{ :keys [r pr w pw dw
-                                              ^Boolean return-body if-non-match if-not-modified
-                                              ^Boolean not-found-ok ^Boolean basic-quorum ^Boolean return-deleted-vclock
-                                              ^Retrier with-retrier with-mutator ^ConflictResolve with-resolver ^Converter with-converter with-value
+  [^Bucket bucket ^String key value &{ :keys [w dw pw
+                                              ^Boolean return-body ^Boolean if-none-match ^Boolean if-not-modified
                                               content-type]
                                       :or {content-type Constants/CTYPE_OCTET_STREAM}}]
   (println (serialize value content-type))
-  (let [^StoreObject op (.store bucket key (serialize value content-type))]
+  (let [v               (serialize value content-type)
+        ^StoreObject op (.store bucket key v)]
     (when r (.r op (to-quorum r)))
     (.execute op)))
 
