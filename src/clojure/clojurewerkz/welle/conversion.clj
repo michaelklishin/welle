@@ -3,8 +3,8 @@
   (:import [com.basho.riak.client.cap Quora Quorum VClock]
            [com.basho.riak.client.raw StoreMeta FetchMeta DeleteMeta]
            com.basho.riak.client.IRiakObject
-           com.basho.riak.client.builders.RiakObjectBuilder
-           com.basho.riak.client.bucket.TunableCAPProps
+           [com.basho.riak.client.builders RiakObjectBuilder BucketPropertiesBuilder]
+           [com.basho.riak.client.bucket BucketProperties TunableCAPProps]
            com.basho.riak.client.http.util.Constants
            java.util.Date))
 
@@ -154,6 +154,40 @@
   [value _]
   (json/json-str value))
 
+
+(defn ^com.basho.riak.client.bucket.BucketProperties
+  to-bucket-properties
+  [&{:keys [^Boolean allow-siblings ^Boolean last-write-wins ^Integer n-val ^String backend
+            ^Integer big-vclock
+            ^Integer small-vclock
+            ^Long    old-vclock
+            ^Long    young-vclock
+            ^Boolean not-found-ok
+            ^Boolean basic-quorum
+            ^Boolean enable-search
+            r w pr dw rw pw]
+     :or {allow-siblings  false
+          n-val           3
+          enable-search   false}}]
+  (let [bldr (doto (BucketPropertiesBuilder.)
+               (.r             (to-quorum r))
+               (.w             (to-quorum w))
+               (.pr            (to-quorum pr))
+               (.dw            (to-quorum dw))
+               (.rw            (to-quorum rw))
+               (.pw            (to-quorum pw))
+               (.allowSiblings allow-siblings)
+               (.search        enable-search)
+               (.nVal          n-val)
+               (.backend       backend)
+               (.smallVClock   small-vclock)
+               (.bigVClock     big-vclock)
+               (.oldVClock     old-vclock)
+               (.youngVClock   young-vclock))]
+    (when not-found-ok    (.notFoundOK    bldr not-found-ok))
+    (when last-write-wins (.lastWriteWins bldr last-write-wins))
+    (when basic-quorum    (.basicQuorum   bldr basic-quorum))
+    (.build bldr)))
 
 (defn ^com.basho.riak.client.bucket.TunableCAPProps
   to-tunable-cap-props

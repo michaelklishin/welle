@@ -110,11 +110,57 @@
           indexes      {"handle"  ["johnnyriak"]}
           vclock       (vclock-for "vclock for a riak object")
           ro           (to-riak-object :bucket bucket :key key :value value :content-type content-type :metadata metadata :indexes indexes :vclock vclock)]
-    (is (= bucket       (.getBucket ro)))
-    (is (= key          (.getKey ro)))
-    (is (= "A value"    (.getValueAsString ro)))
-    (is (= content-type (.getContentType ro)))
-    (is (= vclock       (.getVClock ro))))))
+      (is (= bucket       (.getBucket ro)))
+      (is (= key          (.getKey ro)))
+      (is (= "A value"    (.getValueAsString ro)))
+      (is (= content-type (.getContentType ro)))
+      (is (= vclock       (.getVClock ro))))))
+
+(deftest test-to-bucket-properties
+  (let [allow-siblings  true
+        last-write-wins true
+        n-val           5
+        backend         "bitcask"
+        big-vclock      10
+        small-vclock    1
+        old-vclock      3
+        young-vclock    5
+        not-found-ok    true
+        basic-quorum    true
+        r               1
+        w               2
+        pr              3
+        dw              4
+        rw              5
+        pw              6
+        enable-search   false
+        props           (to-bucket-properties :allow-siblings  allow-siblings
+                                              :last-write-wins last-write-wins
+                                              :not-found-ok    true
+                                              :basic-quorum    true
+                                              :r               r
+                                              :w               w
+                                              :pr              pr
+                                              :dw              dw
+                                              :rw              rw
+                                              :pw              pw
+                                              :backend        "bitcask"
+                                              :big-vclock     10
+                                              :small-vclock   1
+                                              :old-vclock     3
+                                              :young-vclock   5
+                                              :enable-search  enable-search)]
+    (is (= (.getR props)  (to-quorum 1)))
+    (is (= (.getW props)  (to-quorum 2)))
+    (is (= (.getPR props) (to-quorum 3)))
+    (is (= (.getDW props) (to-quorum 4)))
+    (is (= (.getRW props) (to-quorum 5)))
+    (is (= (.getPW props) (to-quorum 6)))
+    (is (.getNotFoundOK props))
+    (is (.getBasicQuorum props))
+    (is (.getAllowSiblings props))
+    (is (.getLastWriteWins props))
+    (is (not (.getSearch props)))))
 
 (deftest test-to-tunable-cap-props
   (let [input  {:r 1 :w 2 :dw 3 :rw 4 :pr 5 :pw 6 :basic-quorum true :not-found-ok false}
