@@ -73,8 +73,8 @@
 (defn to-store-meta
   ""
   (^com.basho.riak.client.raw.StoreMeta
-   [r dw pw return-body if-none-match if-not-modified]
-   (StoreMeta. (to-quorum r)
+   [w dw pw return-body if-none-match if-not-modified]
+   (StoreMeta. (to-quorum w)
                (to-quorum dw)
                (to-quorum pw)
                ^Boolean return-body nil
