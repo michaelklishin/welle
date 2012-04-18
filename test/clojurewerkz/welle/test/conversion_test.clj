@@ -1,6 +1,6 @@
 (ns clojurewerkz.welle.test.conversion-test
   (:use     clojure.test clojurewerkz.welle.conversion)
-  (:import [com.basho.riak.client.cap Quora Quorum BasicVClock]
+  (:import [com.basho.riak.client.cap Quora Quorum VClock BasicVClock]
            com.basho.riak.client.bucket.TunableCAPProps
            com.basho.riak.client.util.CharsetUtils
            com.basho.riak.client.http.util.Constants
@@ -161,6 +161,16 @@
     (is (.getAllowSiblings props))
     (is (.getLastWriteWins props))
     (is (not (.getSearch props)))))
+
+(deftest test-to-vclock
+  (testing "with byte array inputs"
+    (let [s                "vclocky"
+          ^VClock expected (vclock-for s)
+          ^VClock result   (to-vclock s)]
+      (is (= (.asString expected) (.asString result)))))
+  (testing "with VClock inputs"
+    (let [v (vclock-for "vclock")]
+      (is (= v (to-vclock v))))))
 
 (deftest test-to-tunable-cap-props
   (let [input  {:r 1 :w 2 :dw 3 :rw 4 :pr 5 :pw 6 :basic-quorum true :not-found-ok false}

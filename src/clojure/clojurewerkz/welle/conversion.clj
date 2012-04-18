@@ -1,6 +1,6 @@
 (ns clojurewerkz.welle.conversion
   (:require [clojure.data.json :as json])
-  (:import [com.basho.riak.client.cap Quora Quorum VClock]
+  (:import [com.basho.riak.client.cap Quora Quorum VClock BasicVClock]
            [com.basho.riak.client.raw StoreMeta FetchMeta DeleteMeta]
            com.basho.riak.client.IRiakObject
            [com.basho.riak.client.builders RiakObjectBuilder BucketPropertiesBuilder]
@@ -45,6 +45,27 @@
   Quorum
   (to-quorum [input]
     input))
+
+
+;; VClock
+
+(defprotocol VClockConversion
+  (to-vclock [input] "Converts input to a VClock instance"))
+
+(extend-protocol VClockConversion
+  String
+  (to-vclock [^String s]
+    (BasicVClock. (.getBytes s "UTF-8")))
+
+  VClock
+  (to-vclock [^VClock v]
+    v))
+
+(extend byte-array-type
+  VClockConversion
+  {:to-vclock (fn [^bytes input]
+                (BasicVClock. input)) })
+
 
 
 ;; {Store,Fetch,Delete}Meta
