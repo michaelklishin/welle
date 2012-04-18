@@ -44,6 +44,14 @@
 
   Quorum
   (to-quorum [input]
+    input)
+
+  ;; in certain places Riak Java client accepts nulls as valid values
+  ;; for quorum, this is the easiest way to avoid repetitive (if v (to-quorum v) nil)
+  ;; kind of code. Several very experienced Clojure developers confirmed that extending
+  ;; protocols to nil is a reasonable idea. MK.
+  nil
+  (to-quorum [input]
     input))
 
 
@@ -114,7 +122,9 @@
   (^com.basho.riak.client.IRiakObject
    [&{:keys [^String bucket ^String key value content-type metadata indexes vclock vtag last-modified]
       :or {content-type Constants/CTYPE_OCTET_STREAM
-           metadata     {}}}]
+           metadata     {}
+           indexes      []}
+      :as options}]
    (let [^RiakObjectBuilder bldr (doto (RiakObjectBuilder/newBuilder bucket key)
                                    (.withValue        value)
                                    (.withContentType  content-type)
@@ -126,6 +136,16 @@
              idx-val idx-vals]
        (.addIndex bldr ^String (name idx-key) idx-val))
      (.build bldr))))
+
+(defn from-riak-object
+  ""
+  [^IRiakObject ro]
+  {:vclock        (.getVClock ro)
+   :content-type  (.getContentType ro)
+   :vtag          (.getVtag ro)
+   :last-modified (.getLastModified ro)
+   :metadata      (into {} (.getMeta ro))
+   :value         (.getValue ro)})
 
 
 ;; Serialization
@@ -157,12 +177,13 @@
 (defmethod serialize Constants/CTYPE_TEXT
   [value _]
   (to-bytes value))
-(defmethod serialize Constants/CTYPE_TEXT_UTF8
-  [value _]
-  (to-bytes value))
 (defmethod serialize :text
   [value _]
   (to-bytes value))
+(defmethod serialize Constants/CTYPE_TEXT_UTF8
+  [value _]
+  (to-bytes value))
+
 
 ;; JSON
 (defmethod serialize Constants/CTYPE_JSON
@@ -174,6 +195,42 @@
 (defmethod serialize :json
   [value _]
   (json/json-str value))
+
+
+(defmulti deserialize (fn [_ content-type]
+                        content-type))
+
+(defmethod deserialize :default
+  [value content-type]
+  (throw (UnsupportedOperationException. (str "Deserializer for content type " content-type " is not defined"))))
+
+(defmethod deserialize Constants/CTYPE_OCTET_STREAM
+  [value _]
+  value)
+(defmethod deserialize :bytes
+  [value _]
+  value)
+(defmethod deserialize Constants/CTYPE_TEXT
+  [value _]
+  (String. ^bytes value))
+(defmethod deserialize :text
+  [value _]
+  (String. ^bytes value))
+(defmethod deserialize Constants/CTYPE_TEXT_UTF8
+  [value _]
+  (String. ^bytes value "UTF-8"))
+
+;; JSON
+(defmethod deserialize Constants/CTYPE_JSON
+  [value _]
+  (json/read-json (String. ^bytes value)))
+(defmethod deserialize :json
+  [value _]
+  (json/read-json (String. ^bytes value)))
+(defmethod deserialize Constants/CTYPE_JSON_UTF8
+  [value _]
+  (json/json-str (String. ^bytes value "UTF-8")))
+
 
 
 (defn ^com.basho.riak.client.bucket.BucketProperties

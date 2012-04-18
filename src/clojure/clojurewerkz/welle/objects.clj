@@ -2,55 +2,48 @@
   (:use clojurewerkz.welle.core
         clojurewerkz.welle.conversion)
   (:import [com.basho.riak.client IRiakClient IRiakObject]
-           [com.basho.riak.client.bucket Bucket WriteBucket]
-           [com.basho.riak.client.operations StoreObject FetchObject DeleteObject]
-           [com.basho.riak.client.cap ConflictResolver Retrier]
-           com.basho.riak.client.convert.Converter
+           [com.basho.riak.client.raw StoreMeta FetchMeta DeleteMeta RawClient RiakResponse]
            com.basho.riak.client.http.util.Constants))
 
 
-(defn ^IRiakObject store
+(defn ^com.basho.riak.client.IRiakObject
+  store
   "Stores an object"
-  [^Bucket bucket ^String key value &{ :keys [w dw pw
-                                              ^Boolean return-body ^Boolean if-none-match ^Boolean if-not-modified
-                                              content-type]
-                                      :or {content-type Constants/CTYPE_OCTET_STREAM}}]
-  (println (serialize value content-type))
+  [^String bucket-name ^String key value &{ :keys [w dw pw
+                                                   indexes vclock ^String vtag ^Long last-modified
+                                                   ^Boolean return-body ^Boolean if-none-match ^Boolean if-not-modified
+                                                   content-type metadata]
+                                           :or {content-type Constants/CTYPE_OCTET_STREAM
+                                                metadata     {}}}]
   (let [v               (serialize value content-type)
-        ^StoreObject op (.store bucket key v)]
-    (when r (.r op (to-quorum r)))
-    (.execute op)))
+        ^StoreMeta   md (to-store-meta w dw pw return-body if-none-match if-not-modified)
+        ^IRiakObject ro (to-riak-object :bucket        bucket-name
+                                        :key           key
+                                        :value         v
+                                        :content-type  content-type
+                                        :metadata      metadata
+                                        :indexes       indexes
+                                        :vclock        vclock
+                                        :vtag          vtag
+                                        :last-modified last-modified)
+        ;; implements Iterable. MK.
+        ^RiakResponse xs (.store *riak-client* ro md)]
+    (map from-riak-object xs)))
 
 
-(defn ^IRiakObject fetch
+(defn ^com.basho.riak.client.IRiakObject
+  fetch
   "Fetches an object"
-  [^Bucket bucket ^String key &{ :keys [r pr ^Boolean not-found-ok ^Boolean basic-quorum
-                                        return-deleted-vclock if-modified modified-since
-                                        ^Retrier with-retrier ^ConflictResolver with-resolver ^Converter with-converter]}]
-  (let [^FetchObject op (.fetch bucket key)]
-    (when r                     (.r  op (to-quorum r)))
-    (when pr                    (.pr op (to-quorum pr)))
-    (when not-found-ok          (.notFoundOK  op not-found-ok))
-    (when basic-quorum          (.basicQuorum op basic-quorum))
-    (when return-deleted-vclock (.returnDeletedVClock op return-deleted-vclock))
-    (when if-modified           (.ifModified    op if-modified))
-    (when modified-since        (.ifModified    op modified-since))
-    (when with-retrier          (.withRetrier   op with-retrier))
-    (when with-resolver         (.withResolver  op with-resolver))
-    (when with-converter        (.withConverter op with-converter))
-    (.execute op)))
+  [^String bucket-name ^String key &{:keys [r pr not-found-ok basic-quorum head-only
+                                            return-deleted-vlock if-modified-since if-modified-vclock]
+                                     :or {}}]
+  (let [^FetchMeta md (to-fetch-meta r pr not-found-ok basic-quorum head-only return-deleted-vlock if-modified-since if-modified-vclock)
+        results       (.fetch *riak-client* bucket-name key md)]
+    (for [r (map from-riak-object results)]
+      (assoc r :value (deserialize (:value r) (:content-type r))))))
 
-(defn ^IRiakObject delete
-  "Delete an object"
-  [^Bucket bucket ^String key &{ :keys [r pr w dw pw rw vclock ^Retrier with-retrier fetch-before-delete] }]
-  (let [^DeleteObject op (.delete bucket key)]
-    (when r                     (.r  op (to-quorum r)))
-    (when pr                    (.pr op (to-quorum pr)))
-    (when w                     (.w  op (to-quorum w)))
-    (when dw                    (.dw op (to-quorum dw)))
-    (when pw                    (.pw op (to-quorum pw)))
-    (when rw                    (.rw op (to-quorum rw)))
-    (when with-retrier          (.withRetrier       op with-retrier))
-    (when vclock                (.vclock            op vclock))
-    (when fetch-before-delete   (.fetchBeforeDelete op fetch-before-delete))
-    (.execute op)))
+(defn ^com.basho.riak.client.IRiakObject
+  delete
+  "Deletes an object"
+  [^String bucket-name ^String key &{:keys [r pr w dw pw rw vclock]}]
+  (.delete *riak-client* bucket-name key (to-delete-meta r pr w dw pw rw vclock)))
