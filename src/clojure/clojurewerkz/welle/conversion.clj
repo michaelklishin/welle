@@ -1,6 +1,6 @@
 (ns clojurewerkz.welle.conversion
   (:require [clojure.data.json :as json])
-  (:import [com.basho.riak.client.cap Quora Quorum VClock]
+  (:import [com.basho.riak.client.cap Quora Quorum VClock BasicVClock]
            [com.basho.riak.client.raw StoreMeta FetchMeta DeleteMeta]
            com.basho.riak.client.IRiakObject
            [com.basho.riak.client.builders RiakObjectBuilder BucketPropertiesBuilder]
@@ -44,7 +44,36 @@
 
   Quorum
   (to-quorum [input]
+    input)
+
+  ;; in certain places Riak Java client accepts nulls as valid values
+  ;; for quorum, this is the easiest way to avoid repetitive (if v (to-quorum v) nil)
+  ;; kind of code. Several very experienced Clojure developers confirmed that extending
+  ;; protocols to nil is a reasonable idea. MK.
+  nil
+  (to-quorum [input]
     input))
+
+
+;; VClock
+
+(defprotocol VClockConversion
+  (to-vclock [input] "Converts input to a VClock instance"))
+
+(extend-protocol VClockConversion
+  String
+  (^com.basho.riak.client.cap.VClock to-vclock [^String s]
+    (BasicVClock. (.getBytes s "UTF-8")))
+
+  VClock
+  (to-vclock [^VClock v]
+    v))
+
+(extend byte-array-type
+  VClockConversion
+  {:to-vclock (fn [^bytes input]
+                (BasicVClock. input)) })
+
 
 
 ;; {Store,Fetch,Delete}Meta
@@ -52,8 +81,8 @@
 (defn to-store-meta
   ""
   (^com.basho.riak.client.raw.StoreMeta
-   [r dw pw return-body if-none-match if-not-modified]
-   (StoreMeta. (to-quorum r)
+   [w dw pw return-body if-none-match if-not-modified]
+   (StoreMeta. (to-quorum w)
                (to-quorum dw)
                (to-quorum pw)
                ^Boolean return-body nil
@@ -91,20 +120,32 @@
 (defn to-riak-object
   "Builds a Riak object from a map of attributes"
   (^com.basho.riak.client.IRiakObject
-   [&{:keys [^String bucket ^String key value content-type metadata indexes vclock vtag last-modified]
+   [{:keys [^String bucket ^String key value content-type metadata indexes vclock vtag last-modified]
       :or {content-type Constants/CTYPE_OCTET_STREAM
-           metadata     {}}}]
+           metadata     {}
+           indexes      []}
+      :as options}]
    (let [^RiakObjectBuilder bldr (doto (RiakObjectBuilder/newBuilder bucket key)
                                    (.withValue        value)
                                    (.withContentType  content-type)
                                    (.withUsermeta     metadata))]
-     (when vclock        (.withVClock bldr vclock))
+     (when vclock        (.withVClock bldr ^VClock (to-vclock vclock)))
      (when vtag          (.withVtag bldr vtag))
      (when last-modified (.withLastModified bldr last-modified))
      (doseq [[idx-key idx-vals] indexes
              idx-val idx-vals]
        (.addIndex bldr ^String (name idx-key) idx-val))
      (.build bldr))))
+
+(defn from-riak-object
+  ""
+  [^IRiakObject ro]
+  {:vclock        (.getVClock ro)
+   :content-type  (.getContentType ro)
+   :vtag          (.getVtag ro)
+   :last-modified (.getLastModified ro)
+   :metadata      (into {} (.getMeta ro))
+   :value         (.getValue ro)})
 
 
 ;; Serialization
@@ -136,12 +177,13 @@
 (defmethod serialize Constants/CTYPE_TEXT
   [value _]
   (to-bytes value))
-(defmethod serialize Constants/CTYPE_TEXT_UTF8
-  [value _]
-  (to-bytes value))
 (defmethod serialize :text
   [value _]
   (to-bytes value))
+(defmethod serialize Constants/CTYPE_TEXT_UTF8
+  [value _]
+  (to-bytes value))
+
 
 ;; JSON
 (defmethod serialize Constants/CTYPE_JSON
@@ -155,9 +197,45 @@
   (json/json-str value))
 
 
+(defmulti deserialize (fn [_ content-type]
+                        content-type))
+
+(defmethod deserialize :default
+  [value content-type]
+  (throw (UnsupportedOperationException. (str "Deserializer for content type " content-type " is not defined"))))
+
+(defmethod deserialize Constants/CTYPE_OCTET_STREAM
+  [value _]
+  value)
+(defmethod deserialize :bytes
+  [value _]
+  value)
+(defmethod deserialize Constants/CTYPE_TEXT
+  [value _]
+  (String. ^bytes value))
+(defmethod deserialize :text
+  [value _]
+  (String. ^bytes value))
+(defmethod deserialize Constants/CTYPE_TEXT_UTF8
+  [value _]
+  (String. ^bytes value "UTF-8"))
+
+;; JSON
+(defmethod deserialize Constants/CTYPE_JSON
+  [value _]
+  (json/read-json (String. ^bytes value)))
+(defmethod deserialize :json
+  [value _]
+  (json/read-json (String. ^bytes value)))
+(defmethod deserialize Constants/CTYPE_JSON_UTF8
+  [value _]
+  (json/json-str (String. ^bytes value "UTF-8")))
+
+
+
 (defn ^com.basho.riak.client.bucket.BucketProperties
   to-bucket-properties
-  [&{:keys [^Boolean allow-siblings ^Boolean last-write-wins ^Integer n-val ^String backend
+  [{:keys [^Boolean allow-siblings ^Boolean last-write-wins ^Integer n-val ^String backend
             ^Integer big-vclock
             ^Integer small-vclock
             ^Long    old-vclock
@@ -168,7 +246,13 @@
             r w pr dw rw pw]
      :or {allow-siblings  false
           n-val           3
-          enable-search   false}}]
+          enable-search   false
+          ;; same as BucketPropertiesBuilder defaults for
+          ;; the respective fields (Java int/long field initial values). MK.
+          old-vclock 0
+          young-vclock 0
+          small-vclock 0
+          big-vclock 0}}]
   (let [bldr (doto (BucketPropertiesBuilder.)
                (.r             (to-quorum r))
                (.w             (to-quorum w))
@@ -188,6 +272,26 @@
     (when last-write-wins (.lastWriteWins bldr last-write-wins))
     (when basic-quorum    (.basicQuorum   bldr basic-quorum))
     (.build bldr)))
+
+(defn from-bucket-properties
+  [^BucketProperties props]
+  {:r  (.getR props)
+   :w  (.getW props)
+   :pr (.getPR props)
+   :dw (.getDW props)
+   :rw (.getRW props)
+   :pw (.getPW props)
+   :search         (.getSearch props)
+   :not-found-ok   (.getNotFoundOK props)
+   :basic-quorum   (.getBasicQuorum props)
+   :allow-siblings (.getAllowSiblings props)
+   :last-write-wins (.getLastWriteWins props)
+   :n-val           (.getNVal props)
+   :backend         (.getBackend props)
+   :small-vclock    (.getSmallVClock props)
+   :big-vclock      (.getBigVClock props)
+   :old-vclock      (.getOldVClock props)
+   :young-vclock    (.getYoungVClock props)})
 
 (defn ^com.basho.riak.client.bucket.TunableCAPProps
   to-tunable-cap-props

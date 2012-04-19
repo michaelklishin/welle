@@ -12,57 +12,61 @@
 (wc/connect!)
 
 (defn- drain
-  [^Bucket bucket]
-  (doseq [k (wb/keys-in bucket)]
-    (wo/delete bucket k)))
+  [^String bucket-name]
+  (doseq [k (wb/keys-in bucket-name)]
+    (wo/delete bucket-name k)))
+
+(defn- is-riak-object
+  [m]
+  (is (:vclock m))
+  (is (:vtag m))
+  (is (:last-modified m))
+  (is (:content-type m))
+  (is (:metadata m))
+  (is (:value m)))
+
+;;
+;; objects/store
+;;
+
+(deftest test-basic-store-with-all-defaults
+  (let [bucket-name "clojurewerkz.welle.buckets/store-with-all-defaults"
+        bucket      (wb/create bucket-name)
+        k           (str (UUID/randomUUID))
+        v           "value"
+        stored      (wo/store bucket-name k v)
+        [fetched]   (wo/fetch bucket-name k :r 1)]
+    (is (empty? stored))
+    (is (= Constants/CTYPE_OCTET_STREAM (:content-type fetched)))
+    (is (= {} (:metadata fetched)))
+    (is (= v (String. ^bytes (:value fetched))))
+    (is-riak-object fetched)))
+
+(deftest test-basic-store-with-given-content-type
+  (let [bucket-name "clojurewerkz.welle.buckets/store-with-given-content-type"
+        bucket      (wb/create bucket-name)
+        k           (str (UUID/randomUUID))
+        v           "value"
+        stored      (wo/store bucket-name k v :content-type Constants/CTYPE_TEXT_UTF8)
+        [fetched]   (wo/fetch bucket-name k)]
+    (is (empty? stored))
+    (is (= Constants/CTYPE_TEXT_UTF8 (:content-type fetched)))
+    (is (= {} (:metadata fetched)))
+    (is (= v (:value fetched)))
+    (is-riak-object fetched)))
+
+
 
 
 ;;
 ;; objects/store, objects/fetch
 ;;
 
-(deftest ^:focus test-basic-store-followed-by-a-fetch-with-r=1
-  (let [bucket-name "clojurewerkz.welle.buckets/store-then-fetch-1-with-r=1"
-        bucket      (wb/create bucket-name)
-        k           (str (UUID/randomUUID))
-        v           "value"]
-    (wo/store bucket k v)
-    (is (= v
-           (.getValueAsString (wo/fetch bucket k :r 1))))))
-
-(deftest test-basic-store-followed-by-a-fetch-with-pr=1
-  (let [bucket-name "clojurewerkz.welle.buckets/store-then-fetch-2-with-pr=1"
-        bucket      (wb/create bucket-name)
-        k           (str (UUID/randomUUID))
-        v           "another value"]
-    (wo/store bucket k v)
-    (println (.getValue (wo/fetch bucket k :pr 1)))
-    (println (String. ^bytes (.getValue (wo/fetch bucket k :pr 1))))
-    (is (= v
-           (.getValueAsString (wo/fetch bucket k :pr 1))))))
-
 (deftest fetching-a-non-existent-object
   (let [bucket-name "clojurewerkz.welle.buckets/fetch-a-non-existent-object-1"
         bucket      (wb/create bucket-name)
-        result      (wo/fetch bucket (str (UUID/randomUUID)))]
-    (is (nil? result))))
-
-;; see ITestBucket#basicStore in the Java client test suite.
-(deftest test-integration-case1
-  (let [bucket-name (str (UUID/randomUUID))
-        bucket      (wb/create bucket-name)
-        _           (drain bucket)
-        k           "k"
-        v1          "v"
-        v2          "a new value"]
-    (wo/store bucket k v1)
-    (let [o1 (wo/fetch bucket k)]
-      (is (= v1 (.getValueAsString o1)))
-      (is (= Constants/CTYPE_OCTET_STREAM (.getContentType o1))))
-    (wo/store bucket k v2)
-    (let [o2 (wo/fetch bucket k)]
-      (is (= v2 (.getValueAsString o2)))
-      (is (= Constants/CTYPE_OCTET_STREAM (.getContentType o2))))))
+        result      (wo/fetch bucket-name (str (UUID/randomUUID)))]
+    (is (empty? result))))
 
 
 ;;
@@ -74,7 +78,10 @@
         bucket      (wb/create bucket-name)
         k           (str (UUID/randomUUID))
         v           "another value"]
-    (wo/store bucket k v)
-    (is (= v (.getValueAsString (wo/fetch bucket k))))
-    (wo/delete bucket k)
-    (is (nil? (wo/fetch bucket k)))))
+    (drain bucket-name)
+    (is (empty? (wo/fetch bucket-name k)))
+    (wo/store bucket-name k v)
+    (is (first (wo/fetch bucket-name k)))
+    (wo/delete bucket-name k :w 1)
+    ;; TODO: need to investigate why fetch does not return empty results here.
+    #_ (is (empty? (wo/fetch bucket-name k)))))

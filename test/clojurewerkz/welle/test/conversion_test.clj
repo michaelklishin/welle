@@ -1,12 +1,13 @@
 (ns clojurewerkz.welle.test.conversion-test
   (:use     clojure.test clojurewerkz.welle.conversion)
-  (:import [com.basho.riak.client.cap Quora Quorum BasicVClock]
+  (:import [com.basho.riak.client.cap Quora Quorum VClock BasicVClock]
            com.basho.riak.client.bucket.TunableCAPProps
            com.basho.riak.client.util.CharsetUtils
            com.basho.riak.client.http.util.Constants
            com.basho.riak.client.IRiakObject
            [java.util Date UUID]))
 
+(set! *warn-on-reflection* true)
 
 (defn vclock-for
   [^String s]
@@ -109,7 +110,7 @@
           metadata     {"metakey" "metavalue"}
           indexes      {"handle"  ["johnnyriak"]}
           vclock       (vclock-for "vclock for a riak object")
-          ro           (to-riak-object :bucket bucket :key key :value value :content-type content-type :metadata metadata :indexes indexes :vclock vclock)]
+          ro           (to-riak-object {:bucket bucket :key key :value value :content-type content-type :metadata metadata :indexes indexes :vclock vclock})]
       (is (= bucket       (.getBucket ro)))
       (is (= key          (.getKey ro)))
       (is (= "A value"    (.getValueAsString ro)))
@@ -134,7 +135,7 @@
         rw              5
         pw              6
         enable-search   false
-        props           (to-bucket-properties :allow-siblings  allow-siblings
+        props           (to-bucket-properties {:allow-siblings  allow-siblings
                                               :last-write-wins last-write-wins
                                               :not-found-ok    true
                                               :basic-quorum    true
@@ -149,7 +150,7 @@
                                               :small-vclock   1
                                               :old-vclock     3
                                               :young-vclock   5
-                                              :enable-search  enable-search)]
+                                              :enable-search  enable-search})]
     (is (= (.getR props)  (to-quorum 1)))
     (is (= (.getW props)  (to-quorum 2)))
     (is (= (.getPR props) (to-quorum 3)))
@@ -161,6 +162,16 @@
     (is (.getAllowSiblings props))
     (is (.getLastWriteWins props))
     (is (not (.getSearch props)))))
+
+(deftest test-to-vclock
+  (testing "with byte array inputs"
+    (let [s                "vclocky"
+          ^VClock expected (vclock-for s)
+          ^VClock result   (to-vclock s)]
+      (is (= (.asString expected) (.asString result)))))
+  (testing "with VClock inputs"
+    (let [v (vclock-for "vclock")]
+      (is (= v (to-vclock v))))))
 
 (deftest test-to-tunable-cap-props
   (let [input  {:r 1 :w 2 :dw 3 :rw 4 :pr 5 :pw 6 :basic-quorum true :not-found-ok false}
