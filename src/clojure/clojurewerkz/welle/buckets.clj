@@ -20,8 +20,10 @@
   [^String bucket-name &{ :keys [allow-siblings last-write-wins n-val ^String backend
                                  small-vclock big-vclock young-vclock old-vclock
                                  r pr w dw pw rw
-                                 vclock ^Boolean not-found-ok ^Boolean basic-quorum ^Boolean enable-for-search]}]
-  )
+                                 vclock ^Boolean not-found-ok ^Boolean basic-quorum ^Boolean enable-for-search] :as options}]
+  (.updateBucket *riak-client* bucket-name (to-bucket-properties (or options {})))
+  (merge {:name bucket-name}
+         (from-bucket-properties (.fetchBucket *riak-client* bucket-name))))
 
 (defn list
   "Returns buckets in the cluster as a set"
@@ -32,4 +34,4 @@
 (defn keys-in
   "Returns list of keys in the bucket. This is an expensive operation and typically should be avoided."
   [^String bucket-name]
-  (-> ^BucketResponse (.listBucket *riak-client* bucket-name) .getBucketInfo .getKeys))
+  (.listKeys *riak-client* bucket-name))

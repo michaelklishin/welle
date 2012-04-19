@@ -62,7 +62,7 @@
 
 (extend-protocol VClockConversion
   String
-  (to-vclock [^String s]
+  (^com.basho.riak.client.cap.VClock to-vclock [^String s]
     (BasicVClock. (.getBytes s "UTF-8")))
 
   VClock
@@ -120,7 +120,7 @@
 (defn to-riak-object
   "Builds a Riak object from a map of attributes"
   (^com.basho.riak.client.IRiakObject
-   [&{:keys [^String bucket ^String key value content-type metadata indexes vclock vtag last-modified]
+   [{:keys [^String bucket ^String key value content-type metadata indexes vclock vtag last-modified]
       :or {content-type Constants/CTYPE_OCTET_STREAM
            metadata     {}
            indexes      []}
@@ -129,7 +129,7 @@
                                    (.withValue        value)
                                    (.withContentType  content-type)
                                    (.withUsermeta     metadata))]
-     (when vclock        (.withVClock bldr vclock))
+     (when vclock        (.withVClock bldr ^VClock (to-vclock vclock)))
      (when vtag          (.withVtag bldr vtag))
      (when last-modified (.withLastModified bldr last-modified))
      (doseq [[idx-key idx-vals] indexes
@@ -235,7 +235,7 @@
 
 (defn ^com.basho.riak.client.bucket.BucketProperties
   to-bucket-properties
-  [&{:keys [^Boolean allow-siblings ^Boolean last-write-wins ^Integer n-val ^String backend
+  [{:keys [^Boolean allow-siblings ^Boolean last-write-wins ^Integer n-val ^String backend
             ^Integer big-vclock
             ^Integer small-vclock
             ^Long    old-vclock
@@ -246,7 +246,13 @@
             r w pr dw rw pw]
      :or {allow-siblings  false
           n-val           3
-          enable-search   false}}]
+          enable-search   false
+          ;; same as BucketPropertiesBuilder defaults for
+          ;; the respective fields (Java int/long field initial values). MK.
+          old-vclock 0
+          young-vclock 0
+          small-vclock 0
+          big-vclock 0}}]
   (let [bldr (doto (BucketPropertiesBuilder.)
                (.r             (to-quorum r))
                (.w             (to-quorum w))
@@ -266,6 +272,26 @@
     (when last-write-wins (.lastWriteWins bldr last-write-wins))
     (when basic-quorum    (.basicQuorum   bldr basic-quorum))
     (.build bldr)))
+
+(defn from-bucket-properties
+  [^BucketProperties props]
+  {:r  (.getR props)
+   :w  (.getW props)
+   :pr (.getPR props)
+   :dw (.getDW props)
+   :rw (.getRW props)
+   :pw (.getPW props)
+   :search         (.getSearch props)
+   :not-found-ok   (.getNotFoundOK props)
+   :basic-quorum   (.getBasicQuorum props)
+   :allow-siblings (.getAllowSiblings props)
+   :last-write-wins (.getLastWriteWins props)
+   :n-val           (.getNVal props)
+   :backend         (.getBackend props)
+   :small-vclock    (.getSmallVClock props)
+   :big-vclock      (.getBigVClock props)
+   :old-vclock      (.getOldVClock props)
+   :young-vclock    (.getYoungVClock props)})
 
 (defn ^com.basho.riak.client.bucket.TunableCAPProps
   to-tunable-cap-props

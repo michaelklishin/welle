@@ -9,45 +9,46 @@
 
 (wc/connect!)
 
+(defn- has-bucket-props
+  [props]
+  (doseq [prop [:allow-siblings :last-write-wins :r :w :pr :dw :rw :pw :search :n-val :backend
+                :not-found-ok :small-vclock :big-vclock :young-vclock :old-vclock]]
+    (is (contains? props prop))))
 
 ;;
 ;; buckets/create
 ;;
 
 (deftest test-create-a-new-bucket-with-default-options
-  (let [bucket-name "clojurewerkz.welle.buckets/create-bucket-1"
-        bucket      (wb/create bucket-name)]
-    (is (= (.getName bucket) bucket-name))))
+  (let [bucket-name  "clojurewerkz.welle.buckets/create-bucket-1"
+        bucket-props (wb/create bucket-name)]
+    (has-bucket-props bucket-props)))
 
 
 (deftest test-create-a-new-bucket-with-allow-siblings
-  (let [bucket-name "clojurewerkz.welle.buckets/create-bucket-2"
-        bucket      (wb/create bucket-name :allow-siblings true)]
-    (is (= (.getName bucket) bucket-name))
-    (is (.getAllowSiblings bucket))))
+  (let [bucket-name  "clojurewerkz.welle.buckets/create-bucket-2"
+        bucket-props (wb/create bucket-name :allow-siblings true)]
+    (has-bucket-props bucket-props)
+    (is (:allow-siblings bucket-props))))
 
 
 (deftest test-create-a-new-bucket-with-last-write-wins
-  (let [bucket-name "clojurewerkz.welle.buckets/create-bucket-3"
-        bucket      (wb/create bucket-name :last-write-wins true)]
-    (is (= (.getName bucket) bucket-name))
-    (is (.getLastWriteWins bucket))))
+  (let [bucket-name  "clojurewerkz.welle.buckets/create-bucket-3"
+        bucket-props (wb/create bucket-name :last-write-wins true)]
+    (has-bucket-props bucket-props)
+    (is (:last-write-wins bucket-props))))
 
 
 (deftest test-create-a-new-bucket-with-explicitly-set-n-val
-  (let [bucket-name "clojurewerkz.welle.buckets/create-bucket-4"
-        bucket      (wb/create bucket-name :n-val 1)]
-    (is (= (.getName bucket) bucket-name))
-    (is (= (.getNVal bucket) 1))))
+  (let [bucket-name  "clojurewerkz.welle.buckets/create-bucket-4"
+        bucket-props (wb/create bucket-name :n-val 4)]
+    (has-bucket-props bucket-props)
+    (is (= 4 (:n-val bucket-props)))))
 
 
 (deftest test-create-a-new-bucket-with-explicitly-cap-values
-  (let [bucket-name "clojurewerkz.welle.buckets/create-bucket-5"
-        bucket      (wb/create bucket-name :r 1 :pr 2 :w 3 :dw 4 :pw 5 :rw 6)]
-    (is (= (.getName bucket) bucket-name))
-    (is (= (.getR bucket)  (to-quorum 1)))
-    (is (= (.getPR bucket) (to-quorum 2)))
-    (is (= (.getW bucket)  (to-quorum 3)))
-    (is (= (.getDW bucket) (to-quorum 4)))
-    (is (= (.getPW bucket) (to-quorum 5)))
-    (is (= (.getRW bucket) (to-quorum 6)))))
+  (let [bucket-name  "clojurewerkz.welle.buckets/create-bucket-5"
+        bucket-props (wb/create bucket-name :r 1 :pr 2 :w 3 :dw 4 :pw 5 :rw 6)]
+    (has-bucket-props bucket-props)
+    (are [k v] (is (= (to-quorum v) (k bucket-props)))
+      :r 1 :pr 2 :w 3 :dw 4 :pw 5 :rw 6)))

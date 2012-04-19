@@ -7,6 +7,7 @@
            com.basho.riak.client.IRiakObject
            [java.util Date UUID]))
 
+(set! *warn-on-reflection* true)
 
 (defn vclock-for
   [^String s]
@@ -109,7 +110,7 @@
           metadata     {"metakey" "metavalue"}
           indexes      {"handle"  ["johnnyriak"]}
           vclock       (vclock-for "vclock for a riak object")
-          ro           (to-riak-object :bucket bucket :key key :value value :content-type content-type :metadata metadata :indexes indexes :vclock vclock)]
+          ro           (to-riak-object {:bucket bucket :key key :value value :content-type content-type :metadata metadata :indexes indexes :vclock vclock})]
       (is (= bucket       (.getBucket ro)))
       (is (= key          (.getKey ro)))
       (is (= "A value"    (.getValueAsString ro)))
@@ -134,7 +135,7 @@
         rw              5
         pw              6
         enable-search   false
-        props           (to-bucket-properties :allow-siblings  allow-siblings
+        props           (to-bucket-properties {:allow-siblings  allow-siblings
                                               :last-write-wins last-write-wins
                                               :not-found-ok    true
                                               :basic-quorum    true
@@ -149,7 +150,7 @@
                                               :small-vclock   1
                                               :old-vclock     3
                                               :young-vclock   5
-                                              :enable-search  enable-search)]
+                                              :enable-search  enable-search})]
     (is (= (.getR props)  (to-quorum 1)))
     (is (= (.getW props)  (to-quorum 2)))
     (is (= (.getPR props) (to-quorum 3)))

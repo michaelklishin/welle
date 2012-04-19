@@ -17,15 +17,15 @@
                                                 metadata     {}}}]
   (let [v               (serialize value content-type)
         ^StoreMeta   md (to-store-meta w dw pw return-body if-none-match if-not-modified)
-        ^IRiakObject ro (to-riak-object :bucket        bucket-name
-                                        :key           key
-                                        :value         v
-                                        :content-type  content-type
-                                        :metadata      metadata
-                                        :indexes       indexes
-                                        :vclock        vclock
-                                        :vtag          vtag
-                                        :last-modified last-modified)
+        ^IRiakObject ro (to-riak-object {:bucket        bucket-name
+                                         :key           key
+                                         :value         v
+                                         :content-type  content-type
+                                         :metadata      metadata
+                                         :indexes       indexes
+                                         :vclock        vclock
+                                         :vtag          vtag
+                                         :last-modified last-modified})
         ;; implements Iterable. MK.
         ^RiakResponse xs (.store *riak-client* ro md)]
     (map from-riak-object xs)))
