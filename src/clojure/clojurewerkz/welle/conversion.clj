@@ -7,7 +7,8 @@
            [com.basho.riak.client.builders RiakObjectBuilder BucketPropertiesBuilder]
            [com.basho.riak.client.bucket BucketProperties TunableCAPProps]
            com.basho.riak.client.http.util.Constants
-           com.basho.riak.client.query.indexes.RiakIndex
+           [com.basho.riak.client.query.indexes RiakIndex IntIndex BinIndex]
+           [com.basho.riak.client.raw.query.indexes BinValueQuery BinRangeQuery IntValueQuery IntRangeQuery]
            java.util.Date))
 
 ;;
@@ -123,10 +124,10 @@
   "Builds a Riak object from a map of attributes"
   (^com.basho.riak.client.IRiakObject
    [{:keys [^String bucket ^String key value content-type metadata indexes vclock vtag last-modified]
-      :or {content-type Constants/CTYPE_OCTET_STREAM
-           metadata     {}
-           indexes      []}
-      :as options}]
+     :or {content-type Constants/CTYPE_OCTET_STREAM
+          metadata     {}
+          indexes      []}
+     :as options}]
    (let [^RiakObjectBuilder bldr (doto (RiakObjectBuilder/newBuilder bucket key)
                                    (.withValue        value)
                                    (.withContentType  content-type)
@@ -134,6 +135,7 @@
      (when vclock        (.withVClock bldr ^VClock (to-vclock vclock)))
      (when vtag          (.withVtag bldr vtag))
      (when last-modified (.withLastModified bldr last-modified))
+     ;; TODO: this code breaks when indexed values are not collections
      (doseq [[idx-key idx-vals] indexes
              idx-val idx-vals]
        (.addIndex bldr ^String (name idx-key) idx-val))
@@ -159,6 +161,54 @@
    :metadata      (into {} (.getMeta ro))
    :value         (.getValue ro)
    :indexes       (indexes-from ro)})
+
+
+;; Index queries
+
+(defprotocol IndexQueryConversion
+  (to-range-query [start end bucket-name index-name] "Builds a range 2i query")
+  (to-value-query [value bucket-name index-name] "Builds a value 2i query"))
+
+(extend-protocol IndexQueryConversion
+  String
+  (to-range-query [^String start ^String end ^String bucket-name index-name]
+    (BinRangeQuery. (BinIndex/named (name index-name)) bucket-name start end))
+  (to-value-query [^String value ^String bucket-name index-name]
+    (BinValueQuery. (BinIndex/named (name index-name)) bucket-name value))
+
+
+  Integer
+  (to-range-query [^Integer start ^Integer end ^String bucket-name index-name]
+    (IntRangeQuery. (IntIndex/named (name index-name)) bucket-name start end))
+  (to-value-query [^Integer value ^String bucket-name index-name]
+    (IntValueQuery. (IntIndex/named (name index-name)) bucket-name value))
+
+  
+  Long
+  (to-range-query [^Long start ^Long end ^String bucket-name index-name]
+    (IntRangeQuery. (IntIndex/named (name index-name)) bucket-name (Integer/valueOf start) (Integer/valueOf end)))
+  (to-value-query [^Long value ^String bucket-name index-name]
+    (IntValueQuery. (IntIndex/named (name index-name)) bucket-name (Integer/valueOf value))))
+
+
+
+
+(defmulti ^com.basho.riak.client.raw.query.indexes.IndexQuery
+  to-index-query (fn [value _ _]
+                           (if (coll? value)
+                             :range
+                             :value)))
+(defmethod to-index-query :range
+  [value ^String bucket-name index-name]
+  (let [start (first value)
+        end   (last  value)]
+    (to-range-query start end bucket-name index-name)))
+(defmethod to-index-query :value
+  [value ^String bucket-name index-name]
+  (to-value-query value bucket-name index-name))
+
+
+
 
 
 ;; Serialization
@@ -249,23 +299,23 @@
 (defn ^com.basho.riak.client.bucket.BucketProperties
   to-bucket-properties
   [{:keys [^Boolean allow-siblings ^Boolean last-write-wins ^Integer n-val ^String backend
-            ^Integer big-vclock
-            ^Integer small-vclock
-            ^Long    old-vclock
-            ^Long    young-vclock
-            ^Boolean not-found-ok
-            ^Boolean basic-quorum
-            ^Boolean enable-search
-            r w pr dw rw pw]
-     :or {allow-siblings  false
-          n-val           3
-          enable-search   false
-          ;; same as BucketPropertiesBuilder defaults for
-          ;; the respective fields (Java int/long field initial values). MK.
-          old-vclock 0
-          young-vclock 0
-          small-vclock 0
-          big-vclock 0}}]
+           ^Integer big-vclock
+           ^Integer small-vclock
+           ^Long    old-vclock
+           ^Long    young-vclock
+           ^Boolean not-found-ok
+           ^Boolean basic-quorum
+           ^Boolean enable-search
+           r w pr dw rw pw]
+    :or {allow-siblings  false
+         n-val           3
+         enable-search   false
+         ;; same as BucketPropertiesBuilder defaults for
+         ;; the respective fields (Java int/long field initial values). MK.
+         old-vclock 0
+         young-vclock 0
+         small-vclock 0
+         big-vclock 0}}]
   (let [bldr (doto (BucketPropertiesBuilder.)
                (.r             (to-quorum r))
                (.w             (to-quorum w))
@@ -317,4 +367,3 @@
                     (to-quorum pr)
                     (to-quorum pw)
                     ^Boolean basic-quorum ^Boolean not-found-ok))
-

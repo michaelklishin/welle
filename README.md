@@ -25,6 +25,8 @@ by one of Basho's engineers. If you are evaluating Welle, please consider Sumo a
  * Protocol Buffers and HTTP connection
  * Buckets: create, update, delete
  * Objects: put, fetch, delete
+ * Secondary indexes (2i): indexing, index queries
+ * Content-type based serialization of values
 
 
 ## Supported Clojure versions

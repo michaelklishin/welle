@@ -6,8 +6,14 @@
            com.basho.riak.client.http.util.Constants))
 
 
-(defn ^com.basho.riak.client.IRiakObject
-  store
+
+
+
+;;
+;; API
+;;
+
+(defn store
   "Stores an object"
   [^String bucket-name ^String key value &{ :keys [w dw pw
                                                    indexes vclock ^String vtag ^Long last-modified
@@ -31,8 +37,7 @@
     (map from-riak-object xs)))
 
 
-(defn ^com.basho.riak.client.IRiakObject
-  fetch
+(defn fetch
   "Fetches an object"
   [^String bucket-name ^String key &{:keys [r pr not-found-ok basic-quorum head-only
                                             return-deleted-vlock if-modified-since if-modified-vclock]
@@ -42,8 +47,11 @@
     (for [r (map from-riak-object results)]
       (assoc r :value (deserialize (:value r) (:content-type r))))))
 
-(defn ^com.basho.riak.client.IRiakObject
-  delete
+(defn delete
   "Deletes an object"
   [^String bucket-name ^String key &{:keys [r pr w dw pw rw vclock]}]
   (.delete *riak-client* bucket-name key (to-delete-meta r pr w dw pw rw vclock)))
+
+(defn index-query
+  [^String bucket-name field value]
+  (.fetchIndex *riak-client* (to-index-query value bucket-name field)))

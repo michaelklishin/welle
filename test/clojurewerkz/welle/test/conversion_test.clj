@@ -136,21 +136,21 @@
         pw              6
         enable-search   false
         props           (to-bucket-properties {:allow-siblings  allow-siblings
-                                              :last-write-wins last-write-wins
-                                              :not-found-ok    true
-                                              :basic-quorum    true
-                                              :r               r
-                                              :w               w
-                                              :pr              pr
-                                              :dw              dw
-                                              :rw              rw
-                                              :pw              pw
-                                              :backend        "bitcask"
-                                              :big-vclock     10
-                                              :small-vclock   1
-                                              :old-vclock     3
-                                              :young-vclock   5
-                                              :enable-search  enable-search})]
+                                               :last-write-wins last-write-wins
+                                               :not-found-ok    true
+                                               :basic-quorum    true
+                                               :r               r
+                                               :w               w
+                                               :pr              pr
+                                               :dw              dw
+                                               :rw              rw
+                                               :pw              pw
+                                               :backend        "bitcask"
+                                               :big-vclock     10
+                                               :small-vclock   1
+                                               :old-vclock     3
+                                               :young-vclock   5
+                                               :enable-search  enable-search})]
     (is (= (.getR props)  (to-quorum 1)))
     (is (= (.getW props)  (to-quorum 2)))
     (is (= (.getPR props) (to-quorum 3)))
@@ -184,3 +184,13 @@
     (is (= (Quorum. 6) (.getPW result)))
     (is (.getBasicQuorum result))
     (is (not (.getNotFoundOK result)))))
+
+
+(deftest test-to-index-query
+  (testing "with int values"
+    (let [bucket-name "bucket-o"
+          index-name  "email"
+          value       "johndoe@example.com"
+          query       (to-index-query value bucket-name index-name)]
+      (is (= "email_bin" (.getIndex query)))
+      (is (= bucket-name (.getBucket query))))))
