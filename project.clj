@@ -6,12 +6,15 @@
                  [com.basho.riak/riak-client "1.0.5"]
                  [org.clojure/data.json      "0.1.2"]]
   :source-paths ["src/clojure"]
-  :profiles {:1.4 { :dependencies [[org.clojure/clojure "1.4.0"]] }}
-  :aliases { "all" ["with-profile" "dev:dev,1.4"] }
+  :profiles {:1.4 {:dependencies [[org.clojure/clojure "1.4.0"]]}
+             :1.5 {:dependencies [[org.clojure/clojure "1.5.0-SNAPSHOT"]]}}
+  :aliases {"all" ["with-profile" "dev:dev,1.4:dev,1.5"]
+            "ci"  ["with-profile" "dev:dev,1.4"]}
   :test-selectors {:focus   :focus
+                   :2i      :2i
                    :default (constantly true)}
   :repositories {"clojure-releases" "http://build.clojure.org/releases"
                  "sonatype" {:url "http://oss.sonatype.org/content/repositories/releases"
-                             :snapshots false,
+                             :snapshots false
                              :releases {:checksum :fail :update :always}}}
   :warn-on-reflection true)

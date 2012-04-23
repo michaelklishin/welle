@@ -1,11 +1,13 @@
 (ns clojurewerkz.welle.conversion
-  (:require [clojure.data.json :as json])
+  (:require [clojure.data.json :as json]
+            [clojure.set       :as cs])
   (:import [com.basho.riak.client.cap Quora Quorum VClock BasicVClock]
            [com.basho.riak.client.raw StoreMeta FetchMeta DeleteMeta]
            com.basho.riak.client.IRiakObject
            [com.basho.riak.client.builders RiakObjectBuilder BucketPropertiesBuilder]
            [com.basho.riak.client.bucket BucketProperties TunableCAPProps]
            com.basho.riak.client.http.util.Constants
+           com.basho.riak.client.query.indexes.RiakIndex
            java.util.Date))
 
 ;;
@@ -137,6 +139,16 @@
        (.addIndex bldr ^String (name idx-key) idx-val))
      (.build bldr))))
 
+(defn indexes-from
+  [^IRiakObject ro]
+  (let [indexes (concat (seq (.allBinIndexes ro))
+                        (seq (.allIntIndexes ro)))
+        step    (fn [acc-m ^java.util.HashMap$Entry idx]
+                  (let [idx-name   (keyword (.getName ^RiakIndex (.getKey idx)))
+                        idx-fields (set ^java.util.Set (.getValue idx))]
+                    (merge-with cs/union acc-m {idx-name idx-fields})))]
+    (reduce step {} indexes)))
+
 (defn from-riak-object
   ""
   [^IRiakObject ro]
@@ -145,7 +157,8 @@
    :vtag          (.getVtag ro)
    :last-modified (.getLastModified ro)
    :metadata      (into {} (.getMeta ro))
-   :value         (.getValue ro)})
+   :value         (.getValue ro)
+   :indexes       (indexes-from ro)})
 
 
 ;; Serialization
