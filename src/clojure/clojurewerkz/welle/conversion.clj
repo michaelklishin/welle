@@ -165,6 +165,14 @@
 
 ;; Index queries
 
+(defmacro bin-index
+  [index-name]
+  `(BinIndex/named (name ~index-name)))
+
+(defmacro int-index
+  [index-name]
+  `(IntIndex/named (name ~index-name)))
+
 (defprotocol IndexQueryConversion
   (to-range-query [start end bucket-name index-name] "Builds a range 2i query")
   (to-value-query [value bucket-name index-name] "Builds a value 2i query"))
@@ -172,23 +180,23 @@
 (extend-protocol IndexQueryConversion
   String
   (to-range-query [^String start ^String end ^String bucket-name index-name]
-    (BinRangeQuery. (BinIndex/named (name index-name)) bucket-name start end))
+    (BinRangeQuery. (bin-index index-name) bucket-name start end))
   (to-value-query [^String value ^String bucket-name index-name]
-    (BinValueQuery. (BinIndex/named (name index-name)) bucket-name value))
+    (BinValueQuery. (bin-index index-name) bucket-name value))
 
 
   Integer
   (to-range-query [^Integer start ^Integer end ^String bucket-name index-name]
-    (IntRangeQuery. (IntIndex/named (name index-name)) bucket-name start end))
+    (IntRangeQuery. (int-index index-name) bucket-name start end))
   (to-value-query [^Integer value ^String bucket-name index-name]
-    (IntValueQuery. (IntIndex/named (name index-name)) bucket-name value))
+    (IntValueQuery. (int-index index-name) bucket-name value))
 
 
   Long
   (to-range-query [^Long start ^Long end ^String bucket-name index-name]
-    (IntRangeQuery. (IntIndex/named (name index-name)) bucket-name (Integer/valueOf start) (Integer/valueOf end)))
+    (IntRangeQuery. (int-index index-name) bucket-name (Integer/valueOf start) (Integer/valueOf end)))
   (to-value-query [^Long value ^String bucket-name index-name]
-    (IntValueQuery. (IntIndex/named (name index-name)) bucket-name (Integer/valueOf value))))
+    (IntValueQuery. (int-index index-name) bucket-name (Integer/valueOf value))))
 
 
 
