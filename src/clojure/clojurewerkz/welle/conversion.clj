@@ -183,7 +183,7 @@
   (to-value-query [^Integer value ^String bucket-name index-name]
     (IntValueQuery. (IntIndex/named (name index-name)) bucket-name value))
 
-  
+
   Long
   (to-range-query [^Long start ^Long end ^String bucket-name index-name]
     (IntRangeQuery. (IntIndex/named (name index-name)) bucket-name (Integer/valueOf start) (Integer/valueOf end)))
