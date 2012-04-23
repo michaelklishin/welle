@@ -108,7 +108,7 @@
           value        (to-bytes "A value")
           content-type Constants/CTYPE_OCTET_STREAM
           metadata     {"metakey" "metavalue"}
-          indexes      {"handle"  ["johnnyriak"]}
+          indexes      {"handle"  #{"johnnyriak"}}
           vclock       (vclock-for "vclock for a riak object")
           ro           (to-riak-object {:bucket bucket :key key :value value :content-type content-type :metadata metadata :indexes indexes :vclock vclock})]
       (is (= bucket       (.getBucket ro)))
