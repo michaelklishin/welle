@@ -18,4 +18,5 @@
         stored      (wo/store bucket-name k v :indexes indexes)
         [fetched]   (wo/fetch bucket-name k)]
     (is (:indexes fetched))
-    (is (= indexes (:indexes fetched)))))
+    (is (= indexes (:indexes fetched)))
+    (wo/delete bucket-name k)))
