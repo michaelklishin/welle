@@ -1,11 +1,14 @@
 (ns clojurewerkz.welle.conversion
-  (:require [clojure.data.json :as json])
+  (:require [clojure.data.json :as json]
+            [clojure.set       :as cs])
   (:import [com.basho.riak.client.cap Quora Quorum VClock BasicVClock]
            [com.basho.riak.client.raw StoreMeta FetchMeta DeleteMeta]
            com.basho.riak.client.IRiakObject
            [com.basho.riak.client.builders RiakObjectBuilder BucketPropertiesBuilder]
            [com.basho.riak.client.bucket BucketProperties TunableCAPProps]
            com.basho.riak.client.http.util.Constants
+           [com.basho.riak.client.query.indexes RiakIndex IntIndex BinIndex]
+           [com.basho.riak.client.raw.query.indexes BinValueQuery BinRangeQuery IntValueQuery IntRangeQuery]
            java.util.Date))
 
 ;;
@@ -117,14 +120,16 @@
 
 ;; Clojure <=> IRiakObject
 
+(declare deserialize)
 (defn to-riak-object
-  "Builds a Riak object from a map of attributes"
+  "Builds a Riak object from a Clojure map of well-known attributes:
+   :value, :content-type, :metadata, :indexes, :vclock, :vtag, :last-modified"
   (^com.basho.riak.client.IRiakObject
    [{:keys [^String bucket ^String key value content-type metadata indexes vclock vtag last-modified]
-      :or {content-type Constants/CTYPE_OCTET_STREAM
-           metadata     {}
-           indexes      []}
-      :as options}]
+     :or {content-type Constants/CTYPE_OCTET_STREAM
+          metadata     {}
+          indexes      []}
+     :as options}]
    (let [^RiakObjectBuilder bldr (doto (RiakObjectBuilder/newBuilder bucket key)
                                    (.withValue        value)
                                    (.withContentType  content-type)
@@ -132,20 +137,91 @@
      (when vclock        (.withVClock bldr ^VClock (to-vclock vclock)))
      (when vtag          (.withVtag bldr vtag))
      (when last-modified (.withLastModified bldr last-modified))
+     ;; TODO: this code breaks when indexed values are not collections
      (doseq [[idx-key idx-vals] indexes
-             idx-val idx-vals]
+             idx-val (if (coll? idx-vals) idx-vals [idx-vals])]
        (.addIndex bldr ^String (name idx-key) idx-val))
      (.build bldr))))
 
-(defn from-riak-object
-  ""
+(defn indexes-from
+  "Returns indexes on the given IRiakObject as a Clojure map where values are keywords
+   and values are sets"
   [^IRiakObject ro]
+  (let [indexes (concat (seq (.allBinIndexes ro))
+                        (seq (.allIntIndexes ro)))
+        step    (fn [acc-m ^java.util.HashMap$Entry idx]
+                  (let [idx-name   (keyword (.getName ^RiakIndex (.getKey idx)))
+                        idx-fields (set ^java.util.Set (.getValue idx))]
+                    (merge-with cs/union acc-m {idx-name idx-fields})))]
+    (reduce step {} indexes)))
+
+(defn from-riak-object
+  "Converts IRiakObjects to a Clojure map"
+  [^IRiakObject ro]
+  
   {:vclock        (.getVClock ro)
    :content-type  (.getContentType ro)
    :vtag          (.getVtag ro)
    :last-modified (.getLastModified ro)
    :metadata      (into {} (.getMeta ro))
-   :value         (.getValue ro)})
+   :value         (.getValue ro)
+   :indexes       (indexes-from ro)})
+
+
+;; Index queries
+
+(defmacro bin-index
+  [index-name]
+  `(BinIndex/named (name ~index-name)))
+
+(defmacro int-index
+  [index-name]
+  `(IntIndex/named (name ~index-name)))
+
+(defprotocol IndexQueryConversion
+  (to-range-query [start end bucket-name index-name] "Builds a range 2i query")
+  (to-value-query [value bucket-name index-name] "Builds a value 2i query"))
+
+(extend-protocol IndexQueryConversion
+  String
+  (to-range-query [^String start ^String end ^String bucket-name index-name]
+    (BinRangeQuery. (bin-index index-name) bucket-name start end))
+  (to-value-query [^String value ^String bucket-name index-name]
+    (BinValueQuery. (bin-index index-name) bucket-name value))
+
+
+  Integer
+  (to-range-query [^Integer start ^Integer end ^String bucket-name index-name]
+    (IntRangeQuery. (int-index index-name) bucket-name start end))
+  (to-value-query [^Integer value ^String bucket-name index-name]
+    (IntValueQuery. (int-index index-name) bucket-name value))
+
+
+  Long
+  (to-range-query [^Long start ^Long end ^String bucket-name index-name]
+    (IntRangeQuery. (int-index index-name) bucket-name (Integer/valueOf start) (Integer/valueOf end)))
+  (to-value-query [^Long value ^String bucket-name index-name]
+    (IntValueQuery. (int-index index-name) bucket-name (Integer/valueOf value))))
+
+
+
+
+(defmulti ^com.basho.riak.client.raw.query.indexes.IndexQuery
+  to-index-query (fn [value _ _]
+                           (if (coll? value)
+                             :range
+                             :value)))
+(defmethod to-index-query :range
+  [value ^String bucket-name index-name]
+  (let [start (first value)
+        end   (last  value)]
+    (to-range-query start end bucket-name index-name)))
+(defmethod to-index-query :value
+  [value ^String bucket-name index-name]
+  (to-value-query value bucket-name index-name))
+
+
+
 
 
 ;; Serialization
@@ -171,13 +247,7 @@
 (defmethod serialize Constants/CTYPE_OCTET_STREAM
   [value _]
   (to-bytes value))
-(defmethod serialize :bytes
-  [value _]
-  (to-bytes value))
 (defmethod serialize Constants/CTYPE_TEXT
-  [value _]
-  (to-bytes value))
-(defmethod serialize :text
   [value _]
   (to-bytes value))
 (defmethod serialize Constants/CTYPE_TEXT_UTF8
@@ -192,9 +262,6 @@
 (defmethod serialize Constants/CTYPE_JSON_UTF8
   [value _]
   (json/json-str value))
-(defmethod serialize :json
-  [value _]
-  (json/json-str value))
 
 
 (defmulti deserialize (fn [_ content-type]
@@ -205,9 +272,6 @@
   (throw (UnsupportedOperationException. (str "Deserializer for content type " content-type " is not defined"))))
 
 (defmethod deserialize Constants/CTYPE_OCTET_STREAM
-  [value _]
-  value)
-(defmethod deserialize :bytes
   [value _]
   value)
 (defmethod deserialize Constants/CTYPE_TEXT
@@ -236,23 +300,23 @@
 (defn ^com.basho.riak.client.bucket.BucketProperties
   to-bucket-properties
   [{:keys [^Boolean allow-siblings ^Boolean last-write-wins ^Integer n-val ^String backend
-            ^Integer big-vclock
-            ^Integer small-vclock
-            ^Long    old-vclock
-            ^Long    young-vclock
-            ^Boolean not-found-ok
-            ^Boolean basic-quorum
-            ^Boolean enable-search
-            r w pr dw rw pw]
-     :or {allow-siblings  false
-          n-val           3
-          enable-search   false
-          ;; same as BucketPropertiesBuilder defaults for
-          ;; the respective fields (Java int/long field initial values). MK.
-          old-vclock 0
-          young-vclock 0
-          small-vclock 0
-          big-vclock 0}}]
+           ^Integer big-vclock
+           ^Integer small-vclock
+           ^Long    old-vclock
+           ^Long    young-vclock
+           ^Boolean not-found-ok
+           ^Boolean basic-quorum
+           ^Boolean enable-search
+           r w pr dw rw pw]
+    :or {allow-siblings  false
+         n-val           3
+         enable-search   false
+         ;; same as BucketPropertiesBuilder defaults for
+         ;; the respective fields (Java int/long field initial values). MK.
+         old-vclock 0
+         young-vclock 0
+         small-vclock 0
+         big-vclock 0}}]
   (let [bldr (doto (BucketPropertiesBuilder.)
                (.r             (to-quorum r))
                (.w             (to-quorum w))
@@ -304,4 +368,3 @@
                     (to-quorum pr)
                     (to-quorum pw)
                     ^Boolean basic-quorum ^Boolean not-found-ok))
-

@@ -1,20 +1,13 @@
 (ns clojurewerkz.welle.test.objects-test
-  (:use     clojure.test)
+  (:use     clojure.test
+            [clojurewerkz.welle.testkit :only [drain]])
   (:require [clojurewerkz.welle.core    :as wc]
             [clojurewerkz.welle.buckets :as wb]
             [clojurewerkz.welle.objects :as wo])
-  (:import  [com.basho.riak.client IRiakClient IRiakObject]
-            [com.basho.riak.client.bucket Bucket WriteBucket]
-            [com.basho.riak.client.operations StoreObject FetchObject]
-            com.basho.riak.client.http.util.Constants
+  (:import  com.basho.riak.client.http.util.Constants
             java.util.UUID))
 
 (wc/connect!)
-
-(defn- drain
-  [^String bucket-name]
-  (doseq [k (wb/keys-in bucket-name)]
-    (wo/delete bucket-name k)))
 
 (defn- is-riak-object
   [m]
