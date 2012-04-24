@@ -52,14 +52,11 @@ To subscribe for announcements of releases, important changes and so on, please 
 
 ## Maven Artifacts
 
-### Snapshots
-
-If you are comfortable with using snapshots, snapshot artifacts are [released to Clojars](https://clojars.org/com.novemberain/welle)
-every 24 hours.
+### Most Recent Release
 
 With Leiningen:
 
-    [com.novemberain/welle "0.1.0-SNAPSHOT"]
+    [com.novemberain/welle "1.0.0-alpha1"]
 
 
 With Maven:
@@ -67,7 +64,7 @@ With Maven:
     <dependency>
       <groupId>com.novemberain</groupId>
       <artifactId>welle</artifactId>
-      <version>0.1.0-SNAPSHOT</version>
+      <version>1.0.0-alpha1</version>
     </dependency>
 
 
@@ -89,7 +86,7 @@ CI is hosted by [travis-ci.org](http://travis-ci.org)
 Welle uses [Leiningen 2](https://github.com/technomancy/leiningen/blob/master/doc/TUTORIAL.md). Make
 sure you have it installed and then run tests against all supported Clojure versions using
 
-    lein2 with-profile dev:1.4 test
+    lein2 ci test
 
 Then create a branch and make your changes on it. Once you are done with your changes and all
 tests pass, submit a pull request on Github.

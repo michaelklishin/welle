@@ -1,4 +1,4 @@
-(defproject com.novemberain/welle "0.1.0-SNAPSHOT"
+(defproject com.novemberain/welle "1.0.0-alpha1"
   :description "An experimental idiomatic Clojure library on top of the Riak Java client"
   :license {:name "Eclipse Public License"}
   :min-lein-version "2.0.0"
