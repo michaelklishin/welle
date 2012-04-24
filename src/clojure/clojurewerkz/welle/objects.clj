@@ -37,6 +37,12 @@
     (map from-riak-object xs)))
 
 
+(defn- deserialize-value
+  "Replaces :value key with its deserialized form using :content-type key to
+   get value content type"
+  [m]
+  (assoc m :value (deserialize (:value m) (:content-type m))))
+
 (defn fetch
   "Fetches an object"
   [^String bucket-name ^String key &{:keys [r pr not-found-ok basic-quorum head-only
@@ -44,8 +50,7 @@
                                      :or {}}]
   (let [^FetchMeta md (to-fetch-meta r pr not-found-ok basic-quorum head-only return-deleted-vlock if-modified-since if-modified-vclock)
         results       (.fetch *riak-client* bucket-name key md)]
-    (for [r (map from-riak-object results)]
-      (assoc r :value (deserialize (:value r) (:content-type r))))))
+    (map (comp deserialize-value from-riak-object) results)))
 
 (defn delete
   "Deletes an object"

@@ -120,8 +120,10 @@
 
 ;; Clojure <=> IRiakObject
 
+(declare deserialize)
 (defn to-riak-object
-  "Builds a Riak object from a map of attributes"
+  "Builds a Riak object from a Clojure map of well-known attributes:
+   :value, :content-type, :metadata, :indexes, :vclock, :vtag, :last-modified"
   (^com.basho.riak.client.IRiakObject
    [{:keys [^String bucket ^String key value content-type metadata indexes vclock vtag last-modified]
      :or {content-type Constants/CTYPE_OCTET_STREAM
@@ -137,11 +139,13 @@
      (when last-modified (.withLastModified bldr last-modified))
      ;; TODO: this code breaks when indexed values are not collections
      (doseq [[idx-key idx-vals] indexes
-             idx-val idx-vals]
+             idx-val (if (coll? idx-vals) idx-vals [idx-vals])]
        (.addIndex bldr ^String (name idx-key) idx-val))
      (.build bldr))))
 
 (defn indexes-from
+  "Returns indexes on the given IRiakObject as a Clojure map where values are keywords
+   and values are sets"
   [^IRiakObject ro]
   (let [indexes (concat (seq (.allBinIndexes ro))
                         (seq (.allIntIndexes ro)))
@@ -152,8 +156,9 @@
     (reduce step {} indexes)))
 
 (defn from-riak-object
-  ""
+  "Converts IRiakObjects to a Clojure map"
   [^IRiakObject ro]
+  
   {:vclock        (.getVClock ro)
    :content-type  (.getContentType ro)
    :vtag          (.getVtag ro)
@@ -242,13 +247,7 @@
 (defmethod serialize Constants/CTYPE_OCTET_STREAM
   [value _]
   (to-bytes value))
-(defmethod serialize :bytes
-  [value _]
-  (to-bytes value))
 (defmethod serialize Constants/CTYPE_TEXT
-  [value _]
-  (to-bytes value))
-(defmethod serialize :text
   [value _]
   (to-bytes value))
 (defmethod serialize Constants/CTYPE_TEXT_UTF8
@@ -263,9 +262,6 @@
 (defmethod serialize Constants/CTYPE_JSON_UTF8
   [value _]
   (json/json-str value))
-(defmethod serialize :json
-  [value _]
-  (json/json-str value))
 
 
 (defmulti deserialize (fn [_ content-type]
@@ -276,9 +272,6 @@
   (throw (UnsupportedOperationException. (str "Deserializer for content type " content-type " is not defined"))))
 
 (defmethod deserialize Constants/CTYPE_OCTET_STREAM
-  [value _]
-  value)
-(defmethod deserialize :bytes
   [value _]
   value)
 (defmethod deserialize Constants/CTYPE_TEXT
