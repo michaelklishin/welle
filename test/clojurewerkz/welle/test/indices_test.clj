@@ -1,6 +1,7 @@
 (ns clojurewerkz.welle.test.indices-test
   (:use clojure.test
-        [clojurewerkz.welle.testkit :only [drain]])
+        [clojurewerkz.welle.testkit :only [drain]]
+        [clojure.set :only [subset?]])
   (:require [clojurewerkz.welle.core    :as wc]
             [clojurewerkz.welle.buckets :as wb]
             [clojurewerkz.welle.objects :as wo])
@@ -39,6 +40,24 @@
     (wo/delete bucket-name k)))
 
 
+(deftest ^{:2i true} test-basic-index-query-with-a-range-of-string-values
+  (let [bucket-name "clojurewerkz.welle.test.indices-test"
+        bucket      (wb/create bucket-name)
+        k1          (str (UUID/randomUUID))
+        k2          (str (UUID/randomUUID))
+        k3          (str (UUID/randomUUID))
+        k4          (str (UUID/randomUUID))
+        v           (.getBytes "value1")
+        _           (wo/store bucket-name k1 v :indexes {:username #{"abc"}} :content-type Constants/CTYPE_OCTET_STREAM)
+        _           (wo/store bucket-name k2 v :indexes {:username #{"bcd"}} :content-type Constants/CTYPE_OCTET_STREAM)
+        _           (wo/store bucket-name k3 v :indexes {:username #{"cde"}} :content-type Constants/CTYPE_OCTET_STREAM)
+        _           (wo/store bucket-name k4 v :indexes {:username #{"def"}} :content-type Constants/CTYPE_OCTET_STREAM)
+        keys        (set (wo/index-query bucket-name :username ["b" "d"]))]
+    (is (subset? #{k2 k3} keys))
+    (wo/delete-all bucket-name [k1 k2 k3 k4])
+    (wo/delete-all bucket-name keys)))
+
+
 (deftest ^{:2i true} test-basic-index-query-with-a-single-integer-value
   (let [bucket-name "clojuyrewerkz.welle.test.indices-test"
         bucket      (wb/create bucket-name)
@@ -52,3 +71,21 @@
     (is (= (:value fetched) v))
     (is (= (:indexes fetched) {:age #{27}}))
     (wo/delete bucket-name k)))
+
+
+(deftest ^{:2i true} test-basic-index-query-with-a-range-of-integer-values
+  (let [bucket-name "clojurewerkz.welle.test.indices-test"
+        bucket      (wb/create bucket-name)
+        k1          (str (UUID/randomUUID))
+        k2          (str (UUID/randomUUID))
+        k3          (str (UUID/randomUUID))
+        k4          (str (UUID/randomUUID))
+        v           (.getBytes "value1")
+        _           (wo/store bucket-name k1 v :indexes {:hops #{1 2 3 4}} :content-type Constants/CTYPE_OCTET_STREAM)
+        _           (wo/store bucket-name k2 v :indexes {:hops #{5 6 7 8}} :content-type Constants/CTYPE_OCTET_STREAM)
+        _           (wo/store bucket-name k3 v :indexes {:hops #{9 10 11 12}} :content-type Constants/CTYPE_OCTET_STREAM)
+        _           (wo/store bucket-name k4 v :indexes {:hops #{13 14 18 77}} :content-type Constants/CTYPE_OCTET_STREAM)
+        keys        (set (wo/index-query bucket-name :hops [2 11]))]
+    (is (subset? #{k1 k2 k3} keys))
+    (wo/delete-all bucket-name [k1 k2 k3 k4])
+    (wo/delete-all bucket-name keys)))

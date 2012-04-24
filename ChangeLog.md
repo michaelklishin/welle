@@ -1,6 +1,11 @@
 ## Changes between Welle 1.0.0-alpha1 and 1.0.0-alpha2
 
-No changes yet.
+### clojurewerkz.welle.objects/delete-all
+
+`clojurewerkz.welle.objects/delete-all` is a convenient way to delete multiple keys. Since Riak (as of version 1.1) does
+not provide a way to delete multiple objects in a single request, this function will use [clojure.core/pmap](http://clojuredocs.org/clojure_core/clojure.core/pmap) to perform
+multiple concurrent deletion requests. This implementation may or may not be suitable for your use case.
+
 
 
 ## Changes between Welle 0.1.0 and 1.0.0-alpha1

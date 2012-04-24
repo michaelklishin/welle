@@ -5,8 +5,15 @@
            [com.basho.riak.client.raw StoreMeta FetchMeta DeleteMeta RawClient RiakResponse]
            com.basho.riak.client.http.util.Constants))
 
+;;
+;; Implementation
+;;
 
-
+(defn- deserialize-value
+  "Replaces :value key with its deserialized form using :content-type key to
+   get value content type"
+  [m]
+  (assoc m :value (deserialize (:value m) (:content-type m))))
 
 
 ;;
@@ -37,12 +44,6 @@
     (map from-riak-object xs)))
 
 
-(defn- deserialize-value
-  "Replaces :value key with its deserialized form using :content-type key to
-   get value content type"
-  [m]
-  (assoc m :value (deserialize (:value m) (:content-type m))))
-
 (defn fetch
   "Fetches an object"
   [^String bucket-name ^String key &{:keys [r pr not-found-ok basic-quorum head-only
@@ -52,11 +53,28 @@
         results       (.fetch *riak-client* bucket-name key md)]
     (map (comp deserialize-value from-riak-object) results)))
 
+(defn index-query
+  "Performs a secondary index (2i) query. Provided value can be either non-collection
+   or a collection (typically vector). In the former case, a value query is performed. In the latter
+   case, a range query is performed.
+
+   Learn more in Riak's documentation on secondary indexes at http://wiki.basho.com/Secondary-Indexes.html"
+  [^String bucket-name field value]
+  (.fetchIndex *riak-client* (to-index-query value bucket-name field)))
+
+
+
 (defn delete
   "Deletes an object"
   [^String bucket-name ^String key &{:keys [r pr w dw pw rw vclock]}]
   (.delete *riak-client* bucket-name key (to-delete-meta r pr w dw pw rw vclock)))
 
-(defn index-query
-  [^String bucket-name field value]
-  (.fetchIndex *riak-client* (to-index-query value bucket-name field)))
+(defn delete-all
+  "Deletes multiple objects. This function relies on clojure.core/pmap to delete multiple keys,
+   so it may be inappropriate for cases where any potential race conditions between individual delete
+   operations is a problem. For deleting a very large number of keys (say, thousands), onsider using
+   map/reduce"
+  [^String bucket-name keys & rest]
+  (pmap (fn [^String k]
+          (apply delete (concat [bucket-name k] rest)))
+        keys))
