@@ -26,12 +26,14 @@ by one of Basho's engineers. If you are evaluating Welle, please consider Sumo a
  * Buckets: create, update, delete
  * Objects: put, fetch, delete
  * Secondary indexes (2i): indexing, index queries
- * Content-type based serialization of values
+ * Content-type based serialization of values in common formats (bytes, JSON, Clojure data/reader, UTF-8 text)
 
 
 ## Supported Clojure versions
 
-Welle is built from the ground up for Clojure 1.3 and up.
+Welle is built from the ground up for Clojure 1.3 and up. To store dates/instants with Clojure data serialization, Clojure 1.4.0
+is the minimum required version because Clojure 1.3 reader cannot handle `java.util.Date` instances. As such, Clojure 1.4 is
+recommended.
 
 
 ## Documentation & Examples
@@ -56,7 +58,7 @@ To subscribe for announcements of releases, important changes and so on, please 
 
 With Leiningen:
 
-    [com.novemberain/welle "1.0.0-alpha1"]
+    [com.novemberain/welle "1.0.0-alpha2"]
 
 
 With Maven:
@@ -64,7 +66,7 @@ With Maven:
     <dependency>
       <groupId>com.novemberain</groupId>
       <artifactId>welle</artifactId>
-      <version>1.0.0-alpha1</version>
+      <version>1.0.0-alpha2</version>
     </dependency>
 
 
