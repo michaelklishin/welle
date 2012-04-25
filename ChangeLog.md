@@ -1,4 +1,29 @@
+## Changes between Welle 1.0.0-alpha2 and 1.0.0-alpha3
+
+No changes yet.
+
+
 ## Changes between Welle 1.0.0-alpha1 and 1.0.0-alpha2
+
+### Clojure Serialization Support
+
+If content type passed to `clojurewerkz.welle.objects/store` is `application/clojure`, Clojure reader will be used to serialize
+and deserialize object value. On Clojure 1.4+, this means you can transparently store and fetch objects that include dates, too
+(thanks to 1.4's extensible reader/instant literal support).
+
+
+### JSON Serialization Bug Fixes
+
+Welle now works around [this Java client bug](https://github.com/basho/riak-java-client/issues/125) that used to break
+`application/json; charset=UTF-8` serialization.
+
+
+
+### User Metadata Normalization 
+
+`clojurewerkz.welle.objects/store` now normalizes metadata by stringifying all keys and requiring that all values
+are strings. This is due to the current (Riak 1.1) Java client limitations.
+
 
 ### clojurewerkz.welle.objects/delete-all
 
