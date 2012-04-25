@@ -266,11 +266,6 @@
 
 (defmulti deserialize (fn [_ content-type]
                         content-type))
-
-(defmethod deserialize :default
-  [value content-type]
-  (throw (UnsupportedOperationException. (str "Deserializer for content type " content-type " is not defined"))))
-
 (defmethod deserialize Constants/CTYPE_OCTET_STREAM
   [value _]
   value)
@@ -288,12 +283,13 @@
 (defmethod deserialize Constants/CTYPE_JSON
   [value _]
   (json/read-json (String. ^bytes value)))
-(defmethod deserialize :json
-  [value _]
-  (json/read-json (String. ^bytes value)))
 (defmethod deserialize Constants/CTYPE_JSON_UTF8
   [value _]
-  (json/json-str (String. ^bytes value "UTF-8")))
+  (json/read-json (String. ^bytes value "UTF-8")))
+(defmethod deserialize :default
+  [value content-type]
+  (throw (UnsupportedOperationException. (str "Deserializer for content type " content-type " is not defined"))))
+
 
 
 

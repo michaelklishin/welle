@@ -33,7 +33,8 @@
     (is (= Constants/CTYPE_OCTET_STREAM (:content-type fetched)))
     (is (= {} (:metadata fetched)))
     (is (= v (String. ^bytes (:value fetched))))
-    (is-riak-object fetched)))
+    (is-riak-object fetched)
+    (drain bucket-name)))
 
 (deftest test-basic-store-with-given-content-type
   (let [bucket-name "clojurewerkz.welle.buckets/store-with-given-content-type"
@@ -46,8 +47,24 @@
     (is (= Constants/CTYPE_TEXT_UTF8 (:content-type fetched)))
     (is (= {} (:metadata fetched)))
     (is (= v (:value fetched)))
-    (is-riak-object fetched)))
+    (is-riak-object fetched)
+    (drain bucket-name)))
 
+
+(deftest test-basic-store-with-metadata
+  (let [bucket-name "clojurewerkz.welle.buckets/store-with-given-content-type"
+        bucket      (wb/create bucket-name)
+        k           (str (UUID/randomUUID))
+        v           "value"
+        ;; metadata values currently have to be strings. MK.
+        metadata    {:author "Joe" :density "5"}
+        stored      (wo/store bucket-name k v :content-type Constants/CTYPE_TEXT_UTF8 :metadata metadata)
+        [fetched]   (wo/fetch bucket-name k)]
+    (is (= Constants/CTYPE_TEXT_UTF8 (:content-type fetched)))
+    (is (= {"author" "Joe", "density" "5"} (:metadata fetched)))
+    (is (= v (:value fetched)))
+    (is-riak-object fetched)
+    (drain bucket-name)))
 
 
 

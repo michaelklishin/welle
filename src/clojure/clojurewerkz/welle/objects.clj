@@ -1,6 +1,7 @@
 (ns clojurewerkz.welle.objects
   (:use clojurewerkz.welle.core
-        clojurewerkz.welle.conversion)
+        clojurewerkz.welle.conversion
+        [clojure.walk :only [stringify-keys]])
   (:import [com.basho.riak.client IRiakClient IRiakObject]
            [com.basho.riak.client.raw StoreMeta FetchMeta DeleteMeta RawClient RiakResponse]
            com.basho.riak.client.http.util.Constants))
@@ -34,7 +35,7 @@
                                          :key           key
                                          :value         v
                                          :content-type  content-type
-                                         :metadata      metadata
+                                         :metadata      (stringify-keys metadata)
                                          :indexes       indexes
                                          :vclock        vclock
                                          :vtag          vtag
