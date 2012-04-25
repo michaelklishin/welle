@@ -15,7 +15,6 @@ by one of Basho's engineers. If you are evaluating Welle, please consider Sumo a
  * Be well tested.
  * Target Clojure 1.3.0 and later from the ground up.
  * Integrate with libraries like clojure.data.json and Joda Time.
- * Provide support for unit testing: factories/fixtures DSL, collection cleaner functions, clojure.test integration and so on.
  * Support URI connections to be friendly to Heroku and other PaaS providers.
  * Learn from other clients like the Java and Ruby ones.
 
