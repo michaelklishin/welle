@@ -283,7 +283,14 @@
 (defmethod deserialize Constants/CTYPE_JSON
   [value _]
   (json/read-json (String. ^bytes value)))
+;; as of Riak Java client 1.1, this constant's value is "application/json;charset=UTF-8"
+;; (no space between base content type and parameters). However, Riak returns content type *with*
+;; the space so we have to cover both. Reported to Basho at https://github.com/basho/riak-java-client/issues/125.
+;; MK.
 (defmethod deserialize Constants/CTYPE_JSON_UTF8
+  [value _]
+  (json/read-json (String. ^bytes value "UTF-8")))
+(defmethod deserialize "application/json; charset=UTF-8"
   [value _]
   (json/read-json (String. ^bytes value "UTF-8")))
 (defmethod deserialize :default

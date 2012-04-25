@@ -36,7 +36,7 @@
     (is-riak-object fetched)
     (drain bucket-name)))
 
-(deftest test-basic-store-with-given-content-type
+(deftest test-basic-store-with-text-utf8-content-type
   (let [bucket-name "clojurewerkz.welle.buckets/store-with-given-content-type"
         bucket      (wb/create bucket-name)
         k           (str (UUID/randomUUID))
@@ -51,8 +51,36 @@
     (drain bucket-name)))
 
 
+(deftest test-basic-store-with-json-content-type
+  (let [bucket-name "clojurewerkz.welle.buckets/store-with-json-content-type"
+        bucket      (wb/create bucket-name)
+        k           (str (UUID/randomUUID))
+        v           {:name "Riak" :kind "Data store" :influenced-by #{"Dynamo"}}
+        stored      (wo/store bucket-name k v :content-type Constants/CTYPE_JSON)
+        [fetched]   (wo/fetch bucket-name k)]
+    (is (empty? stored))
+    (is (= Constants/CTYPE_JSON (:content-type fetched)))
+    (is (= {} (:metadata fetched)))
+    (is (= {:kind "Data store", :name "Riak", :influenced-by ["Dynamo"]} (:value fetched)))
+    (is-riak-object fetched)
+    (drain bucket-name)))
+
+
+(deftest test-basic-store-with-json-utf-8content-type
+  (let [bucket-name "clojurewerkz.welle.buckets/store-with-json-utf-8content-type"
+        bucket      (wb/create bucket-name)
+        k           (str (UUID/randomUUID))
+        v           {:name "Riak" :kind "Data store" :influenced-by #{"Dynamo"}}
+        stored      (wo/store bucket-name k v :content-type Constants/CTYPE_JSON_UTF8)
+        [fetched]   (wo/fetch bucket-name k)]
+    ;; cannot use constant value here, see https://github.com/basho/riak-java-client/issues/125
+    (is (= "application/json; charset=UTF-8"  (:content-type fetched)))
+    (is (= {:kind "Data store", :name "Riak", :influenced-by ["Dynamo"]} (:value fetched)))
+    (drain bucket-name)))
+
+
 (deftest test-basic-store-with-metadata
-  (let [bucket-name "clojurewerkz.welle.buckets/store-with-given-content-type"
+  (let [bucket-name "clojurewerkz.welle.buckets/store-with-given-metadata"
         bucket      (wb/create bucket-name)
         k           (str (UUID/randomUUID))
         v           "value"
