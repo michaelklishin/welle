@@ -7,6 +7,13 @@
   (:import  com.basho.riak.client.http.util.Constants
             java.util.UUID))
 
+(println (str "Using Clojure version " *clojure-version*))
+
+;; when on 1.4, use dates in the example because Clojure 1.4's reader can handle them
+(def clojure14? (> (long (get *clojure-version* :minor)) 3))
+
+
+
 (wc/connect!)
 
 (defn- is-riak-object
@@ -88,10 +95,12 @@
   (let [bucket-name "clojurewerkz.welle.buckets/store-with-application-clojure-content-type"
         bucket      (wb/create bucket-name)
         k           (str (UUID/randomUUID))
-        ;; once we go Clojure 1.4+, we can add date to this map, too. Clojure 1.4's extensible reader has extensions for
-        ;; Date/instant serialization but 1.3 will fail. MK.
-        v           {:city "New York City" :state "NY" :year 2011 :participants #{"johndoe" "timsmith" "michaelblack"}
-                     :venue {:name "Sheraton New York Hotel & Towers" :address "811 Seventh Avenue" :street "Seventh Avenue"}}
+        v           (merge {:city "New York City" :state "NY" :year 2011 :participants #{"johndoe" "timsmith" "michaelblack"}
+                            :venue {:name "Sheraton New York Hotel & Towers" :address "811 Seventh Avenue" :street "Seventh Avenue"}}
+                           ;; on Clojure 1.4+, we can add date to this map, too. Clojure 1.4's extensible reader has extensions for
+                           ;; Date/instant serialization but 1.3 will fail. MK.                           
+                           (when clojure14?
+                             {:date (java.util.Date.)}))
         ct          "application/clojure"
         stored      (wo/store bucket-name k v :content-type ct)
         [fetched]   (wo/fetch bucket-name k)]
