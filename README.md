@@ -1,6 +1,6 @@
-# Welle
+# Welle, a Clojure client for Riak
 
-Welle is an experimental idiomatic Clojure client for Riak built on top of the Riak Java driver.
+Welle is a young idiomatic Clojure client for Riak built on top of the Riak Java driver.
 Its API and code style closely follow other ClojureWerkz projects, namely [Neocons](https://github.com/michaelklishin/neocons), [Elastisch](https://github.com/clojurewerkz/elastisch)
 and [Monger](https://github.com/michaelklishin/monger).
 
