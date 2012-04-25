@@ -208,9 +208,9 @@
 
 (defmulti ^com.basho.riak.client.raw.query.indexes.IndexQuery
   to-index-query (fn [value _ _]
-                           (if (coll? value)
-                             :range
-                             :value)))
+                   (if (coll? value)
+                     :range
+                     :value)))
 (defmethod to-index-query :range
   [value ^String bucket-name index-name]
   (let [start (first value)
@@ -263,6 +263,13 @@
   [value _]
   (json/json-str value))
 
+;; Clojure
+(defmethod serialize "application/clojure"
+  [value _]
+  (binding [*print-dup* true]
+    (pr-str value)))
+
+
 
 (defmulti deserialize (fn [_ content-type]
                         content-type))
@@ -293,6 +300,14 @@
 (defmethod deserialize "application/json; charset=UTF-8"
   [value _]
   (json/read-json (String. ^bytes value "UTF-8")))
+
+;; Clojure
+(defmethod deserialize "application/clojure"
+  [value _]
+  (binding [*print-dup* true]
+    (read-string (String. ^bytes value))))
+
+
 (defmethod deserialize :default
   [value content-type]
   (throw (UnsupportedOperationException. (str "Deserializer for content type " content-type " is not defined"))))

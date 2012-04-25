@@ -19,7 +19,7 @@
   (is (:value m)))
 
 ;;
-;; objects/store
+;; Basics
 ;;
 
 (deftest test-basic-store-with-all-defaults
@@ -35,6 +35,11 @@
     (is (= v (String. ^bytes (:value fetched))))
     (is-riak-object fetched)
     (drain bucket-name)))
+
+
+;;
+;; Automatic serialization/deserialization for common content types
+;;
 
 (deftest test-basic-store-with-text-utf8-content-type
   (let [bucket-name "clojurewerkz.welle.buckets/store-with-given-content-type"
@@ -66,8 +71,8 @@
     (drain bucket-name)))
 
 
-(deftest test-basic-store-with-json-utf-8content-type
-  (let [bucket-name "clojurewerkz.welle.buckets/store-with-json-utf-8content-type"
+(deftest test-basic-store-with-json-utf8-content-type
+  (let [bucket-name "clojurewerkz.welle.buckets/store-with-json-utf8-content-type"
         bucket      (wb/create bucket-name)
         k           (str (UUID/randomUUID))
         v           {:name "Riak" :kind "Data store" :influenced-by #{"Dynamo"}}
@@ -78,6 +83,27 @@
     (is (= {:kind "Data store", :name "Riak", :influenced-by ["Dynamo"]} (:value fetched)))
     (drain bucket-name)))
 
+
+(deftest test-basic-store-with-application-clojure-content-type
+  (let [bucket-name "clojurewerkz.welle.buckets/store-with-application-clojure-content-type"
+        bucket      (wb/create bucket-name)
+        k           (str (UUID/randomUUID))
+        ;; once we go Clojure 1.4+, we can add date to this map, too. Clojure 1.4's extensible reader has extensions for
+        ;; Date/instant serialization but 1.3 will fail. MK.
+        v           {:city "New York City" :state "NY" :year 2011 :participants #{"johndoe" "timsmith" "michaelblack"}
+                     :venue {:name "Sheraton New York Hotel & Towers" :address "811 Seventh Avenue" :street "Seventh Avenue"}}
+        ct          "application/clojure"
+        stored      (wo/store bucket-name k v :content-type ct)
+        [fetched]   (wo/fetch bucket-name k)]
+    ;; cannot use constant value here, see https://github.com/basho/riak-java-client/issues/125
+    (is (= ct  (:content-type fetched)))
+    (is (= v (:value fetched)))
+    (drain bucket-name)))
+
+
+;;
+;; Metadata
+;;
 
 (deftest test-basic-store-with-metadata
   (let [bucket-name "clojurewerkz.welle.buckets/store-with-given-metadata"
