@@ -1,6 +1,7 @@
 (ns clojurewerkz.welle.conversion
   (:require [clojure.data.json :as json]
-            [clojure.set       :as cs])
+            [clojure.set       :as cs]
+            [clojure.java.io   :as io])
   (:import [com.basho.riak.client.cap Quora Quorum VClock BasicVClock]
            [com.basho.riak.client.raw StoreMeta FetchMeta DeleteMeta]
            com.basho.riak.client.IRiakObject
@@ -9,7 +10,9 @@
            com.basho.riak.client.http.util.Constants
            [com.basho.riak.client.query.indexes RiakIndex IntIndex BinIndex]
            [com.basho.riak.client.raw.query.indexes BinValueQuery BinRangeQuery IntValueQuery IntRangeQuery]
-           java.util.Date))
+           java.util.Date
+           [java.io ByteArrayOutputStream PrintWriter InputStreamReader ByteArrayInputStream]
+           [java.util.zip GZIPOutputStream GZIPInputStream]))
 
 ;;
 ;; Implementation
@@ -75,7 +78,7 @@
 (extend byte-array-type
   VClockConversion
   {:to-vclock (fn [^bytes input]
-                (BasicVClock. input)) })
+                (BasicVClock. input))})
 
 
 
@@ -262,6 +265,16 @@
 (defmethod serialize Constants/CTYPE_JSON_UTF8
   [value _]
   (json/json-str value))
+;; a way to support GZip content encoding for both HTTP and PB interfaces.
+(defmethod serialize "application/json+gzip"
+  [value _]
+  (with-open [out    (ByteArrayOutputStream.)
+              gzip   (GZIPOutputStream. out)
+              writer (PrintWriter. gzip)]
+    (json/write-json value writer true)
+    (.flush writer)
+    (.finish gzip)
+    (.toByteArray out)))
 
 ;; Clojure
 (defmethod serialize "application/clojure"
@@ -300,6 +313,10 @@
 (defmethod deserialize "application/json; charset=UTF-8"
   [value _]
   (json/read-json (String. ^bytes value "UTF-8")))
+(defmethod deserialize "application/json+gzip"
+  [value _]
+  (with-open [in (GZIPInputStream. (ByteArrayInputStream. ^bytes value))]
+    (json/read-json (InputStreamReader. in "UTF-8"))))
 
 ;; Clojure
 (defmethod deserialize "application/clojure"

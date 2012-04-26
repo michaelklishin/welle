@@ -110,6 +110,24 @@
     (drain bucket-name)))
 
 
+(deftest test-basic-store-with-json+gzip-content-type
+  (let [bucket-name "clojurewerkz.welle.buckets/store-with-json+gzip-content-type"
+        bucket      (wb/create bucket-name)
+        k           (str (UUID/randomUUID))
+        v           {:name "Riak" :kind "Data store" :influenced-by #{"Dynamo"}}
+        ;; compatible with both HTTP and PB APIs. Content-Encoding would be a better
+        ;; idea here but PB cannot support it (as of Riak 1.1). MK.
+        ct          "application/json+gzip"
+        stored      (wo/store bucket-name k v :content-type ct)
+        [fetched]   (wo/fetch bucket-name k)]
+    (is (empty? stored))
+    (is (= ct (:content-type fetched)))
+    (is (= {} (:metadata fetched)))
+    (is (= {:kind "Data store", :name "Riak", :influenced-by ["Dynamo"]} (:value fetched)))
+    (is-riak-object fetched)
+    (drain bucket-name)))
+
+
 ;;
 ;; Metadata
 ;;
