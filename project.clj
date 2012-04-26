@@ -9,8 +9,7 @@
   :source-paths ["src/clojure"]
   :profiles       {:1.4 {:dependencies [[org.clojure/clojure "1.4.0"]]}
                    :1.5 {:dependencies [[org.clojure/clojure "1.5.0-master-SNAPSHOT"]]}}
-  :aliases        {"ci"  ["with-profile" "dev:dev,1.4"]
-                   "all" ["with-profile" "dev:dev,1.4:dev,1.5"]}
+  :aliases        {"all" ["with-profile" "dev:dev,1.4:dev,1.5"]}
   :test-selectors {:focus   :focus
                    :2i      :2i
                    :default (constantly true)}
