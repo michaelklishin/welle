@@ -1,6 +1,9 @@
 ## Changes between Welle 1.0.0-alpha2 and 1.0.0-alpha3
 
-No changes yet.
+### GZipped JSON Serialization Support
+
+New `application/json+gzip` content type serializer allows Riak object values to be serialized as JSON and compressed
+with gzip (using JDK's GZip implementation). Compatible with both HTTP and PB interfaces.
 
 
 ## Changes between Welle 1.0.0-alpha1 and 1.0.0-alpha2
