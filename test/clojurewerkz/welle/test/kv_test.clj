@@ -1,9 +1,9 @@
-(ns clojurewerkz.welle.test.objects-test
+(ns clojurewerkz.welle.test.kv-test
   (:use     clojure.test
             [clojurewerkz.welle.testkit :only [drain]])
   (:require [clojurewerkz.welle.core    :as wc]
             [clojurewerkz.welle.buckets :as wb]
-            [clojurewerkz.welle.objects :as wo])
+            [clojurewerkz.welle.kv      :as kv])
   (:import  com.basho.riak.client.http.util.Constants
             java.util.UUID))
 
@@ -34,8 +34,8 @@
         bucket      (wb/create bucket-name)
         k           (str (UUID/randomUUID))
         v           "value"
-        stored      (wo/store bucket-name k v)
-        [fetched]   (wo/fetch bucket-name k :r 1)]
+        stored      (kv/store bucket-name k v)
+        [fetched]   (kv/fetch bucket-name k :r 1)]
     (is (empty? stored))
     (is (= Constants/CTYPE_OCTET_STREAM (:content-type fetched)))
     (is (= {} (:metadata fetched)))
@@ -53,8 +53,8 @@
         bucket      (wb/create bucket-name)
         k           (str (UUID/randomUUID))
         v           "value"
-        stored      (wo/store bucket-name k v :content-type Constants/CTYPE_TEXT_UTF8)
-        [fetched]   (wo/fetch bucket-name k)]
+        stored      (kv/store bucket-name k v :content-type Constants/CTYPE_TEXT_UTF8)
+        [fetched]   (kv/fetch bucket-name k)]
     (is (empty? stored))
     (is (= Constants/CTYPE_TEXT_UTF8 (:content-type fetched)))
     (is (= {} (:metadata fetched)))
@@ -68,8 +68,8 @@
         bucket      (wb/create bucket-name)
         k           (str (UUID/randomUUID))
         v           {:name "Riak" :kind "Data store" :influenced-by #{"Dynamo"}}
-        stored      (wo/store bucket-name k v :content-type Constants/CTYPE_JSON)
-        [fetched]   (wo/fetch bucket-name k)]
+        stored      (kv/store bucket-name k v :content-type Constants/CTYPE_JSON)
+        [fetched]   (kv/fetch bucket-name k)]
     (is (empty? stored))
     (is (= Constants/CTYPE_JSON (:content-type fetched)))
     (is (= {} (:metadata fetched)))
@@ -83,8 +83,8 @@
         bucket      (wb/create bucket-name)
         k           (str (UUID/randomUUID))
         v           {:name "Riak" :kind "Data store" :influenced-by #{"Dynamo"}}
-        stored      (wo/store bucket-name k v :content-type Constants/CTYPE_JSON_UTF8)
-        [fetched]   (wo/fetch bucket-name k)]
+        stored      (kv/store bucket-name k v :content-type Constants/CTYPE_JSON_UTF8)
+        [fetched]   (kv/fetch bucket-name k)]
     ;; cannot use constant value here, see https://github.com/basho/riak-java-client/issues/125
     (is (= "application/json; charset=UTF-8"  (:content-type fetched)))
     (is (= {:kind "Data store", :name "Riak", :influenced-by ["Dynamo"]} (:value fetched)))
@@ -102,8 +102,8 @@
                            (when clojure14?
                              {:date (java.util.Date.)}))
         ct          "application/clojure"
-        stored      (wo/store bucket-name k v :content-type ct)
-        [fetched]   (wo/fetch bucket-name k)]
+        stored      (kv/store bucket-name k v :content-type ct)
+        [fetched]   (kv/fetch bucket-name k)]
     ;; cannot use constant value here, see https://github.com/basho/riak-java-client/issues/125
     (is (= ct  (:content-type fetched)))
     (is (= v (:value fetched)))
@@ -118,8 +118,8 @@
         ;; compatible with both HTTP and PB APIs. Content-Encoding would be a better
         ;; idea here but PB cannot support it (as of Riak 1.1). MK.
         ct          "application/json+gzip"
-        stored      (wo/store bucket-name k v :content-type ct)
-        [fetched]   (wo/fetch bucket-name k)]
+        stored      (kv/store bucket-name k v :content-type ct)
+        [fetched]   (kv/fetch bucket-name k)]
     (is (empty? stored))
     (is (= ct (:content-type fetched)))
     (is (= {} (:metadata fetched)))
@@ -139,8 +139,8 @@
         v           "value"
         ;; metadata values currently have to be strings. MK.
         metadata    {:author "Joe" :density "5"}
-        stored      (wo/store bucket-name k v :content-type Constants/CTYPE_TEXT_UTF8 :metadata metadata)
-        [fetched]   (wo/fetch bucket-name k)]
+        stored      (kv/store bucket-name k v :content-type Constants/CTYPE_TEXT_UTF8 :metadata metadata)
+        [fetched]   (kv/fetch bucket-name k)]
     (is (= Constants/CTYPE_TEXT_UTF8 (:content-type fetched)))
     (is (= {"author" "Joe", "density" "5"} (:metadata fetched)))
     (is (= v (:value fetched)))
@@ -156,7 +156,7 @@
 (deftest fetching-a-non-existent-object
   (let [bucket-name "clojurewerkz.welle.buckets/fetch-a-non-existent-object-1"
         bucket      (wb/create bucket-name)
-        result      (wo/fetch bucket-name (str (UUID/randomUUID)))]
+        result      (kv/fetch bucket-name (str (UUID/randomUUID)))]
     (is (empty? result))))
 
 
@@ -170,9 +170,9 @@
         k           (str (UUID/randomUUID))
         v           "another value"]
     (drain bucket-name)
-    (is (empty? (wo/fetch bucket-name k)))
-    (wo/store bucket-name k v)
-    (is (first (wo/fetch bucket-name k)))
-    (wo/delete bucket-name k :w 1)
+    (is (empty? (kv/fetch bucket-name k)))
+    (kv/store bucket-name k v)
+    (is (first (kv/fetch bucket-name k)))
+    (kv/delete bucket-name k :w 1)
     ;; TODO: need to investigate why fetch does not return empty results here.
-    #_ (is (empty? (wo/fetch bucket-name k)))))
+    #_ (is (empty? (kv/fetch bucket-name k)))))

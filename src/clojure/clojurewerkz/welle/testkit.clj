@@ -1,7 +1,7 @@
 (ns ^{:doc "Utility functions useful for unit and integration testing of applications
             that use Welle"}
   clojurewerkz.welle.testkit
-  (:require [clojurewerkz.welle.objects :as wo]
+  (:require [clojurewerkz.welle.kv      :as kv]
             [clojurewerkz.welle.buckets :as wb]))
 
 ;;
@@ -14,4 +14,4 @@
    in the bucket."
   [^String bucket-name]
   (doseq [k (wb/keys-in bucket-name)]
-    (wo/delete bucket-name k)))
+    (kv/delete bucket-name k)))

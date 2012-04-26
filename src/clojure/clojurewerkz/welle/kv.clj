@@ -1,4 +1,4 @@
-(ns clojurewerkz.welle.objects
+(ns clojurewerkz.welle.kv
   (:use clojurewerkz.welle.core
         clojurewerkz.welle.conversion
         [clojure.walk :only [stringify-keys]])

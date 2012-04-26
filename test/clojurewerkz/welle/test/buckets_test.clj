@@ -1,8 +1,7 @@
 (ns clojurewerkz.welle.test.buckets-test
   (:use     clojure.test clojurewerkz.welle.conversion)
   (:require [clojurewerkz.welle.core    :as wc]
-            [clojurewerkz.welle.buckets :as wb]
-            [clojurewerkz.welle.objects :as wo])
+            [clojurewerkz.welle.buckets :as wb])
   (:import  [com.basho.riak.client IRiakClient IRiakObject]
             [com.basho.riak.client.bucket Bucket WriteBucket]
             [com.basho.riak.client.operations StoreObject FetchObject]))

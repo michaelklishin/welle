@@ -1,3 +1,11 @@
+## Changes between Welle 1.0.0-alpha3 and 1.0.0-alpha4
+
+### clojurewerkz.welle.objects is now clojurewerkz.welle.kv
+
+`clojurewerkz.welle.objects` namespace was renamed to `clojurewerkz.welle.kv`
+
+
+
 ## Changes between Welle 1.0.0-alpha2 and 1.0.0-alpha3
 
 ### GZipped JSON Serialization Support
