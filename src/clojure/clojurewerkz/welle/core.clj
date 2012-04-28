@@ -22,7 +22,13 @@
   ([]
      (connect default-url))
   ([^String url]
-     (HTTPClientAdapter. (com.basho.riak.client.http.RiakClient. ^String url))))
+     (let [c (HTTPClientAdapter. (com.basho.riak.client.http.RiakClient. ^String url))]
+       (.generateAndSetClientId c)
+       c))
+  ([^String url ^bytes client-id]
+     (let [^RawClient c (connect url)]
+       (.setClientId c client-id)
+       c)))
 
 (defn connect!
   ([]
@@ -44,6 +50,11 @@
   ([host port]
      (alter-var-root (var *riak-client*) (constantly (connect host port)))))
 
+(defmacro with-client
+  [client & forms]
+  `(binding [*riak-client* ~client]
+     (do ~@forms)))
+
 
 (defn ping
   ([]
@@ -56,3 +67,12 @@
      (.shutdown *riak-client*))
   ([^RawClient client]
      (.shutdown client)))
+
+
+(defn get-client-id
+  []
+  (.getClientId *riak-client*))
+
+(defn stats
+  []
+  (.stats *riak-client*))

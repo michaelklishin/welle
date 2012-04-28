@@ -1,5 +1,11 @@
 ## Changes between Welle 1.0.0-alpha3 and 1.0.0-alpha4
 
+### Client Id Support
+
+`clojurewerkz.welle.core/connect` now has one more arity that lets client id to be specified. In addition,
+if client id is not specified explicitly, it will be generated and set.
+
+
 ### clojurewerkz.welle.objects is now clojurewerkz.welle.kv
 
 `clojurewerkz.welle.objects` namespace was renamed to `clojurewerkz.welle.kv`
