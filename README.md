@@ -10,13 +10,12 @@ by one of Basho's engineers. If you are evaluating Welle, please consider Sumo a
 
 ## Project Goals
 
- * Be well maintained.
- * Be well documented.
- * Be well tested.
- * Target Clojure 1.3.0 and later from the ground up.
- * Integrate with libraries like clojure.data.json and Joda Time.
- * Support URI connections to be friendly to Heroku and other PaaS providers.
- * Learn from other clients like the Java and Ruby ones.
+ * Be well maintained
+ * Be [well documented](http://clojureriak.info)
+ * Be [well tested](https://github.com/michaelklishin/welle/tree/master/test/clojurewerkz/welle/test)
+ * Target Clojure 1.3.0 and later from the ground up
+ * Batteries included: [clojure.core.cache](http://github.com/clojure/core.cache) implementation on top of Riak and so on
+ * Be friendly to Heroku and other PaaS providers
 
 
 ## Supported Features
