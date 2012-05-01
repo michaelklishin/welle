@@ -35,13 +35,9 @@ is the minimum required version because Clojure 1.3 reader cannot handle `java.u
 recommended.
 
 
-## Documentation & Examples
+## Getting Started
 
-Welle is a young project and until 1.0 is released and documentation guides are written,
-it may be challenging to use for anyone except the author. For code examples, see our test
-suite.
-
-Once documentation site is up, we will update this document.
+Please refer to our [Getting Started with Clojure and Riak](http://clojureriak.info/articles/getting_started.html) guide.
 
 
 ## Community
@@ -69,10 +65,13 @@ With Maven:
     </dependency>
 
 
+## Documentation & Examples
 
-## This is a Work In Progress
+Welle is a young project and [documentation guide](http://clojureriak.info) are not fully written yet. Documentation is one
+of the top priorities for the project and we are improving things week after week.
 
-Welle is very much a work in progress and right now, please keep this in mind.
+For code examples, see our test suite.
+
 
 
 ## Continuous Integration
