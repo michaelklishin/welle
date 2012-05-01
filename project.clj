@@ -5,7 +5,8 @@
   :dependencies [[org.clojure/clojure        "1.3.0"]
                  [com.basho.riak/riak-client "1.0.5"]
                  [org.clojure/data.json      "0.1.2"]
-                 [clojurewerkz/support       "0.2.0"]]
+                 [clojurewerkz/support       "0.2.0"]
+                 [com.novemberain/validateur "1.1.0"]]
   :source-paths ["src/clojure"]
   :profiles       {:1.4 {:dependencies [[org.clojure/clojure "1.4.0"]]}
                    :1.5 {:dependencies [[org.clojure/clojure "1.5.0-master-SNAPSHOT"]]}}
