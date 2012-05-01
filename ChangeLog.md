@@ -1,5 +1,10 @@
 ## Changes between Welle 1.0.0-alpha3 and 1.0.0-alpha4
 
+### Validateur 1.1.0
+
+[Validateur](https://github.com/michaelklishin/validateur) dependency has been upgraded to 1.1.0.
+
+
 ### Client Id Support
 
 `clojurewerkz.welle.core/connect` now has one more arity that lets client id to be specified. In addition,
