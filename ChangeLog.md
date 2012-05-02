@@ -1,5 +1,15 @@
 ## Changes between Welle 1.0.0-alpha3 and 1.0.0-alpha4
 
+### clojurewerkz.welle.kv/fetch-one
+
+`clojurewerkz.welle.kv/fetch-one` is a convenience function for fetching objects in cases where conflicts/siblings are not expected.
+For example, it is common to use "last write wins" strategy for caches and such. `clojurewerkz.welle.kv/fetch-one` works
+the same way `clojurewerkz.welle.kv/fetch` does (and accepts exactly the same arguments) but always returns a single object,
+not a list.
+
+In case the response contains siblings, a `IllegalStateException` will be thrown.
+
+
 ### Validateur 1.1.0
 
 [Validateur](https://github.com/michaelklishin/validateur) dependency has been upgraded to 1.1.0.

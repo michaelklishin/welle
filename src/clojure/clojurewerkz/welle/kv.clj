@@ -22,7 +22,7 @@
 ;;
 
 (defn store
-  "Stores an object"
+  "Stores an object in Riak"
   [^String bucket-name ^String key value &{ :keys [w dw pw
                                                    indexes vclock ^String vtag ^Long last-modified
                                                    ^Boolean return-body ^Boolean if-none-match ^Boolean if-not-modified
@@ -46,13 +46,31 @@
 
 
 (defn fetch
-  "Fetches an object"
+  "Fetches an object and all its siblings (if there are any). As such, it always returns a list. In cases you are
+   sure will produce no siblings, consider using `clojurewerkz.welle.kv/fetch-one`."
   [^String bucket-name ^String key &{:keys [r pr not-found-ok basic-quorum head-only
                                             return-deleted-vlock if-modified-since if-modified-vclock]
                                      :or {}}]
   (let [^FetchMeta md (to-fetch-meta r pr not-found-ok basic-quorum head-only return-deleted-vlock if-modified-since if-modified-vclock)
         results       (.fetch *riak-client* bucket-name key md)]
     (map (comp deserialize-value from-riak-object) results)))
+
+(defn fetch-one
+  "Fetches a single object. This is a convenience function: it optimistically assumes there will be only one
+   objects and no siblings. In situations when you are not sure about this, consider using `clojurewerkz.welle.kv/fetch`
+   instead."
+  [^String bucket-name ^String key &{:keys [r pr not-found-ok basic-quorum head-only
+                                            return-deleted-vlock if-modified-since if-modified-vclock]
+                                     :or {}}]
+  (let [^FetchMeta md (to-fetch-meta r pr not-found-ok basic-quorum head-only return-deleted-vlock if-modified-since if-modified-vclock)
+        results       (.fetch *riak-client* bucket-name key md)]
+    (if (.hasSiblings results)
+      (throw (IllegalStateException.
+              "Riak response to clojurewerkz.welle.kv/fetch-one contains siblings. If conflicts/siblings are expected here, use clojurewerkz.welle.kv/fetch"))
+      (-> (first results)
+          from-riak-object
+          deserialize-value))))
+
 
 (defn index-query
   "Performs a secondary index (2i) query. Provided value can be either non-collection

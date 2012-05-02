@@ -30,7 +30,7 @@
 ;;
 
 (deftest test-basic-store-with-all-defaults
-  (let [bucket-name "clojurewerkz.welle.buckets/store-with-all-defaults"
+  (let [bucket-name "clojurewerkz.welle.kv/store-with-all-defaults"
         bucket      (wb/create bucket-name)
         k           (str (UUID/randomUUID))
         v           "value"
@@ -49,7 +49,7 @@
 ;;
 
 (deftest test-basic-store-with-text-utf8-content-type
-  (let [bucket-name "clojurewerkz.welle.buckets/store-with-given-content-type"
+  (let [bucket-name "clojurewerkz.welle.kv/store-with-given-content-type"
         bucket      (wb/create bucket-name)
         k           (str (UUID/randomUUID))
         v           "value"
@@ -64,7 +64,7 @@
 
 
 (deftest test-basic-store-with-json-content-type
-  (let [bucket-name "clojurewerkz.welle.buckets/store-with-json-content-type"
+  (let [bucket-name "clojurewerkz.welle.kv/store-with-json-content-type"
         bucket      (wb/create bucket-name)
         k           (str (UUID/randomUUID))
         v           {:name "Riak" :kind "Data store" :influenced-by #{"Dynamo"}}
@@ -79,7 +79,7 @@
 
 
 (deftest test-basic-store-with-json-utf8-content-type
-  (let [bucket-name "clojurewerkz.welle.buckets/store-with-json-utf8-content-type"
+  (let [bucket-name "clojurewerkz.welle.kv/store-with-json-utf8-content-type"
         bucket      (wb/create bucket-name)
         k           (str (UUID/randomUUID))
         v           {:name "Riak" :kind "Data store" :influenced-by #{"Dynamo"}}
@@ -92,7 +92,7 @@
 
 
 (deftest test-basic-store-with-application-clojure-content-type
-  (let [bucket-name "clojurewerkz.welle.buckets/store-with-application-clojure-content-type"
+  (let [bucket-name "clojurewerkz.welle.kv/store-with-application-clojure-content-type"
         bucket      (wb/create bucket-name)
         k           (str (UUID/randomUUID))
         v           (merge {:city "New York City" :state "NY" :year 2011 :participants #{"johndoe" "timsmith" "michaelblack"}
@@ -111,7 +111,7 @@
 
 
 (deftest test-basic-store-with-json+gzip-content-type
-  (let [bucket-name "clojurewerkz.welle.buckets/store-with-json+gzip-content-type"
+  (let [bucket-name "clojurewerkz.welle.kv/store-with-json+gzip-content-type"
         bucket      (wb/create bucket-name)
         k           (str (UUID/randomUUID))
         v           {:name "Riak" :kind "Data store" :influenced-by #{"Dynamo"}}
@@ -133,7 +133,7 @@
 ;;
 
 (deftest test-basic-store-with-metadata
-  (let [bucket-name "clojurewerkz.welle.buckets/store-with-given-metadata"
+  (let [bucket-name "clojurewerkz.welle.kv/store-with-given-metadata"
         bucket      (wb/create bucket-name)
         k           (str (UUID/randomUUID))
         v           "value"
@@ -150,22 +150,34 @@
 
 
 ;;
-;; objects/store, objects/fetch
+;; kv/fetch, kv/fetch-one
 ;;
 
-(deftest fetching-a-non-existent-object
-  (let [bucket-name "clojurewerkz.welle.buckets/fetch-a-non-existent-object-1"
+(deftest test-fetching-a-non-existent-object
+  (let [bucket-name "clojurewerkz.welle.kv/fetch-a-non-existent-object-1"
         bucket      (wb/create bucket-name)
         result      (kv/fetch bucket-name (str (UUID/randomUUID)))]
     (is (empty? result))))
 
+(deftest test-optimistic-fetching-of-a-single-object
+  (let [bucket-name "clojurewerkz.welle.kv/test-optimistic-fetching-a-single-object"
+        bucket      (wb/create bucket-name)
+        k           (str (UUID/randomUUID))
+        v           "value"
+        stored      (kv/store bucket-name k v)
+        fetched     (kv/fetch-one bucket-name k :r 1)]
+    (is (= Constants/CTYPE_OCTET_STREAM (:content-type fetched)))
+    (is (= {} (:metadata fetched)))
+    (is (= v (String. ^bytes (:value fetched))))
+    (is-riak-object fetched)
+    (drain bucket-name)))
 
 ;;
-;; objects/delete
+;; kv/delete
 ;;
 
-(deftest fetch-deleted-value
-  (let [bucket-name "clojurewerkz.welle.buckets/fetch-deleted-value"
+(deftest test-fetching-deleted-value
+  (let [bucket-name "clojurewerkz.welle.kv/test-fetching-deleted-value"
         bucket      (wb/create bucket-name)
         k           (str (UUID/randomUUID))
         v           "another value"]
