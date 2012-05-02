@@ -91,7 +91,7 @@
 (defn delete-all
   "Deletes multiple objects. This function relies on clojure.core/pmap to delete multiple keys,
    so it may be inappropriate for cases where any potential race conditions between individual delete
-   operations is a problem. For deleting a very large number of keys (say, thousands), onsider using
+   operations is a problem. For deleting a very large number of keys (say, thousands), consider using
    map/reduce"
   [^String bucket-name keys & rest]
   (pmap (fn [^String k]
