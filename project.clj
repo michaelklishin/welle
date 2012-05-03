@@ -1,5 +1,6 @@
 (defproject com.novemberain/welle "1.0.0-SNAPSHOT"
   :description "An experimental idiomatic Clojure library on top of the Riak Java client"
+  :url "http://clojureriak.info"  
   :license {:name "Eclipse Public License"}
   :min-lein-version "2.0.0"
   :dependencies [[org.clojure/clojure        "1.3.0"]
