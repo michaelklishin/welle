@@ -85,7 +85,7 @@
 
 (def ^{:private true :const true} bucket-name "welle.test.cache_entries")
 (use-fixtures :each (fn [f]
-                      (wb/create bucket-name :last-write-wins true :r 1 :w 1)
+                      (wb/update bucket-name :last-write-wins true :r 1 :w 1)
                       (f)
                       (drain bucket-name)))
 

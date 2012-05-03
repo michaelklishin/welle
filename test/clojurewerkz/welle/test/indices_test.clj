@@ -12,7 +12,7 @@
 
 (deftest ^{:2i true} test-indexes-on-converted-riak-objects
   (let [bucket-name "clojurewerkz.welle.test.indices-test"
-        bucket      (wb/create bucket-name)
+        bucket      (wb/update bucket-name)
         k           (str (UUID/randomUUID))
         v           "value"
         indexes     {:email    #{"john@example.com"}
@@ -26,7 +26,7 @@
 
 (deftest ^{:2i true} test-basic-index-query-with-a-single-string-value
   (let [bucket-name "clojurewerkz.welle.test.indices-test"
-        bucket      (wb/create bucket-name)
+        bucket      (wb/update bucket-name)
         k           (str (UUID/randomUUID))
         v           (.getBytes "value")
         indexes     {:email #{"johndoe@example.com" "timsmith@example.com"}}
@@ -42,7 +42,7 @@
 
 (deftest ^{:2i true} test-basic-index-query-with-a-range-of-string-values
   (let [bucket-name "clojurewerkz.welle.test.indices-test"
-        bucket      (wb/create bucket-name)
+        bucket      (wb/update bucket-name)
         k1          (str (UUID/randomUUID))
         k2          (str (UUID/randomUUID))
         k3          (str (UUID/randomUUID))
@@ -60,7 +60,7 @@
 
 (deftest ^{:2i true} test-basic-index-query-with-a-single-integer-value
   (let [bucket-name "clojuyrewerkz.welle.test.indices-test"
-        bucket      (wb/create bucket-name)
+        bucket      (wb/update bucket-name)
         k           (str (UUID/randomUUID))
         v           "value"
         indexes     {:age 27}
@@ -75,7 +75,7 @@
 
 (deftest ^{:2i true} test-basic-index-query-with-a-range-of-integer-values
   (let [bucket-name "clojurewerkz.welle.test.indices-test"
-        bucket      (wb/create bucket-name)
+        bucket      (wb/update bucket-name)
         k1          (str (UUID/randomUUID))
         k2          (str (UUID/randomUUID))
         k3          (str (UUID/randomUUID))

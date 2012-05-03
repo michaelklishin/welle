@@ -1,6 +1,9 @@
 ## Changes between Welle 1.0.0-alpha4 and 1.0.0-alpha5
 
-No changes yet.
+### clojurewerkz.welle.buckets/create is now clojurewerkz.welle.buckets/update
+
+`clojurewerkz.welle.buckets/update` better reflects what the function really does. However, `clojurewerkz.welle.buckets/create` may
+reflect the intent a bit better in certain cases so it is kept for backwards compatibility.
 
 
 ## Changes between Welle 1.0.0-alpha3 and 1.0.0-alpha4

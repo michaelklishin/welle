@@ -15,8 +15,14 @@
 ;; API
 ;;
 
-(defn ^Bucket create
-  "Creates a bucket"
+(defn fetch
+  "Fetches bucket properties"
+  [^String bucket-name]
+  (merge {:name bucket-name}
+         (from-bucket-properties (.fetchBucket *riak-client* bucket-name))))
+
+(defn update
+  "Updates bucket properties"
   [^String bucket-name &{ :keys [allow-siblings last-write-wins n-val ^String backend
                                  small-vclock big-vclock young-vclock old-vclock
                                  r pr w dw pw rw
@@ -25,13 +31,20 @@
   (merge {:name bucket-name}
          (from-bucket-properties (.fetchBucket *riak-client* bucket-name))))
 
+(defn ^{:deprecated true} create
+  "The same as update. This name reveals the intent a bit better in some cases.
+   Kept for backwards compatibility, will be removed in the future"
+  [& args]
+  (apply update args))
+
 (defn list
   "Returns buckets in the cluster as a set"
   []
-  (-> ^ListBucketsResponse (.listBuckets *riak-client*) .getBuckets))
+  (set (.listBuckets *riak-client*)))
 
 
 (defn keys-in
-  "Returns list of keys in the bucket. This is an expensive operation and typically should be avoided."
+  "Returns list of keys in the bucket. With any non-trivial number of keys, this is a VERY EXPENSIVE operation
+   and typically should be avoided"
   [^String bucket-name]
   (.listKeys *riak-client* bucket-name))

@@ -330,7 +330,7 @@
   (throw (UnsupportedOperationException. (str "Deserializer for content type " content-type " is not defined"))))
 
 
-
+(def ^{:private true} not-nil? (comp not nil?))
 
 (defn ^com.basho.riak.client.bucket.BucketProperties
   to-bucket-properties
@@ -367,9 +367,9 @@
                (.bigVClock     big-vclock)
                (.oldVClock     old-vclock)
                (.youngVClock   young-vclock))]
-    (when not-found-ok    (.notFoundOK    bldr not-found-ok))
-    (when last-write-wins (.lastWriteWins bldr last-write-wins))
-    (when basic-quorum    (.basicQuorum   bldr basic-quorum))
+    (when (not-nil? not-found-ok)    (.notFoundOK    bldr not-found-ok))
+    (when (not-nil? last-write-wins) (.lastWriteWins bldr last-write-wins))
+    (when (not-nil? basic-quorum)    (.basicQuorum   bldr basic-quorum))
     (.build bldr)))
 
 (defn from-bucket-properties
