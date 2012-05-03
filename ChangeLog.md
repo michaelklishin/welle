@@ -1,5 +1,13 @@
 ## Changes between Welle 1.0.0-alpha3 and 1.0.0-alpha4
 
+### Map/Reduce support: clojurewerkz.welle.mr
+
+Initial map/reduce queries support has been implemented, everything related to it
+resides under the new `clojurewerkz.welle.mr` namespace.
+
+
+
+
 ### clojurewerkz.welle.kv/fetch-one
 
 `clojurewerkz.welle.kv/fetch-one` is a convenience function for fetching objects in cases where conflicts/siblings are not expected.
