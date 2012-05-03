@@ -10,10 +10,17 @@
                  [com.novemberain/validateur "1.1.0"]]
   :source-paths ["src/clojure"]
   :profiles       {:1.4 {:dependencies [[org.clojure/clojure "1.4.0"]]}
-                   :1.5 {:dependencies [[org.clojure/clojure "1.5.0-master-SNAPSHOT"]]}}
+                   :1.5 {:dependencies [[org.clojure/clojure "1.5.0-master-SNAPSHOT"]]}
+                   :dev {:dependencies [[org.clojure/core.cache "0.5.0" :exclusions [org.clojure/clojure]]]}}
+  :mailing-list {:name "clojure-riak"
+                 :archive "https://groups.google.com/group/clojure-riak"
+                 :post "clojure-riak@googlegroups.com"}  
   :aliases        {"all" ["with-profile" "dev:dev,1.4:dev,1.5"]}
   :test-selectors {:focus   :focus
                    :2i      :2i
+                   :cache   :cache
+                   :mr      :mr
+                   :search  :search
                    :default (constantly true)}
   :repositories   {"sonatype" {:url "http://oss.sonatype.org/content/repositories/releases"
                                :snapshots false

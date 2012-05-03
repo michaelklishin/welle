@@ -1,3 +1,8 @@
+## Changes between Welle 1.0.0-alpha4 and 1.0.0-alpha5
+
+No changes yet.
+
+
 ## Changes between Welle 1.0.0-alpha3 and 1.0.0-alpha4
 
 ### Map/Reduce support: clojurewerkz.welle.mr
@@ -6,6 +11,10 @@ Initial map/reduce queries support has been implemented, everything related to i
 resides under the new `clojurewerkz.welle.mr` namespace.
 
 
+### clojure.core.cache implementation on top of Riak: clojurewerkz.welle.cache
+
+`clojurewerkz.welle.cache` provides an implementation of [clojure.core.cache](https://github.com/clojure/core.cache) cache store
+protocol on top of Riak.
 
 
 ### clojurewerkz.welle.kv/fetch-one

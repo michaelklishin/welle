@@ -67,9 +67,10 @@
     (if (.hasSiblings results)
       (throw (IllegalStateException.
               "Riak response to clojurewerkz.welle.kv/fetch-one contains siblings. If conflicts/siblings are expected here, use clojurewerkz.welle.kv/fetch"))
-      (-> (first results)
-          from-riak-object
-          deserialize-value))))
+      (when-let [ro (first results)]
+        (-> (first results)
+            from-riak-object
+            deserialize-value)))))
 
 
 (defn index-query

@@ -133,7 +133,7 @@
           metadata     {}
           indexes      []}
      :as options}]
-   (let [^RiakObjectBuilder bldr (doto (RiakObjectBuilder/newBuilder bucket key)
+   (let [^RiakObjectBuilder bldr (doto (RiakObjectBuilder/newBuilder (name bucket) (name key))
                                    (.withValue        value)
                                    (.withContentType  content-type)
                                    (.withUsermeta     metadata))]
