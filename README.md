@@ -25,6 +25,9 @@ by one of Basho's engineers. If you are evaluating Welle, please consider Sumo a
  * Objects: put, fetch, delete
  * Secondary indexes (2i): indexing, index queries
  * Content-type based serialization of values in common formats (bytes, JSON, Clojure data/reader, UTF-8 text, gzipped JSON)
+ * [clojure.core.cache](https://github.com/clojure/core.cache) implementation on top of Riak
+
+In addition Welle has maturing (but still very primitive, so not listed above) map/reduce query support.
 
 
 ## Supported Clojure versions
@@ -52,7 +55,7 @@ To subscribe for announcements of releases, important changes and so on, please 
 
 With Leiningen:
 
-    [com.novemberain/welle "1.0.0-alpha3"]
+    [com.novemberain/welle "1.0.0-alpha4"]
 
 
 With Maven:
@@ -60,7 +63,7 @@ With Maven:
     <dependency>
       <groupId>com.novemberain</groupId>
       <artifactId>welle</artifactId>
-      <version>1.0.0-alpha3</version>
+      <version>1.0.0-alpha4</version>
     </dependency>
 
 
