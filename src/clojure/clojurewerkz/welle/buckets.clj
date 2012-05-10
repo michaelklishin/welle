@@ -26,7 +26,7 @@
   [^String bucket-name &{ :keys [allow-siblings last-write-wins n-val ^String backend
                                  small-vclock big-vclock young-vclock old-vclock
                                  r pr w dw pw rw
-                                 vclock ^Boolean not-found-ok ^Boolean basic-quorum ^Boolean enable-for-search] :as options}]
+                                 ^Boolean not-found-ok ^Boolean basic-quorum ^Boolean enable-for-search] :as options}]
   (.updateBucket *riak-client* bucket-name (to-bucket-properties (or options {})))
   (merge {:name bucket-name}
          (from-bucket-properties (.fetchBucket *riak-client* bucket-name))))
