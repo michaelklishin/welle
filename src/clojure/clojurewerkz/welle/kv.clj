@@ -24,7 +24,7 @@
 (defn store
   "Stores an object in Riak"
   [^String bucket-name ^String key value &{ :keys [w dw pw
-                                                   indexes vclock ^String vtag ^Long last-modified
+                                                   indexes links vclock ^String vtag ^Long last-modified
                                                    ^Boolean return-body ^Boolean if-none-match ^Boolean if-not-modified
                                                    content-type metadata]
                                            :or {content-type Constants/CTYPE_OCTET_STREAM
@@ -37,6 +37,7 @@
                                          :content-type  content-type
                                          :metadata      (stringify-keys metadata)
                                          :indexes       indexes
+                                         :links         links
                                          :vclock        vclock
                                          :vtag          vtag
                                          :last-modified last-modified})

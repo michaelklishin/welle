@@ -2,9 +2,10 @@
   (:require [clojure.data.json :as json]
             [clojure.set       :as cs]
             [clojure.java.io   :as io])
+  (:use     [clojure.walk :only [stringify-keys]])
   (:import [com.basho.riak.client.cap Quora Quorum VClock BasicVClock]
            [com.basho.riak.client.raw StoreMeta FetchMeta DeleteMeta]
-           com.basho.riak.client.IRiakObject
+           [com.basho.riak.client IRiakObject RiakLink]
            [com.basho.riak.client.builders RiakObjectBuilder BucketPropertiesBuilder]
            [com.basho.riak.client.bucket BucketProperties TunableCAPProps]
            com.basho.riak.client.http.util.Constants
@@ -123,15 +124,27 @@
 
 ;; Clojure <=> IRiakObject
 
+(defn ^com.basho.riak.client.RiakLink
+  to-riak-link
+  "Converts a Clojure map to a RiakLink instance"
+  [m]
+  (let [m (stringify-keys m)]
+    (RiakLink. (get m "bucket") (get m "key") (get m "tag"))))
+
+(defn from-riak-link
+  "Converts a RiakLink instance to a Clojure map"
+  [^RiakLink rl]
+  {:bucket (.getBucket rl) :key (.getKey rl) :tag (.getTag rl)})
+
 (declare deserialize)
 (defn to-riak-object
   "Builds a Riak object from a Clojure map of well-known attributes:
    :value, :content-type, :metadata, :indexes, :vclock, :vtag, :last-modified"
   (^com.basho.riak.client.IRiakObject
-   [{:keys [^String bucket ^String key value content-type metadata indexes vclock vtag last-modified]
+   [{:keys [^String bucket ^String key value content-type metadata indexes
+            vclock vtag last-modified links]
      :or {content-type Constants/CTYPE_OCTET_STREAM
-          metadata     {}
-          indexes      []}
+          metadata     {}}
      :as options}]
    (let [^RiakObjectBuilder bldr (doto (RiakObjectBuilder/newBuilder (name bucket) (name key))
                                    (.withValue        value)
@@ -140,10 +153,13 @@
      (when vclock        (.withVClock bldr ^VClock (to-vclock vclock)))
      (when vtag          (.withVtag bldr vtag))
      (when last-modified (.withLastModified bldr last-modified))
-     ;; TODO: this code breaks when indexed values are not collections
-     (doseq [[idx-key idx-vals] indexes
-             idx-val (if (coll? idx-vals) idx-vals [idx-vals])]
-       (.addIndex bldr ^String (name idx-key) idx-val))
+     (when-let [indexes (seq indexes)]
+       ;; TODO: this code breaks when indexed values are not collections
+       (doseq [[idx-key idx-vals] indexes
+               idx-val (if (coll? idx-vals) idx-vals [idx-vals])]
+         (.addIndex bldr ^String (name idx-key) idx-val)))
+     (when-let [xs (seq links)]
+       (.withLinks bldr (map to-riak-link xs)))
      (.build bldr))))
 
 (defn indexes-from
@@ -158,17 +174,22 @@
                     (merge-with cs/union acc-m {idx-name idx-fields})))]
     (reduce step {} indexes)))
 
+(defn links-from
+  "Returns links on the given IRiakObject as a lazy sequence of Clojure maps"
+  [^IRiakObject ro]
+  (map from-riak-link (.getLinks ro)))
+
 (defn from-riak-object
   "Converts IRiakObjects to a Clojure map"
   [^IRiakObject ro]
-  
   {:vclock        (.getVClock ro)
    :content-type  (.getContentType ro)
    :vtag          (.getVtag ro)
    :last-modified (.getLastModified ro)
    :metadata      (into {} (.getMeta ro))
    :value         (.getValue ro)
-   :indexes       (indexes-from ro)})
+   :indexes       (indexes-from ro)
+   :links         (links-from ro)})
 
 
 ;; Index queries

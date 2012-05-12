@@ -98,7 +98,7 @@
         v           (merge {:city "New York City" :state "NY" :year 2011 :participants #{"johndoe" "timsmith" "michaelblack"}
                             :venue {:name "Sheraton New York Hotel & Towers" :address "811 Seventh Avenue" :street "Seventh Avenue"}}
                            ;; on Clojure 1.4+, we can add date to this map, too. Clojure 1.4's extensible reader has extensions for
-                           ;; Date/instant serialization but 1.3 will fail. MK.                           
+                           ;; Date/instant serialization but 1.3 will fail. MK.
                            (when clojure14?
                              {:date (java.util.Date.)}))
         ct          "application/clojure"
@@ -143,6 +143,25 @@
         [fetched]   (kv/fetch bucket-name k)]
     (is (= Constants/CTYPE_TEXT_UTF8 (:content-type fetched)))
     (is (= {"author" "Joe", "density" "5"} (:metadata fetched)))
+    (is (= v (:value fetched)))
+    (is-riak-object fetched)
+    (drain bucket-name)))
+
+
+;;
+;; Links
+;;
+
+(deftest test-basic-store-with-links
+  (let [bucket-name "clojurewerkz.welle.kv/store-with-given-links"
+        bucket      (wb/update bucket-name)
+        k           (str (UUID/randomUUID))
+        v           "value"
+        links       [{:bucket "pages" :key "clojurewerkz.org" :tag "links"}]
+        stored      (kv/store bucket-name k v :content-type Constants/CTYPE_TEXT_UTF8 :links links)
+        [fetched]   (kv/fetch bucket-name k)]
+    (is (= Constants/CTYPE_TEXT_UTF8 (:content-type fetched)))
+    (is (= links (:links fetched)))
     (is (= v (:value fetched)))
     (is-riak-object fetched)
     (drain bucket-name)))
