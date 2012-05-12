@@ -4,7 +4,7 @@
            com.basho.riak.client.bucket.TunableCAPProps
            com.basho.riak.client.util.CharsetUtils
            com.basho.riak.client.http.util.Constants
-           com.basho.riak.client.IRiakObject
+           [com.basho.riak.client IRiakObject RiakLink]
            [java.util Date UUID]))
 
 (set! *warn-on-reflection* true)
@@ -110,12 +110,16 @@
           metadata     {"metakey" "metavalue"}
           indexes      {"handle"  #{"johnnyriak"}}
           vclock       (vclock-for "vclock for a riak object")
-          ro           (to-riak-object {:bucket bucket :key key :value value :content-type content-type :metadata metadata :indexes indexes :vclock vclock})]
+          links        [{:bucket "pages" :key "http://clojurewerkz.org" :tag "links"}
+                        {:bucket "pages" :key "http://clojureriak.info" :tag "links"}]
+          ro           (to-riak-object {:bucket bucket :key key :value value :content-type content-type :metadata metadata :indexes indexes :vclock vclock :links links})]
       (is (= bucket       (.getBucket ro)))
       (is (= key          (.getKey ro)))
       (is (= "A value"    (.getValueAsString ro)))
       (is (= content-type (.getContentType ro)))
-      (is (= vclock       (.getVClock ro))))))
+      (is (= vclock       (.getVClock ro)))
+      (is (.hasLinks ro))
+      (is (= 2 (.numLinks ro))))))
 
 (deftest test-to-bucket-properties
   (testing "case 1"
@@ -234,3 +238,18 @@
           query       (to-index-query value bucket-name index-name)]
       (is (= "email_bin" (.getIndex query)))
       (is (= bucket-name (.getBucket query))))))
+
+
+(deftest test-to-riak-link
+  (testing "positive scenario"
+    (let [m  {:bucket "pages" :key "http://clojureriak.info" :tag "links"}
+          rl (to-riak-link m)]
+      (is (= "pages" (.getBucket rl)))
+      (is (= "http://clojureriak.info" (.getKey rl)))
+      (is (= "links" (.getTag rl))))))
+
+(deftest test-from-riak-link
+  (testing "positive scenario"
+    (let [m  {:bucket "pages" :key "http://clojureriak.info" :tag "links"}
+          rl (RiakLink. "pages" "http://clojureriak.info" "links")]
+      (is (= m (from-riak-link rl))))))

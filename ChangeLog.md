@@ -1,6 +1,16 @@
 ## Changes between Welle 1.0.0-alpha5 and 1.0.0-alpha6
 
-No changes yet.
+### Links support
+
+`clojurewerkz.welle.kv/store` now takes the new `:links` option that lets you store
+Riak links with the value. `clojurewerkz.welle.kv/fetch` then transparently deserializes when the value
+is fetched back:
+
+``` clojure
+(kv/store bucket-name k v :content-type Constants/CTYPE_TEXT_UTF8 :links [{:bucket "pages" :key "clojurewerkz.org" :tag "links"}])
+(let [fetched (kv/fetch-one bucket-name k)]
+  (println (:links fetched)))
+```
 
 
 ## Changes between Welle 1.0.0-alpha4 and 1.0.0-alpha5
