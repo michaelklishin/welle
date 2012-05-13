@@ -42,12 +42,14 @@ recommended.
 ## Getting Started
 
 Please refer to our [Getting Started with Clojure and Riak](http://clojureriak.info/articles/getting_started.html) guide.
+Don't hesitate to join our [mailing list](https://groups.google.com/forum/#!forum/clojure-riak) and ask questions, too!
 
 
 ## Community
 
-To subscribe for announcements of releases, important changes and so on, please follow
-[@ClojureWerkz](https://twitter.com/#!/clojurewerkz) on Twitter.
+[Welle has a mailing list](https://groups.google.com/forum/#!forum/clojure-welle). Feel free to join it and ask any questions you may have.
+
+To subscribe for announcements of releases, important changes and so on, please follow [@ClojureWerkz](https://twitter.com/#!/clojurewerkz) on Twitter.
 
 
 
@@ -74,7 +76,13 @@ With Maven:
 Welle is a young project and [documentation guide](http://clojureriak.info) are not fully written yet. Documentation is one
 of the top priorities for the project and we are improving things week after week.
 
-For code examples, see our test suite.
+For code examples, see our [test suite](https://github.com/michaelklishin/welle/tree/master/test/clojurewerkz/welle/test).
+
+
+## Welle Is a ClojureWerkz Project
+
+Welle is part of the [group of Clojure libraries known as ClojureWerkz](http://clojurewerkz.org), together with
+[Monger](https://github.com/michaelklishin/monger), [Langohr](https://github.com/michaelklishin/langohr), [Elastisch](https://github.com/clojurewerkz/elastisch), [Quartzite](https://github.com/michaelklishin/quartzite), [Neocons](https://github.com/michaelklishin/neocons) and several others.
 
 
 
@@ -98,6 +106,6 @@ tests pass, submit a pull request on Github.
 
 ## License
 
-Copyright (C) 2011-2012 Michael S. Klishin
+Copyright (C) 2011-2012 [Michael S. Klishin](http://twitter.com/michaelklishin)
 
-Distributed under the Eclipse Public License, the same as Clojure.
+Distributed under the [Eclipse Public License](http://www.eclipse.org/legal/epl-v10.html), the same as Clojure.
