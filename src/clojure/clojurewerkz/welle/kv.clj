@@ -6,16 +6,6 @@
            [com.basho.riak.client.raw StoreMeta FetchMeta DeleteMeta RawClient RiakResponse]
            com.basho.riak.client.http.util.Constants))
 
-;;
-;; Implementation
-;;
-
-(defn- deserialize-value
-  "Replaces :value key with its deserialized form using :content-type key to
-   get value content type"
-  [m]
-  (assoc m :value (deserialize (:value m) (:content-type m))))
-
 
 ;;
 ;; API

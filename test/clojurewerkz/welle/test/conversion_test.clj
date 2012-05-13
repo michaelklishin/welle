@@ -5,6 +5,8 @@
            com.basho.riak.client.util.CharsetUtils
            com.basho.riak.client.http.util.Constants
            [com.basho.riak.client IRiakObject RiakLink]
+           [com.basho.riak.client.query LinkWalkStep LinkWalkStep$Accumulate]
+           com.basho.riak.client.raw.query.LinkWalkSpec
            [java.util Date UUID]))
 
 (set! *warn-on-reflection* true)
@@ -240,7 +242,7 @@
       (is (= bucket-name (.getBucket query))))))
 
 
-(deftest test-to-riak-link
+(deftest ^{:links true} test-to-riak-link
   (testing "positive scenario"
     (let [m  {:bucket "pages" :key "http://clojureriak.info" :tag "links"}
           rl (to-riak-link m)]
@@ -248,8 +250,49 @@
       (is (= "http://clojureriak.info" (.getKey rl)))
       (is (= "links" (.getTag rl))))))
 
-(deftest test-from-riak-link
+(deftest ^{:links true} test-from-riak-link
   (testing "positive scenario"
     (let [m  {:bucket "pages" :key "http://clojureriak.info" :tag "links"}
           rl (RiakLink. "pages" "http://clojureriak.info" "links")]
       (is (= m (from-riak-link rl))))))
+
+
+(deftest ^{:links true} test-to-link-walk-step-accumulate
+  (testing "Accumulate enum inputs"
+    (are [x] (is (= x (to-link-walk-step-accumulate x)))
+      LinkWalkStep$Accumulate/YES
+      LinkWalkStep$Accumulate/NO
+      LinkWalkStep$Accumulate/DEFAULT))
+  (testing "boolean inputs"
+    (are [i o] (is (= o (to-link-walk-step-accumulate i)))
+      true  LinkWalkStep$Accumulate/YES
+      :yes  LinkWalkStep$Accumulate/YES
+      ;; boolean evaluation is used
+      ;; (only false and nil evaluate to false)
+      :no   LinkWalkStep$Accumulate/YES
+      false LinkWalkStep$Accumulate/NO
+      nil  LinkWalkStep$Accumulate/NO)))
+
+(deftest ^{:links true} test-to-link-walk-step
+  (testing "with boolean accumulation flag"
+    (let [bucket-name "things"
+          tag         "_"
+          lws         (to-link-walk-step bucket-name tag true)]
+      (is (= LinkWalkStep$Accumulate/YES (.getKeep lws)))
+      (is (= bucket-name (.getBucket lws)))
+      (is (= tag (.getTag lws))))
+    (let [bucket-name "things"
+          tag         "_"
+          lws         (to-link-walk-step bucket-name tag false)]
+      (is (= LinkWalkStep$Accumulate/NO (.getKeep lws)))))
+  (testing "with enum accumulation flag"
+    (let [bucket-name "things"
+          tag         "_"
+          lws         (to-link-walk-step bucket-name tag LinkWalkStep$Accumulate/DEFAULT)]
+      (is (= LinkWalkStep$Accumulate/DEFAULT (.getKeep lws)))
+      (is (= bucket-name (.getBucket lws)))
+      (is (= tag (.getTag lws))))
+    (let [bucket-name "things"
+          tag         "_"
+          lws         (to-link-walk-step bucket-name tag LinkWalkStep$Accumulate/NO)]
+      (is (= LinkWalkStep$Accumulate/NO (.getKeep lws))))))

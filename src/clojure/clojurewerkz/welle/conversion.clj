@@ -8,6 +8,7 @@
            [com.basho.riak.client IRiakObject RiakLink]
            [com.basho.riak.client.builders RiakObjectBuilder BucketPropertiesBuilder]
            [com.basho.riak.client.bucket BucketProperties TunableCAPProps]
+           [com.basho.riak.client.query LinkWalkStep LinkWalkStep$Accumulate]
            com.basho.riak.client.http.util.Constants
            [com.basho.riak.client.query.indexes RiakIndex IntIndex BinIndex]
            [com.basho.riak.client.raw.query.indexes BinValueQuery BinRangeQuery IntValueQuery IntRangeQuery]
@@ -86,7 +87,7 @@
 ;; {Store,Fetch,Delete}Meta
 
 (defn to-store-meta
-  ""
+  "Builds a StoreMeta instance from provided arguments"
   (^com.basho.riak.client.raw.StoreMeta
    [w dw pw return-body if-none-match if-not-modified]
    (StoreMeta. (to-quorum w)
@@ -97,7 +98,7 @@
                ^Boolean if-not-modified)))
 
 (defn to-fetch-meta
-  ""
+  "Builds a FetchMeta instance from provided arguments"
   (^com.basho.riak.client.raw.FetchMeta
    [r pr not-found-ok basic-quorum head-only return-deleted-vlock if-modified-since if-modified-vclock]
    (FetchMeta. (to-quorum r)
@@ -110,7 +111,7 @@
                ^VClock if-modified-vclock)))
 
 (defn to-delete-meta
-  ""
+  "Builds a DeleteMeta instance from provided arguments"
   (^com.basho.riak.client.raw.DeleteMeta
    [r pr w dw pw rw vclock]
    (DeleteMeta. (to-quorum r)
@@ -351,6 +352,13 @@
   (throw (UnsupportedOperationException. (str "Deserializer for content type " content-type " is not defined"))))
 
 
+(defn deserialize-value
+  "Replaces :value key with its deserialized form using :content-type key to
+   get value content type"
+  [m]
+  (assoc m :value (deserialize (:value m) (:content-type m))))
+
+
 (def ^{:private true} not-nil? (comp not nil?))
 
 (defn ^com.basho.riak.client.bucket.BucketProperties
@@ -424,3 +432,42 @@
                     (to-quorum pr)
                     (to-quorum pw)
                     ^Boolean basic-quorum ^Boolean not-found-ok))
+
+
+;;
+;; Link Walking
+;;
+
+(defprotocol LinkWalkingAccumulationFlagConversion
+  (^com.basho.riak.client.query.LinkWalkStep$Accumulate
+    to-link-walk-step-accumulate [input] "Converts given input to a LinkWalkStep$Accumulate value"))
+
+(extend-protocol LinkWalkingAccumulationFlagConversion
+  LinkWalkStep$Accumulate
+  (to-link-walk-step-accumulate [input]
+    input)
+
+  Boolean
+  (to-link-walk-step-accumulate [input]
+    (if input
+      LinkWalkStep$Accumulate/YES
+      LinkWalkStep$Accumulate/NO))
+
+  nil
+  (to-link-walk-step-accumulate [input]
+    LinkWalkStep$Accumulate/NO)
+
+  Object
+  (to-link-walk-step-accumulate [input]
+    (if input
+      LinkWalkStep$Accumulate/YES
+      LinkWalkStep$Accumulate/NO)))
+
+
+(defn ^com.basho.riak.client.query.LinkWalkStep
+  to-link-walk-step
+  "Builds a LinkWalkStep instance from provided arguments"
+  ([^String bucket-name ^String tag]
+     (LinkWalkStep. bucket-name tag LinkWalkStep$Accumulate/DEFAULT))
+  ([^String bucket-name ^String tag accumulate?]
+     (LinkWalkStep. bucket-name tag (to-link-walk-step-accumulate accumulate?))))
