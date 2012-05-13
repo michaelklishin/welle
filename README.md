@@ -20,13 +20,13 @@ by one of Basho's engineers. If you are evaluating Welle, please consider Sumo a
 
 ## Supported Features
 
- * Protocol Buffers and HTTP connection
- * Buckets: create, update, delete
- * Objects: put, fetch, delete
- * Secondary indexes (2i): indexing, index queries
+ * HTTP and Protocol Buffers transports
+ * [Bucket operations](http://wiki.basho.com/Buckets.html): create, update, delete
+ * [Key/Value operations](http://wiki.basho.com/Keys-and-Objects.html): put, fetch, delete
+ * [Secondary indexes](http://wiki.basho.com/Secondary-Indexes.html) (2i): indexing, index queries
  * Content-type based serialization of values in common formats (bytes, JSON, Clojure data/reader, UTF-8 text, gzipped JSON)
- * Storing links on values
- * Map/Reduce queries
+ * Storing links on values, [link walking](http://wiki.basho.com/Links-and-Link-Walking.html)
+ * [Map/Reduce queries](http://wiki.basho.com/MapReduce.html)
  * [clojure.core.cache](https://github.com/clojure/core.cache) implementation on top of Riak
 
 In addition Welle has maturing (but still very primitive, so not listed above) map/reduce query support.
