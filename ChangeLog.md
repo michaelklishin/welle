@@ -1,4 +1,10 @@
-## Changes between Welle 1.0.0-alpha5 and 1.0.0-alpha6
+## Changes between Welle 1.0.0-beta1 and 1.0.0-beta2
+
+No changes yet.
+
+
+
+## Changes between Welle 1.0.0-alpha5 and 1.0.0-beta1
 
 ### Link walking support
 
