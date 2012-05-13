@@ -20,6 +20,7 @@
                    :2i      :2i
                    :cache   :cache
                    :mr      :mr
+                   :links   :links
                    :search  :search
                    :default (constantly true)}
   :repositories   {"sonatype" {:url "http://oss.sonatype.org/content/repositories/releases"

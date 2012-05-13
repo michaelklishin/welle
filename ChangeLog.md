@@ -1,5 +1,23 @@
 ## Changes between Welle 1.0.0-alpha5 and 1.0.0-alpha6
 
+### Link walking support
+
+`clojurewerkz.welle.links` namespace provides a DSL for [Riak link walking](http://wiki.basho.com/Links-and-Link-Walking.html) operations:
+
+``` clojure
+(kv/store bucket-name "joe" {:name "Joe" :age 30} :content-type "application/clojure")
+(kv/store bucket-name "peter" {:name "Joe" :age 32}
+          :content-type "application/clojure"
+          :links [{:bucket bucket-name :key "joe" :tag "friend"}])
+
+;; this assumes you did (:use clojurewerkz.welle.links)
+;; or equivalent in the current namespace
+(walk
+  (start-at "people" "peter")
+  (step     "people" "friend" true))
+```
+
+
 ### Links support
 
 `clojurewerkz.welle.kv/store` now takes the new `:links` option that lets you store
@@ -86,7 +104,7 @@ Welle now works around [this Java client bug](https://github.com/basho/riak-java
 
 
 
-### User Metadata Normalization 
+### User Metadata Normalization
 
 `clojurewerkz.welle.objects/store` now normalizes metadata by stringifying all keys and requiring that all values
 are strings. This is due to the current (Riak 1.1) Java client limitations.
