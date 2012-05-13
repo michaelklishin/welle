@@ -26,6 +26,7 @@ by one of Basho's engineers. If you are evaluating Welle, please consider Sumo a
  * Secondary indexes (2i): indexing, index queries
  * Content-type based serialization of values in common formats (bytes, JSON, Clojure data/reader, UTF-8 text, gzipped JSON)
  * Storing links on values
+ * Map/Reduce queries
  * [clojure.core.cache](https://github.com/clojure/core.cache) implementation on top of Riak
 
 In addition Welle has maturing (but still very primitive, so not listed above) map/reduce query support.
