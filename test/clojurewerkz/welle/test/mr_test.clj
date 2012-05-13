@@ -45,5 +45,5 @@
                                                    :function "reduce_string_to_integer"}}
                                          {:reduce {:language "javascript"
                                                    :name "Riak.reduceSum"}}]})]
-      (is (= [19901] result)))
+      (is (= [19900] result)))
     (drain bucket-name)))
