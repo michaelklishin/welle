@@ -32,7 +32,7 @@
 (deftest test-basic-store-with-all-defaults
   (let [bucket-name "clojurewerkz.welle.kv/store-with-all-defaults"
         bucket      (wb/update bucket-name)
-        k           (str (UUID/randomUUID))
+        k           "store-with-all-defaults"
         v           "value"
         stored      (kv/store bucket-name k v)
         [fetched]   (kv/fetch bucket-name k :r 1)]
@@ -66,7 +66,7 @@
 (deftest test-basic-store-with-json-content-type
   (let [bucket-name "clojurewerkz.welle.kv/store-with-json-content-type"
         bucket      (wb/update bucket-name)
-        k           (str (UUID/randomUUID))
+        k           "store-as-json"
         v           {:name "Riak" :kind "Data store" :influenced-by #{"Dynamo"}}
         stored      (kv/store bucket-name k v :content-type Constants/CTYPE_JSON)
         [fetched]   (kv/fetch bucket-name k)]
@@ -81,7 +81,7 @@
 (deftest test-basic-store-with-json-utf8-content-type
   (let [bucket-name "clojurewerkz.welle.kv/store-with-json-utf8-content-type"
         bucket      (wb/update bucket-name)
-        k           (str (UUID/randomUUID))
+        k           "store-as-utf8-json"
         v           {:name "Riak" :kind "Data store" :influenced-by #{"Dynamo"}}
         stored      (kv/store bucket-name k v :content-type Constants/CTYPE_JSON_UTF8)
         [fetched]   (kv/fetch bucket-name k)]
@@ -94,7 +94,7 @@
 (deftest test-basic-store-with-application-clojure-content-type
   (let [bucket-name "clojurewerkz.welle.kv/store-with-application-clojure-content-type"
         bucket      (wb/update bucket-name)
-        k           (str (UUID/randomUUID))
+        k           "store-as-clojure-data"
         v           (merge {:city "New York City" :state "NY" :year 2011 :participants #{"johndoe" "timsmith" "michaelblack"}
                             :venue {:name "Sheraton New York Hotel & Towers" :address "811 Seventh Avenue" :street "Seventh Avenue"}}
                            ;; on Clojure 1.4+, we can add date to this map, too. Clojure 1.4's extensible reader has extensions for
@@ -113,7 +113,7 @@
 (deftest test-basic-store-with-json+gzip-content-type
   (let [bucket-name "clojurewerkz.welle.kv/store-with-json+gzip-content-type"
         bucket      (wb/update bucket-name)
-        k           (str (UUID/randomUUID))
+        k           "store-as-gzipped-json"
         v           {:name "Riak" :kind "Data store" :influenced-by #{"Dynamo"}}
         ;; compatible with both HTTP and PB APIs. Content-Encoding would be a better
         ;; idea here but PB cannot support it (as of Riak 1.1). MK.
@@ -155,7 +155,7 @@
 (deftest test-basic-store-with-links
   (let [bucket-name "clojurewerkz.welle.kv/store-with-given-links"
         bucket      (wb/update bucket-name)
-        k           (str (UUID/randomUUID))
+        k           "store-with-links"
         v           "value"
         links       [{:bucket "pages" :key "clojurewerkz.org" :tag "links"}]
         stored      (kv/store bucket-name k v :content-type Constants/CTYPE_TEXT_UTF8 :links links)
@@ -181,7 +181,7 @@
 (deftest test-optimistic-fetching-of-a-single-object
   (let [bucket-name "clojurewerkz.welle.kv/test-optimistic-fetching-a-single-object"
         bucket      (wb/update bucket-name)
-        k           (str (UUID/randomUUID))
+        k           "optimistic-fetch"
         v           "value"
         stored      (kv/store bucket-name k v)
         fetched     (kv/fetch-one bucket-name k :r 1)]
@@ -198,12 +198,13 @@
 (deftest test-fetching-deleted-value
   (let [bucket-name "clojurewerkz.welle.kv/test-fetching-deleted-value"
         bucket      (wb/update bucket-name)
-        k           (str (UUID/randomUUID))
+        k           "delete-me"
         v           "another value"]
     (drain bucket-name)
     (is (empty? (kv/fetch bucket-name k)))
     (kv/store bucket-name k v)
     (is (first (kv/fetch bucket-name k)))
     (kv/delete bucket-name k :w 1)
-    ;; TODO: need to investigate why fetch does not return empty results here.
+    ;; TODO: for some reason Riak returns an object here (a tombstone?),
+    ;;       need to investigate
     #_ (is (empty? (kv/fetch bucket-name k)))))
