@@ -14,4 +14,4 @@
    in the bucket."
   [^String bucket-name]
   (doseq [k (wb/keys-in bucket-name)]
-    (kv/delete bucket-name k)))
+    (kv/delete bucket-name k :w 1)))

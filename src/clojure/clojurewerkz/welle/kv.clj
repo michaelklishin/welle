@@ -77,8 +77,10 @@
 
 (defn delete
   "Deletes an object"
-  [^String bucket-name ^String key &{:keys [r pr w dw pw rw vclock]}]
-  (.delete *riak-client* bucket-name key (to-delete-meta r pr w dw pw rw vclock)))
+  ([^String bucket-name ^String key]
+     (.delete *riak-client* bucket-name key))
+  ([^String bucket-name ^String key &{:keys [r pr w dw pw rw vclock]}]
+     (.delete *riak-client* bucket-name key (to-delete-meta r pr w dw pw rw vclock))))
 
 (defn delete-all
   "Deletes multiple objects. This function relies on clojure.core/pmap to delete multiple keys,
