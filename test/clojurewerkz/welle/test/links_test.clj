@@ -15,11 +15,11 @@
         _           (wb/update bucket-name)]
     (drain bucket-name)
     (kv/store bucket-name "joe" {:name "Joe" :age 30} :content-type "application/clojure")
-    (kv/store bucket-name "peter" {:name "Joe" :age 32}
+    (kv/store bucket-name "jane" {:name "Jane" :age 32}
               :content-type "application/clojure"
               :links [{:bucket bucket-name :key "joe" :tag "friend"}])
     (let [result (walk
-                  (start-at "people" "peter")
+                  (start-at "people" "jane")
                   (step     "people" "friend" true))]
       (is (= {:name "Joe" :age 30} (:value (ffirst result)))))
     (drain bucket-name)))
