@@ -11,7 +11,8 @@
   :source-paths ["src/clojure"]
   :profiles       {:1.4 {:dependencies [[org.clojure/clojure "1.4.0"]]}
                    :1.5 {:dependencies [[org.clojure/clojure "1.5.0-master-SNAPSHOT"]]}
-                   :dev {:dependencies [[org.clojure/core.cache "0.5.0" :exclusions [org.clojure/clojure]]]}}
+                   :dev {:resource-paths ["test/resources"]
+                         :dependencies [[org.clojure/core.cache "0.5.0" :exclusions [org.clojure/clojure]]]}}
   :mailing-list {:name "clojure-riak"
                  :archive "https://groups.google.com/group/clojure-riak"
                  :post "clojure-riak@googlegroups.com"}  
