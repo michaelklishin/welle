@@ -9,11 +9,6 @@
 
 (println (str "Using Clojure version " *clojure-version*))
 
-;; when on 1.4, use dates in the example because Clojure 1.4's reader can handle them
-(def clojure14? (> (long (get *clojure-version* :minor)) 3))
-
-
-
 (wc/connect!)
 
 (defn- is-riak-object
@@ -49,9 +44,9 @@
 ;;
 
 (deftest test-basic-store-with-text-utf8-content-type
-  (let [bucket-name "clojurewerkz.welle.kv/store-with-given-content-type"
+  (let [bucket-name "clojurewerkz.welle.kv"
         bucket      (wb/update bucket-name)
-        k           (str (UUID/randomUUID))
+        k           "store-as-utf8-text"
         v           "value"
         stored      (kv/store bucket-name k v :content-type Constants/CTYPE_TEXT_UTF8)
         [fetched]   (kv/fetch bucket-name k)]
@@ -64,7 +59,7 @@
 
 
 (deftest test-basic-store-with-json-content-type
-  (let [bucket-name "clojurewerkz.welle.kv/store-with-json-content-type"
+  (let [bucket-name "clojurewerkz.welle.kv"
         bucket      (wb/update bucket-name)
         k           "store-as-json"
         v           {:name "Riak" :kind "Data store" :influenced-by #{"Dynamo"}}
@@ -79,7 +74,7 @@
 
 
 (deftest test-basic-store-with-json-utf8-content-type
-  (let [bucket-name "clojurewerkz.welle.kv/store-with-json-utf8-content-type"
+  (let [bucket-name "clojurewerkz.welle.kv"
         bucket      (wb/update bucket-name)
         k           "store-as-utf8-json"
         v           {:name "Riak" :kind "Data store" :influenced-by #{"Dynamo"}}
@@ -92,18 +87,14 @@
 
 
 (deftest test-basic-store-with-application-clojure-content-type
-  (let [bucket-name "clojurewerkz.welle.kv/store-with-application-clojure-content-type"
-        bucket      (wb/update bucket-name)
+  (let [bucket-name "clojurewerkz.welle.kv2"
+        bucket      (wb/update bucket-name :last-write-wins true)
         k           "store-as-clojure-data"
-        v           (merge {:city "New York City" :state "NY" :year 2011 :participants #{"johndoe" "timsmith" "michaelblack"}
-                            :venue {:name "Sheraton New York Hotel & Towers" :address "811 Seventh Avenue" :street "Seventh Avenue"}}
-                           ;; on Clojure 1.4+, we can add date to this map, too. Clojure 1.4's extensible reader has extensions for
-                           ;; Date/instant serialization but 1.3 will fail. MK.
-                           (when clojure14?
-                             {:date (java.util.Date.)}))
+        v           {:city "New York City" :state "NY" :year 2011 :participants #{"johndoe" "timsmith" "michaelblack"}
+                     :venue {:name "Sheraton New York Hotel & Towers" :address "811 Seventh Avenue" :street "Seventh Avenue"}}
         ct          "application/clojure"
         stored      (kv/store bucket-name k v :content-type ct)
-        [fetched]   (kv/fetch bucket-name k)]
+        fetched     (kv/fetch-one bucket-name k)]
     ;; cannot use constant value here, see https://github.com/basho/riak-java-client/issues/125
     (is (= ct  (:content-type fetched)))
     (is (= v (:value fetched)))
@@ -111,7 +102,7 @@
 
 
 (deftest test-basic-store-with-json+gzip-content-type
-  (let [bucket-name "clojurewerkz.welle.kv/store-with-json+gzip-content-type"
+  (let [bucket-name "clojurewerkz.welle.kv"
         bucket      (wb/update bucket-name)
         k           "store-as-gzipped-json"
         v           {:name "Riak" :kind "Data store" :influenced-by #{"Dynamo"}}
@@ -133,7 +124,7 @@
 ;;
 
 (deftest test-basic-store-with-metadata
-  (let [bucket-name "clojurewerkz.welle.kv/store-with-given-metadata"
+  (let [bucket-name "clojurewerkz.welle.kv"
         bucket      (wb/update bucket-name)
         k           (str (UUID/randomUUID))
         v           "value"
@@ -153,7 +144,7 @@
 ;;
 
 (deftest test-basic-store-with-links
-  (let [bucket-name "clojurewerkz.welle.kv/store-with-given-links"
+  (let [bucket-name "clojurewerkz.welle.kv"
         bucket      (wb/update bucket-name)
         k           "store-with-links"
         v           "value"
@@ -173,13 +164,13 @@
 ;;
 
 (deftest test-fetching-a-non-existent-object
-  (let [bucket-name "clojurewerkz.welle.kv/fetch-a-non-existent-object-1"
+  (let [bucket-name "clojurewerkz.welle.kv"
         bucket      (wb/update bucket-name)
         result      (kv/fetch bucket-name (str (UUID/randomUUID)))]
     (is (empty? result))))
 
 (deftest test-optimistic-fetching-of-a-single-object
-  (let [bucket-name "clojurewerkz.welle.kv/test-optimistic-fetching-a-single-object"
+  (let [bucket-name "clojurewerkz.welle.kv"
         bucket      (wb/update bucket-name)
         k           "optimistic-fetch"
         v           "value"
@@ -196,11 +187,12 @@
 ;;
 
 (deftest test-fetching-deleted-value
-  (let [bucket-name "clojurewerkz.welle.kv/test-fetching-deleted-value"
-        bucket      (wb/update bucket-name)
+  (let [bucket-name "clojurewerkz.welle.kv3"
+        bucket      (wb/update bucket-name :last-write-wins true)
         k           "delete-me"
         v           "another value"]
     (drain bucket-name)
+    (Thread/sleep 150)
     (is (empty? (kv/fetch bucket-name k)))
     (kv/store bucket-name k v)
     (is (first (kv/fetch bucket-name k)))
