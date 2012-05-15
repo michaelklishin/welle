@@ -2,7 +2,8 @@
   (:require [clojure.data.json :as json]
             [clojure.set       :as cs]
             [clojure.java.io   :as io])
-  (:use     [clojure.walk :only [stringify-keys]])
+  (:use     [clojure.walk :only [stringify-keys]]
+            clojurewerkz.welle.fn)
   (:import [com.basho.riak.client.cap Quora Quorum VClock BasicVClock]
            [com.basho.riak.client.raw StoreMeta FetchMeta DeleteMeta]
            [com.basho.riak.client IRiakObject RiakLink]
@@ -361,6 +362,7 @@
 
 (def ^{:private true} not-nil? (comp not nil?))
 
+
 (defn ^com.basho.riak.client.bucket.BucketProperties
   to-bucket-properties
   [{:keys [^Boolean allow-siblings ^Boolean last-write-wins ^Integer n-val ^String backend
@@ -371,7 +373,9 @@
            ^Boolean not-found-ok
            ^Boolean basic-quorum
            ^Boolean enable-search
-           r w pr dw rw pw]
+           r w pr dw rw pw
+           pre-commit-hooks
+           post-commit-hooks]
     :or {allow-siblings  false
          n-val           3
          enable-search   false
@@ -399,6 +403,10 @@
     (when (not-nil? not-found-ok)    (.notFoundOK    bldr not-found-ok))
     (when (not-nil? last-write-wins) (.lastWriteWins bldr last-write-wins))
     (when (not-nil? basic-quorum)    (.basicQuorum   bldr basic-quorum))
+    (when (seq pre-commit-hooks)
+      (.precommitHooks bldr pre-commit-hooks))
+    (when (seq post-commit-hooks)
+      (.postcommitHooks bldr post-commit-hooks))
     (.build bldr)))
 
 (defn from-bucket-properties
@@ -419,7 +427,9 @@
    :small-vclock    (.getSmallVClock props)
    :big-vclock      (.getBigVClock props)
    :old-vclock      (.getOldVClock props)
-   :young-vclock    (.getYoungVClock props)})
+   :young-vclock    (.getYoungVClock props)
+   :pre-commit-hooks  (.getPrecommitHooks props)
+   :post-commit-hooks (.getPostcommitHooks props)})
 
 (defn ^com.basho.riak.client.bucket.TunableCAPProps
   to-tunable-cap-props
