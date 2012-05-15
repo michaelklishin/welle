@@ -1,6 +1,34 @@
 ## Changes between Welle 1.0.0-beta1 and 1.0.0-beta2
 
-No changes yet.
+### ring.session.store implementation
+
+Welle now features a [Ring session store](https://github.com/mmcgrana/ring/blob/master/ring-core/src/ring/middleware/session/store.clj) implementation.
+To use it, require `clojurewerkz.welle.ring.session-store` and use `clojurewerkz.welle.ring.session-store/welle-store` function like so:
+
+``` clojure
+(ns my.service
+  (:use clojurewerkz.welle.ring.session-store))
+
+(let [store (welle-store "web_sessions")]
+  ...)
+```
+
+It is possible to pass `:r`, `:w` and `:content-type` options that will be used for reads and writes:
+
+``` clojure
+(ns my.service
+  (:use clojurewerkz.welle.ring.session-store))
+
+(let [store (welle-store "web_sessions"
+                         ;; r
+                         3
+                         ;; w
+                         3
+                         "application/json")]
+  ...)
+```
+
+By default, `:w` and `:r` of 2 will be used and `:content-type` is `com.basho.riak.client.http.util.Constants/CTYPE_JSON_UTF8`
 
 
 
