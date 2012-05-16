@@ -73,10 +73,10 @@ With Maven:
 
 ## Documentation & Examples
 
-Welle is a young project and [documentation guide](http://clojureriak.info) are not fully written yet. Documentation is one
+Welle is a young project but [documentation guides](http://clojureriak.info) are mostly complete. Documentation is one
 of the top priorities for the project and we are improving things week after week.
 
-For code examples, see our [test suite](https://github.com/michaelklishin/welle/tree/master/test/clojurewerkz/welle/test).
+For additional code examples, see our [test suite](https://github.com/michaelklishin/welle/tree/master/test/clojurewerkz/welle/test).
 
 
 ## Welle Is a ClojureWerkz Project
