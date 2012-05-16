@@ -1,4 +1,4 @@
-(ns clojurewerkz.welle.fn
+(ns clojurewerkz.welle.hooks
   (:import [com.basho.riak.client.query.functions NamedErlangFunction NamedJSFunction]))
 
 
