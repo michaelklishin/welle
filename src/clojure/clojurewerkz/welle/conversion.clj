@@ -3,7 +3,7 @@
             [clojure.set       :as cs]
             [clojure.java.io   :as io])
   (:use     [clojure.walk :only [stringify-keys]]
-            clojurewerkz.welle.fn)
+            clojurewerkz.welle.hooks)
   (:import [com.basho.riak.client.cap Quora Quorum VClock BasicVClock]
            [com.basho.riak.client.raw StoreMeta FetchMeta DeleteMeta]
            [com.basho.riak.client IRiakObject RiakLink]
