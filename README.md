@@ -28,8 +28,8 @@ by one of Basho's engineers. If you are evaluating Welle, please consider Sumo a
  * Storing links on values, [link walking](http://clojureriak.info/articles/links.html)
  * Map/Reduce queries
  * [clojure.core.cache](https://github.com/clojure/core.cache) implementation on top of Riak
-
-In addition Welle has maturing (but still very primitive, so not listed above) map/reduce query support.
+ * [Ring session store](https://github.com/mmcgrana/ring/blob/master/ring-core/src/ring/middleware/session/store.clj) implementation on top of Riak
+ * [data.json](http://github.com/clojure/data.json) extensions for serialization of JodaTime and JDK dates
 
 
 ## Supported Clojure versions
