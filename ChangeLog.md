@@ -1,4 +1,9 @@
-## Changes between Welle 1.0.0-beta1 and 1.0.0-beta2
+## Changes between Welle 1.0.0-rc1 and 1.0.0-rc2
+
+No changes yet.
+
+
+## Changes between Welle 1.0.0-beta1 and 1.0.0-rc1
 
 ### ring.session.store implementation
 
