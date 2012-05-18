@@ -26,7 +26,7 @@ by one of Basho's engineers. If you are evaluating Welle, please consider Sumo a
  * [Secondary indexes](http://clojureriak.info/articles/2i.html) (2i): indexing, index queries
  * [Content-type based serialization of values](http://clojureriak.info/articles/kv.html#automatic_serialization_for_common_formats) in common formats (bytes, JSON, Clojure data/reader, UTF-8 text, gzipped JSON)
  * Storing links on values, [link walking](http://clojureriak.info/articles/links.html)
- * Map/Reduce queries
+ * [Map/Reduce queries](http://clojureriak.info/articles/mapreduce.html)
  * [clojure.core.cache](https://github.com/clojure/core.cache) implementation on top of Riak
  * [Ring session store](https://github.com/mmcgrana/ring/blob/master/ring-core/src/ring/middleware/session/store.clj) implementation on top of Riak
  * [data.json](http://github.com/clojure/data.json) extensions for serialization of JodaTime and JDK dates
