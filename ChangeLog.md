@@ -1,6 +1,13 @@
-## Changes between Welle 1.0.0-rc1 and 1.0.0-rc2
+## Changes between Welle 1.0.0-rc1 and 1.0.0
 
-No changes yet.
+### Documentation improvements
+
+[Documentation guides](http://clojureriak.info) have been greatly improved.
+
+### clojurewerkz.support updated to 0.4.0
+
+[ClojureWerkz Support](https://github.com/clojurewerkz/support) dependency has been bumped to `v0.4.0`.
+
 
 
 ## Changes between Welle 1.0.0-beta1 and 1.0.0-rc1

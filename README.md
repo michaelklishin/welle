@@ -59,7 +59,7 @@ To subscribe for announcements of releases, important changes and so on, please 
 
 With Leiningen:
 
-    [com.novemberain/welle "1.0.0-rc1"]
+    [com.novemberain/welle "1.0.0"]
 
 
 With Maven:
@@ -67,13 +67,13 @@ With Maven:
     <dependency>
       <groupId>com.novemberain</groupId>
       <artifactId>welle</artifactId>
-      <version>1.0.0-rc1</version>
+      <version>1.0.0</version>
     </dependency>
 
 
 ## Documentation & Examples
 
-Welle is a young project but [documentation guides](http://clojureriak.info) are mostly complete. Documentation is one
+Welle has [documentation guides](http://clojureriak.info). Documentation is one
 of the top priorities for the project and we are improving things week after week.
 
 For additional code examples, see our [test suite](https://github.com/michaelklishin/welle/tree/master/test/clojurewerkz/welle/test).
