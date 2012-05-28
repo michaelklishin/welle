@@ -63,4 +63,4 @@
                                  :query [{:map    {:language "javascript" :source (js/load-resource "js/fn1") :keep false}}
                                          {:reduce {:language "javascript" :name "Riak.reduceSum"}}]})]
       (is (= [941.4] result)))
-    (kv/delete-all bucket-name "1" "2" "3" "4" "5" "6")))
+    (kv/delete-all bucket-name ["1" "2" "3" "4" "5" "6"])))
