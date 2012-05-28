@@ -1,3 +1,8 @@
+## Changes between Welle 1.0.0 and 1.0.1
+
+`core.cache` implementation no longer fails to compile when building uberjars.
+
+
 ## Changes between Welle 1.0.0-rc1 and 1.0.0
 
 ### Documentation improvements
