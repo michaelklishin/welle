@@ -1,3 +1,9 @@
+## Changes between Welle 1.1.0-alpha1 and 1.1.0-alpha2
+
+`core.cache` implementation no longer fails to compile when building uberjars.
+
+
+
 ## Changes between Welle 1.0.0 and 1.1.0-alpha1
 
 ### kv/delete-all-via-2i
