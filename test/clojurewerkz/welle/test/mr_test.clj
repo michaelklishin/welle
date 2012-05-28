@@ -49,7 +49,7 @@
     (drain bucket-name)))
 
 
-(deftest ^{:mr true :focus true} test-map-reduce-with-a-source-js-function
+(deftest ^{:mr true} test-map-reduce-with-a-source-js-function
   (let [bucket-name "clojurewerkz.welle.mr3"
         _           (wb/update bucket-name)]
     (drain bucket-name)
