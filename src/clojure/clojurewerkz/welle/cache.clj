@@ -19,10 +19,8 @@
 ;; API
 ;;
 
-(defrecord BasicWelleCache [^String bucket ^String content-type ^Integer w])
-
-(extend-protocol cache/CacheProtocol
-  BasicWelleCache
+(cache/defcache BasicWelleCache [^String bucket ^String content-type ^Integer w]
+  cache/CacheProtocol
   (lookup [c k]
     (:value (kv/fetch-one (.bucket c) k)))
   (has? [c k]
@@ -39,7 +37,6 @@
     (doseq [[k v] m]
       (kv/store (.bucket c) k v :content-type (.content-type c) :w (.w c)))
     c))
-
 
 (defn basic-welle-cache-factory
   ([]
