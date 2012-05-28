@@ -87,7 +87,20 @@
    so it may be inappropriate for cases where any potential race conditions between individual delete
    operations is a problem. For deleting a very large number of keys (say, thousands), consider using
    map/reduce"
-  [^String bucket-name keys & rest]
-  (pmap (fn [^String k]
-          (apply delete (concat [bucket-name k] rest)))
-        keys))
+  ([^String bucket-name keys]
+     (pmap (fn [^String k]
+             (delete bucket-name k))
+           keys))
+  ([^String bucket-name keys & rest]
+     (pmap (fn [^String k]
+             (apply delete (concat [bucket-name k] rest)))
+           keys)))
+
+
+(defn delete-all-via-2i
+  "Concurrently deletes multiple objects with keys retrieved via a secondary index (2i) query."
+  ([^String bucket-name field value]
+     (delete-all bucket-name (set (index-query bucket-name field value))))
+  ([^String bucket-name field value & rest]
+     (let [keys (set (index-query bucket-name field value))]
+       (apply delete-all (concat [bucket-name keys] rest)))))

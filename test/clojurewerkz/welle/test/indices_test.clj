@@ -59,7 +59,7 @@
 
 
 (deftest ^{:2i true} test-basic-index-query-with-a-single-integer-value
-  (let [bucket-name "clojuyrewerkz.welle.test.indices-test"
+  (let [bucket-name "clojurewerkz.welle.test.alt-indices-test"
         bucket      (wb/update bucket-name)
         k           (str (UUID/randomUUID))
         v           "value"

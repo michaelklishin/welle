@@ -1,3 +1,20 @@
+## Changes between Welle 1.0.0 and 1.1.0-alpha1
+
+### kv/delete-all-via-2i
+
+`clojurewerkz.welle.kv/delete-all-via-2i` is a new convenience function that combines `clojurewerkz.welle.kv/index-query`
+and `clojurewerkz.welle.kv/delete-all`: it concurrently deletes multiple keys retrieved via a 2i query:
+
+``` clojure
+(ns my.app
+  (:require [clojurewerkz.welle.kv :as kv]))
+
+;; deletes multiple objects that have :stage index values between 10 and 20
+(kv/delete-all-via-2i "pipeline" :stage [10 20])
+```
+
+
+
 ## Changes between Welle 1.0.0-rc1 and 1.0.0
 
 ### Documentation improvements
