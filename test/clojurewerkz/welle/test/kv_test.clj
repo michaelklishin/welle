@@ -197,6 +197,4 @@
     (kv/store bucket-name k v)
     (is (first (kv/fetch bucket-name k)))
     (kv/delete bucket-name k :w 1)
-    ;; TODO: for some reason Riak returns an object here (a tombstone?),
-    ;;       need to investigate
-    #_ (is (empty? (kv/fetch bucket-name k)))))
+    (is (empty? (kv/fetch bucket-name k)))))
