@@ -193,8 +193,8 @@
         v           "another value"]
     (drain bucket-name)
     (Thread/sleep 150)
-    (is (empty? (kv/fetch bucket-name k)))
+    (is (empty? (kv/fetch bucket-name k :r 2)))
     (kv/store bucket-name k v)
     (is (first (kv/fetch bucket-name k)))
-    (kv/delete bucket-name k :w 1)
-    (is (empty? (kv/fetch bucket-name k)))))
+    (kv/delete bucket-name k :w 2)
+    (is (empty? (kv/fetch bucket-name k :r 2)))))
