@@ -7,4 +7,5 @@ branches:
 jdk:
   - openjdk6
   - openjdk7
-  - oraclejdk7
+  # until Leiningen 2 Preview 5 SSL pains are resolved
+  # - oraclejdk7
