@@ -1,3 +1,8 @@
+## Changes between Welle 1.1.0-alpha3 and 1.1.0-beta1
+
+No changes yet.
+
+
 ## Changes between Welle 1.1.0-alpha2 and 1.1.0-alpha3
 
 ### Cluster client support
