@@ -9,7 +9,7 @@
 
 (println (str "Using Clojure version " *clojure-version*))
 
-(wc/connect!)
+(wc/connect-to-cluster! ["127.0.0.1" "localhost"])
 
 (defn- is-riak-object
   [m]

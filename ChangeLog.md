@@ -1,4 +1,20 @@
+## Changes between Welle 1.1.0-alpha2 and 1.1.0-alpha3
+
+### Cluster client support
+
+`clojurewerkz.welle.core/connect-to-cluster` and `clojurewerkz.welle.core/connect-to-cluster!` are new functions that
+use just like `clojurewerkz.welle.core/connect` and `clojurewerkz.welle.core/connect!` but use *cluster clients*.
+
+Cluster client is a regular client (with exactly the same API) that does round-robin balancing of requests between multiple hosts
+in a cluster.
+
+`clojurewerkz.welle.core/connect-to-cluster-via-pb` and `clojurewerkz.welle.core/connect-to-cluster-via-pb!` are the PBC
+transport equivalents.
+
+
 ## Changes between Welle 1.1.0-alpha1 and 1.1.0-alpha2
+
+### Bug fixes
 
 `core.cache` implementation no longer fails to compile when building uberjars.
 
