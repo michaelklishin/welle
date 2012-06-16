@@ -55,20 +55,36 @@ To subscribe for announcements of releases, important changes and so on, please 
 
 ## Maven Artifacts
 
-### Most Recent Release
+Welle artifacts are [released to Clojars](https://clojars.org/com.novemberain/welle).
 
-With Leiningen:
+### With Leiningen
 
-    [com.novemberain/welle "1.1.0"]
+Add dependency in your `project.clj`:
 
+``` clojure
+[com.novemberain/welle "1.1.0"]
+```
 
-With Maven:
+### With Maven
 
-    <dependency>
-      <groupId>com.novemberain</groupId>
-      <artifactId>welle</artifactId>
-      <version>1.1.0</version>
-    </dependency>
+Add Clojars repository definition to your `pom.xml`:
+
+``` xml
+<repository>
+  <id>clojars.org</id>
+  <url>http://clojars.org/repo</url>
+</repository>
+```
+
+and then the dependency:
+
+``` xml
+<dependency>
+  <groupId>com.novemberain</groupId>
+  <artifactId>welle</artifactId>
+  <version>1.1.0</version>
+</dependency>
+```
 
 
 ## Documentation & Examples
