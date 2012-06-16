@@ -1,12 +1,17 @@
-## Changes between Welle 1.1.0-alpha3 and 1.1.0-beta1
+## Changes between Welle 1.1.0 and 1.2.0
+
+No changes yet
+
+
+
+
+## Changes between Welle 1.0.0 and 1.1.0
 
 ### Minor `core.cache` support improvement
 
 `clojurewerkz.welle.cache/basic-welle-cache-factory` now has a 3-arity that accepts bucket name, content type and W to
 use for cache writes.
 
-
-## Changes between Welle 1.1.0-alpha2 and 1.1.0-alpha3
 
 ### Cluster client support
 
@@ -20,15 +25,10 @@ in a cluster.
 transport equivalents.
 
 
-## Changes between Welle 1.1.0-alpha1 and 1.1.0-alpha2
-
 ### Bug fixes
 
 `core.cache` implementation no longer fails to compile when building uberjars.
 
-
-
-## Changes between Welle 1.0.0 and 1.1.0-alpha1
 
 ### kv/delete-all-via-2i
 
