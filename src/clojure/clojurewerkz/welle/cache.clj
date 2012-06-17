@@ -43,5 +43,7 @@
      (BasicWelleCache. default-cache-bucket default-content-type 1))
   ([^String bucket]
      (BasicWelleCache. bucket default-content-type 1))
+  ([^String bucket ^String content-type ^Integer w]
+     (BasicWelleCache. bucket content-type w))
   ([^String bucket base ^String content-type ^Integer w]
      (cache/seed (BasicWelleCache. bucket content-type w) base)))

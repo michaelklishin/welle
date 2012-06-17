@@ -1,4 +1,4 @@
-(defproject com.novemberain/welle "1.1.0-SNAPSHOT"
+(defproject com.novemberain/welle "1.2.0-SNAPSHOT"
   :description "Welle is an expressive Clojure client for Riak with batteries included"
   :url "http://clojureriak.info"  
   :license {:name "Eclipse Public License"}
@@ -12,8 +12,8 @@
   :profiles       {:1.4 {:dependencies [[org.clojure/clojure "1.4.0"]]}
                    :1.5 {:dependencies [[org.clojure/clojure "1.5.0-master-SNAPSHOT"]]}
                    :dev {:resource-paths ["test/resources"]
-                         :dependencies [[org.clojure/core.cache "0.5.0" :exclusions [org.clojure/clojure]]
-                                        [ring/ring-core         "1.1.0"]]}}
+                         :dependencies [[org.clojure/core.cache "0.6.0" :exclusions [org.clojure/clojure]]
+                                        [ring/ring-core         "1.1.1"]]}}
   :mailing-list {:name "clojure-riak"
                  :archive "https://groups.google.com/group/clojure-riak"
                  :post "clojure-riak@googlegroups.com"}  
