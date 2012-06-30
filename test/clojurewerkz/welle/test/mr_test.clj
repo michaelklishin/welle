@@ -68,9 +68,9 @@
 
 ;; this tests needs Riak Search to be enabled
 ;; TODO: needs investigating why it always returns no results
-#_ (deftest ^{:mr true} test-map-reduce-with-search-input-and-a-source-js-function
+#_ (deftest ^{:mr true :search true} test-map-reduce-with-search-input-and-a-source-js-function
   (let [bucket-name "clojurewerkz.welle.mr4"
-        _           (wb/update bucket-name :enable-for-search true)]
+        _           (wb/update bucket-name :enable-search true)]
     (drain bucket-name)
     (kv/store bucket-name "1" {:field "one"}   :content-type Constants/CTYPE_JSON)
     (kv/store bucket-name "2" {:field "two"}   :content-type Constants/CTYPE_JSON)
