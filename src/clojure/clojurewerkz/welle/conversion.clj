@@ -12,6 +12,7 @@
            [com.basho.riak.client.query LinkWalkStep LinkWalkStep$Accumulate]
            com.basho.riak.client.http.util.Constants
            [com.basho.riak.client.query.indexes RiakIndex IntIndex BinIndex]
+           com.basho.riak.client.query.functions.NamedErlangFunction
            [com.basho.riak.client.raw.query.indexes BinValueQuery BinRangeQuery IntValueQuery IntRangeQuery]
            java.util.Date
            [java.io ByteArrayOutputStream PrintWriter InputStreamReader ByteArrayInputStream]
@@ -403,8 +404,10 @@
     (when (not-nil? not-found-ok)    (.notFoundOK    bldr not-found-ok))
     (when (not-nil? last-write-wins) (.lastWriteWins bldr last-write-wins))
     (when (not-nil? basic-quorum)    (.basicQuorum   bldr basic-quorum))
-    (when (seq pre-commit-hooks)
-      (.precommitHooks bldr pre-commit-hooks))
+    (when (or (seq pre-commit-hooks) enable-search)
+      (.precommitHooks bldr (concat pre-commit-hooks (if enable-search
+                                                       [NamedErlangFunction/SEARCH_PRECOMMIT_HOOK]
+                                                       []))))
     (when (seq post-commit-hooks)
       (.postcommitHooks bldr post-commit-hooks))
     (.build bldr)))
