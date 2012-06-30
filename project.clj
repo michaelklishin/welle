@@ -1,12 +1,12 @@
 (defproject com.novemberain/welle "1.2.0-SNAPSHOT"
-  :description "An experimental idiomatic Clojure library on top of the Riak Java client"
+  :description "Welle is an expressive Clojure client for Riak with batteries included"
   :url "http://clojureriak.info"  
   :license {:name "Eclipse Public License"}
   :min-lein-version "2.0.0"
   :dependencies [[org.clojure/clojure        "1.3.0"]
                  [com.basho.riak/riak-client "1.0.5"]
                  [org.clojure/data.json      "0.1.2"]
-                 [clojurewerkz/support       "0.4.0"]
+                 [clojurewerkz/support       "0.5.0"]
                  [com.novemberain/validateur "1.1.0"]]
   :source-paths ["src/clojure"]
   :profiles       {:1.4 {:dependencies [[org.clojure/clojure "1.4.0"]]}
