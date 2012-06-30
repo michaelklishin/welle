@@ -39,7 +39,7 @@
    * rw (quorum value)
    * not-found-ok
    * basic-quorum
-   * enable-for-search (default: false)
+   * enable-search (default: false)
    * backend
    * pre-commit-hooks (a collection of pairs [\"erlang_module\", \"fn_name\"])
    * post-commit-hooks (a collection of pairs [\"erlang_module\", \"fn_name\"])
@@ -50,7 +50,7 @@
   [^String bucket-name &{ :keys [allow-siblings last-write-wins n-val ^String backend
                                  small-vclock big-vclock young-vclock old-vclock
                                  r pr w dw pw rw
-                                 ^Boolean not-found-ok ^Boolean basic-quorum ^Boolean enable-for-search
+                                 ^Boolean not-found-ok ^Boolean basic-quorum ^Boolean enable-search
                                  pre-commit-hooks
                                  post-commit-hooks] :as options}]
   (.updateBucket *riak-client* bucket-name (to-bucket-properties (or options {})))
