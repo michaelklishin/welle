@@ -1,6 +1,15 @@
 ## Changes between Welle 1.1.0 and 1.2.0
 
-No changes yet
+### Buckets with enabled search now get indexing precommit hook added automatically
+
+Buckets with enabled search now get indexing precommit hook added automatically. Previously if the precommit hook
+was not added in addition, values stored in the bucket were not indexed.
+
+
+### Documentation correction for clojurewerkz.welle.buckets/update
+
+`clojurewerkz.welle.buckets/update` doc string incorrectly listed the name of the option that enables search:
+it is `:enable-search`, not `:enabled-for-search`.
 
 
 
