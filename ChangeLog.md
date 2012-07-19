@@ -1,3 +1,14 @@
+## Changes between Welle 1.0.2 and 1.0.3
+
+No changes yet
+
+
+## Changes between Welle 1.0.1 and 1.0.2
+
+`clojurewerkz.welle.core/connect-via-pb!` now correctly uses Protocol Buffers interface connection.
+
+
+
 ## Changes between Welle 1.0.0 and 1.0.1
 
 `core.cache` implementation no longer fails to compile when building uberjars.
