@@ -1,4 +1,4 @@
-(defproject com.novemberain/welle "1.1.1"
+(defproject com.novemberain/welle "1.1.2-SNAPSHOT"
   :description "An experimental idiomatic Clojure library on top of the Riak Java client"
   :url "http://clojureriak.info"  
   :license {:name "Eclipse Public License"}
