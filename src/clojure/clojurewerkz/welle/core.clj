@@ -46,9 +46,9 @@
 
 (defn connect-via-pb!
   ([]
-     (alter-var-root (var *riak-client*) (constantly (connect))))
+     (alter-var-root (var *riak-client*) (constantly (connect-via-pb))))
   ([host port]
-     (alter-var-root (var *riak-client*) (constantly (connect host port)))))
+     (alter-var-root (var *riak-client*) (constantly (connect-via-pb host port)))))
 
 (defmacro with-client
   [client & forms]
