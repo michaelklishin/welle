@@ -59,7 +59,7 @@ To subscribe for announcements of releases, important changes and so on, please 
 
 With Leiningen:
 
-    [com.novemberain/welle "1.1.0"]
+    [com.novemberain/welle "1.1.1"]
 
 
 With Maven:
@@ -67,7 +67,7 @@ With Maven:
     <dependency>
       <groupId>com.novemberain</groupId>
       <artifactId>welle</artifactId>
-      <version>1.1.0</version>
+      <version>1.1.1</version>
     </dependency>
 
 
