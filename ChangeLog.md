@@ -1,7 +1,11 @@
-## Changes between Welle 1.1.0 and 1.2.0
+## Changes between Welle 1.1.1 and 1.1.2
 
-No changes yet
+No changes yet.
 
+
+## Changes between Welle 1.1.0 and 1.1.1
+
+`clojurewerkz.welle.core/connect-via-pb!` now correctly uses Protocol Buffers interface connection.
 
 
 
