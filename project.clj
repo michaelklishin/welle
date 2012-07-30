@@ -13,7 +13,10 @@
                    :1.5 {:dependencies [[org.clojure/clojure "1.5.0-master-SNAPSHOT"]]}
                    :dev {:resource-paths ["test/resources"]
                          :dependencies [[org.clojure/core.cache "0.6.0" :exclusions [org.clojure/clojure]]
-                                        [ring/ring-core         "1.1.1"]]}}
+                                        [ring/ring-core         "1.1.1"]]
+                         :plugins [[codox "0.6.1"]]
+                         :codox {:sources ["src/clojure"]
+                                 :output-dir "doc/api"}}}
   :mailing-list {:name "clojure-riak"
                  :archive "https://groups.google.com/group/clojure-riak"
                  :post "clojure-riak@googlegroups.com"}  
@@ -29,6 +32,6 @@
                                :snapshots false
                                :releases {:checksum :fail :update :always}}
                    "sonatype-snapshots" {:url "http://oss.sonatype.org/content/repositories/snapshots"
-                               :snapshots true
-                               :releases {:checksum :fail :update :always}}}
+                                         :snapshots true
+                                         :releases {:checksum :fail :update :always}}}
   :warn-on-reflection true)
