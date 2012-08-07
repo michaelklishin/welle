@@ -1,4 +1,4 @@
-(ns clojurewerkz.welle.test.indices-test
+(ns clojurewerkz.welle.test.indices-http-test
   (:use clojure.test
         [clojurewerkz.welle.testkit :only [drain]]
         [clojure.set :only [subset?]])
@@ -11,7 +11,7 @@
 (wc/connect!)
 
 (deftest ^{:2i true} test-indexes-on-converted-riak-objects
-  (let [bucket-name "clojurewerkz.welle.test.indices-test"
+  (let [bucket-name "clojurewerkz.welle.test.indices-http-test"
         bucket      (wb/update bucket-name)
         k           (str (UUID/randomUUID))
         v           "value"
@@ -25,7 +25,7 @@
 
 
 (deftest ^{:2i true} test-basic-index-query-with-a-single-string-value
-  (let [bucket-name "clojurewerkz.welle.test.indices-test"
+  (let [bucket-name "clojurewerkz.welle.test.indices-http-test"
         bucket      (wb/update bucket-name)
         k           (str (UUID/randomUUID))
         v           (.getBytes "value")
@@ -41,7 +41,7 @@
 
 
 (deftest ^{:2i true} test-basic-index-query-with-a-range-of-string-values
-  (let [bucket-name "clojurewerkz.welle.test.indices-test"
+  (let [bucket-name "clojurewerkz.welle.test.indices-http-test"
         bucket      (wb/update bucket-name)
         k1          (str (UUID/randomUUID))
         k2          (str (UUID/randomUUID))
@@ -74,7 +74,7 @@
 
 
 (deftest ^{:2i true} test-basic-index-query-with-a-range-of-integer-values
-  (let [bucket-name "clojurewerkz.welle.test.indices-test"
+  (let [bucket-name "clojurewerkz.welle.test.indices-http-test"
         bucket      (wb/update bucket-name)
         k1          (str (UUID/randomUUID))
         k2          (str (UUID/randomUUID))
