@@ -12,7 +12,7 @@
   :profiles       {:1.4 {:dependencies [[org.clojure/clojure "1.4.0"]]}
                    :1.5 {:dependencies [[org.clojure/clojure "1.5.0-master-SNAPSHOT"]]}
                    :dev {:resource-paths ["test/resources"]
-                         :dependencies [[org.clojure/core.cache "0.6.0" :exclusions [org.clojure/clojure]]
+                         :dependencies [[org.clojure/core.cache "0.6.2" :exclusions [org.clojure/clojure]]
                                         [ring/ring-core         "1.1.1"]]
                          :plugins [[codox "0.6.1"]]
                          :codox {:sources ["src/clojure"]
