@@ -39,6 +39,11 @@ is the minimum required version because Clojure 1.3 reader cannot handle `java.u
 recommended.
 
 
+## Supported Riak versions
+
+Welle targets Riak 1.1+ but some features (for example, [2i and Search support via Protocol Buffers transport](http://basho.com/blog/technical/2012/08/07/Riak-1-2-released/)) are 1.2-specific.
+
+
 ## Getting Started
 
 Please refer to our [Getting Started with Clojure and Riak](http://clojureriak.info/articles/getting_started.html) guide.
