@@ -29,7 +29,8 @@
                    :search  :search
                    ;; as in, edge Riak features
                    ::edge-features :edge-features
-                   :default (fn [m] (not (:edge-features m)))
+                   :default (fn [m] (not (or (:edge-features m)
+                                             (:search m))))
                    :all     (constantly true)}
   :repositories   {"sonatype" {:url "http://oss.sonatype.org/content/repositories/releases"
                                :snapshots false
