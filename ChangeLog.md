@@ -1,4 +1,14 @@
+## Changes between Welle 1.2.0 and 1.3.0
+
+No changes yet.
+
+
 ## Changes between Welle 1.1.0 and 1.2.0
+
+### Validateur 1.2.0
+
+Validateur, [Clojure validation library](http://github.com/michaelklishin/validateur) that Welle depends on, was updated to 1.2.0.
+
 
 ### Buckets with enabled search now get indexing precommit hook added automatically
 
