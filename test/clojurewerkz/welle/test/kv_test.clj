@@ -189,7 +189,7 @@
         k2          "multifetch-key2"
         stored1     (kv/store bucket-name k1 "value1")
         stored2     (kv/store bucket-name k2 "value2")
-        xs          (kv/fetch-many bucket-name [k1 k2])
+        xs          (kv/fetch-all bucket-name [k1 k2])
         ft1         (first xs)
         ft2         (last xs)]
     (is (= "value1" (String. ^bytes (:value ft1))))
