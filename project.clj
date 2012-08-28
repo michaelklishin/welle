@@ -12,8 +12,8 @@
   :profiles       {:1.3 {:dependencies [[org.clojure/clojure "1.3.0"]]}
                    :1.5 {:dependencies [[org.clojure/clojure "1.5.0-master-SNAPSHOT"]]}
                    :dev {:resource-paths ["test/resources"]
-                         :dependencies [[org.clojure/core.cache "0.6.1" :exclusions [org.clojure/clojure]]
-                                        [ring/ring-core         "1.1.1"]]
+                         :dependencies [[org.clojure/core.cache "0.6.2" :exclusions [org.clojure/clojure]]
+                                        [ring/ring-core         "1.1.3"]]
                          :plugins [[codox "0.6.1"]]
                          :codox {:sources ["src/clojure"]
                                  :output-dir "doc/api"}}}
