@@ -182,6 +182,24 @@
     (is-riak-object fetched)
     (drain bucket-name)))
 
+(deftest test-fetching-of-a-group-of-objects
+  (let [bucket-name "clojurewerkz.welle.kv"
+        bucket      (wb/update bucket-name)
+        k1          "multifetch-key1"
+        k2          "multifetch-key2"
+        stored1     (kv/store bucket-name k1 "value1")
+        stored2     (kv/store bucket-name k2 "value2")
+        xs          (kv/fetch-many bucket-name [k1 k2])
+        ft1         (first xs)
+        ft2         (last xs)]
+    (is (= "value1" (String. ^bytes (:value ft1))))
+    (is (= "value2" (String. ^bytes (:value ft2))))
+    (doseq [o [ft1 ft2]]
+      (is (= Constants/CTYPE_OCTET_STREAM (:content-type o)))
+      (is (= {} (:metadata o)))
+      (is-riak-object o))
+    (drain bucket-name)))
+
 ;;
 ;; kv/delete
 ;;

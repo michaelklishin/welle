@@ -1,4 +1,5 @@
 (ns clojurewerkz.welle.kv
+  (:require [clojurewerkz.welle.mr :as mr])
   (:use clojurewerkz.welle.core
         clojurewerkz.welle.conversion
         [clojure.walk :only [stringify-keys]])
@@ -62,6 +63,19 @@
         (-> (first results)
             from-riak-object
             deserialize-value)))))
+
+(defn fetch-all
+  "Fetches multiple objects concurrently. This is a convenience function: it optimistically assumes there will be only one
+   objects for each key and no siblings. In situations when you are not sure about this, use `clojurewerkz.welle.kv/fetch`
+   `clojure.core/pmap` in combination instead.
+
+   This function relies on clojure.core/pmap to fetch multiple keys,
+   so it may be inappropriate for cases where results need to be retrieved pre-ordered. In such cases, use map/reduce queries
+   instead."
+  [^String bucket-name keys]
+  (pmap (fn [^String k]
+          (fetch-one bucket-name k))
+        keys))
 
 
 (defn index-query
