@@ -3,13 +3,13 @@
   :url "http://clojureriak.info"
   :license {:name "Eclipse Public License"}
   :min-lein-version "2.0.0"
-  :dependencies [[org.clojure/clojure        "1.3.0"]
+  :dependencies [[org.clojure/clojure        "1.4.0"]
                  [com.basho.riak/riak-client "1.0.5"]
                  [org.clojure/data.json      "0.1.2"]
                  [clojurewerkz/support       "0.6.0"]
                  [com.novemberain/validateur "1.2.0"]]
   :source-paths ["src/clojure"]
-  :profiles       {:1.4 {:dependencies [[org.clojure/clojure "1.4.0"]]}
+  :profiles       {:1.3 {:dependencies [[org.clojure/clojure "1.3.0"]]}
                    :1.5 {:dependencies [[org.clojure/clojure "1.5.0-master-SNAPSHOT"]]}
                    :dev {:resource-paths ["test/resources"]
                          :dependencies [[org.clojure/core.cache "0.6.1" :exclusions [org.clojure/clojure]]
@@ -20,7 +20,7 @@
   :mailing-list {:name "clojure-riak"
                  :archive "https://groups.google.com/group/clojure-riak"
                  :post "clojure-riak@googlegroups.com"}
-  :aliases        {"all" ["with-profile" "dev:dev,1.4:dev,1.5"]}
+  :aliases        {"all" ["with-profile" "dev:dev,1.3:dev,1.5"]}
   :test-selectors {:focus   :focus
                    :2i      :2i
                    :cache   :cache
