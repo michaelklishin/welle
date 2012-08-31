@@ -85,3 +85,16 @@
       (is (= bucket-name (-> result first :bucket)))
       (is (= "5" (-> result first :key))))
     (kv/delete-all bucket-name ["1" "2" "3" "4" "5" "6"])))
+
+(deftest ^{:mr true} test-map-reduce-with-reduce-slice
+  (let [bucket-name "clojurewerkz.welle.mr5"
+        bucket      (wb/update bucket-name :last-write-wins true)]
+    (dotimes [i 20]
+      (kv/store bucket-name (str i) {:field i} :content-type Constants/CTYPE_JSON))
+    (let [result (mr/map-reduce {:inputs bucket-name
+                                 :query [
+                                         {:map {:language "javascript" :name "Riak.mapValuesJson"}}
+                                         {:reduce {:language "javascript" :name "Riak.reduceSort" :arg "function (a,b) {return parseInt(a.field) > parseInt(b.field)}"}}
+                                         {:reduce {:language "javascript", :name "Riak.reduceSlice", :arg [0, 2]}}]})]
+      (is (= [{:field 0} {:field 1}] result)))
+    (drain bucket-name)))
