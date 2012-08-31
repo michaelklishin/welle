@@ -12,9 +12,11 @@
 
 (deftest ^{:mr true} test-basic-map-reduce-with-erlang-builtins
   (let [bucket-name "clojurewerkz.welle.mr1"
-        bucket      (wb/update bucket-name)]
-    (doseq [l (range 0 200)]
-      (kv/store bucket-name (str "java_" l) (str l) :content-type "text/plain"))
+        bucket      (wb/update bucket-name :last-write-wins true)
+        store-fn    #(kv/store bucket-name (str "java_" %) (str %) :content-type "text/plain")]
+    ;; Make sure we supply unordered values
+    (doseq [l (range 100 200)] (store-fn l))
+    (doseq [l (range 0 100)] (store-fn l))
     (let [result (mr/map-reduce {:inputs bucket-name
                                  :query [{:map {:language "erlang"
                                                :module   "riak_kv_mapreduce"
