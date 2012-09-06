@@ -5,8 +5,8 @@
   :min-lein-version "2.0.0"
   :dependencies [[org.clojure/clojure        "1.4.0"]
                  [com.basho.riak/riak-client "1.0.5"]
-                 [org.clojure/data.json      "0.1.2"]
-                 [clojurewerkz/support       "0.6.0"]
+                 [cheshire                   "4.0.2"]
+                 [clojurewerkz/support       "0.7.0"]
                  [com.novemberain/validateur "1.2.0"]]
   :source-paths ["src/clojure"]
   :profiles       {:1.3 {:dependencies [[org.clojure/clojure "1.3.0"]]}

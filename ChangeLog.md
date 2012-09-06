@@ -1,5 +1,10 @@
 ## Changes between Welle 1.2.0 and 1.3.0
 
+### Cheshire For JSON Serliazation
+
+Welle now uses (and depends on) [Cheshire](https://github.com/dakrone/cheshire) for JSON serialization.
+[clojure.data.json](https://github.com/clojure/data.json) is no longer a dependency.
+
 ### Clojure 1.4 By Default
 
 Welle now depends on `org.clojure/clojure` version `1.4.0`. It is still compatible with Clojure 1.3 and if your `project.clj` depends
