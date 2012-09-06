@@ -1,5 +1,6 @@
 (ns clojurewerkz.welle.conversion
-  (:require [clojure.data.json :as json]
+  (:require [cheshire.custom   :as json]
+            [cheshire.core     :as json2]
             [clojure.set       :as cs]
             [clojure.java.io   :as io])
   (:use     [clojure.walk :only [stringify-keys]]
@@ -285,17 +286,17 @@
 ;; JSON
 (defmethod serialize Constants/CTYPE_JSON
   [value _]
-  (json/json-str value))
+  (json/encode value))
 (defmethod serialize Constants/CTYPE_JSON_UTF8
   [value _]
-  (json/json-str value))
+  (json/encode value))
 ;; a way to support GZip content encoding for both HTTP and PB interfaces.
 (defmethod serialize "application/json+gzip"
   [value _]
   (with-open [out    (ByteArrayOutputStream.)
               gzip   (GZIPOutputStream. out)
               writer (PrintWriter. gzip)]
-    (json/write-json value writer true)
+    (json2/generate-stream value writer)
     (.flush writer)
     (.finish gzip)
     (.toByteArray out)))
@@ -326,21 +327,21 @@
 ;; JSON
 (defmethod deserialize Constants/CTYPE_JSON
   [value _]
-  (json/read-json (String. ^bytes value)))
+  (json/parse-string (String. ^bytes value) true))
 ;; as of Riak Java client 1.1, this constant's value is "application/json;charset=UTF-8"
 ;; (no space between base content type and parameters). However, Riak returns content type *with*
 ;; the space so we have to cover both. Reported to Basho at https://github.com/basho/riak-java-client/issues/125.
 ;; MK.
 (defmethod deserialize Constants/CTYPE_JSON_UTF8
   [value _]
-  (json/read-json (String. ^bytes value "UTF-8")))
+  (json/decode (String. ^bytes value "UTF-8") true))
 (defmethod deserialize "application/json; charset=UTF-8"
   [value _]
-  (json/read-json (String. ^bytes value "UTF-8")))
+  (json/decode (String. ^bytes value "UTF-8") true))
 (defmethod deserialize "application/json+gzip"
   [value _]
   (with-open [in (GZIPInputStream. (ByteArrayInputStream. ^bytes value))]
-    (json/read-json (InputStreamReader. in "UTF-8"))))
+    (json/decode-stream (InputStreamReader. in "UTF-8") true)))
 
 ;; Clojure
 (defmethod deserialize "application/clojure"

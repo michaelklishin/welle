@@ -1,7 +1,6 @@
 (ns clojurewerkz.welle.ring.session-store
   (:require [ring.middleware.session.store :as ringstore]
-            [clojurewerkz.welle.kv         :as kv]
-            clojurewerkz.support.json)
+            [clojurewerkz.welle.kv         :as kv])
   (:import [java.util UUID Date]
            com.basho.riak.client.http.util.Constants))
 
