@@ -5,6 +5,9 @@ script: lein2 all test
 branches:
   only:
     - master
+    - 1.2.x-stable
+    - 1.1.x-stable
+    - 1.0.x-stable
 jdk:
   - openjdk6
   - openjdk7
