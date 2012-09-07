@@ -68,7 +68,7 @@
     (is (empty? stored))
     (is (= Constants/CTYPE_JSON (:content-type fetched)))
     (is (= {} (:metadata fetched)))
-    (is (= {:kind "Data store", :name "Riak", :influenced-by ["Dynamo"]} (:value fetched)))
+    (is (= {:kind "Data store" :name "Riak" :influenced-by ["Dynamo"]} (:value fetched)))
     (is-riak-object fetched)
     (drain bucket-name)))
 
@@ -80,9 +80,22 @@
         v           {:name "Riak" :kind "Data store" :influenced-by #{"Dynamo"}}
         stored      (kv/store bucket-name k v :content-type Constants/CTYPE_JSON_UTF8)
         [fetched]   (kv/fetch bucket-name k)]
-    ;; cannot use constant value here, see https://github.com/basho/riak-java-client/issues/125
+    ;; cannot use constant value here see https://github.com/basho/riak-java-client/issues/125
     (is (= "application/json; charset=UTF-8"  (:content-type fetched)))
-    (is (= {:kind "Data store", :name "Riak", :influenced-by ["Dynamo"]} (:value fetched)))
+    (is (= {:kind "Data store" :name "Riak" :influenced-by ["Dynamo"]} (:value fetched)))
+    (drain bucket-name)))
+
+
+(deftest test-basic-store-with-jackson-smile-content-type
+  (let [bucket-name "clojurewerkz.welle.kv"
+        bucket      (wb/update bucket-name)
+        ct          "application/jackson-smile"
+        k           "store-as-jackson-smile"
+        v           {:name "Riak" :kind "Data store" :influenced-by #{"Dynamo"}}
+        stored      (kv/store bucket-name k v :content-type ct)
+        [fetched]   (kv/fetch bucket-name k)]
+    (is (= ct  (:content-type fetched)))
+    (is (= {:kind "Data store" :name "Riak" :influenced-by ["Dynamo"]} (:value fetched)))
     (drain bucket-name)))
 
 
@@ -95,7 +108,7 @@
         ct          "application/clojure"
         stored      (kv/store bucket-name k v :content-type ct)
         fetched     (kv/fetch-one bucket-name k)]
-    ;; cannot use constant value here, see https://github.com/basho/riak-java-client/issues/125
+    ;; cannot use constant value here see https://github.com/basho/riak-java-client/issues/125
     (is (= ct  (:content-type fetched)))
     (is (= v (:value fetched)))
     (drain bucket-name)))
@@ -114,7 +127,7 @@
     (is (empty? stored))
     (is (= ct (:content-type fetched)))
     (is (= {} (:metadata fetched)))
-    (is (= {:kind "Data store", :name "Riak", :influenced-by ["Dynamo"]} (:value fetched)))
+    (is (= {:kind "Data store" :name "Riak" :influenced-by ["Dynamo"]} (:value fetched)))
     (is-riak-object fetched)
     (drain bucket-name)))
 
@@ -133,7 +146,7 @@
         stored      (kv/store bucket-name k v :content-type Constants/CTYPE_TEXT_UTF8 :metadata metadata)
         [fetched]   (kv/fetch bucket-name k)]
     (is (= Constants/CTYPE_TEXT_UTF8 (:content-type fetched)))
-    (is (= {"author" "Joe", "density" "5"} (:metadata fetched)))
+    (is (= {"author" "Joe" "density" "5"} (:metadata fetched)))
     (is (= v (:value fetched)))
     (is-riak-object fetched)
     (drain bucket-name)))

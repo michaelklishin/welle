@@ -302,6 +302,15 @@
     (.toByteArray out)))
 
 ;; Clojure
+(defmethod serialize "application/jackson-smile"
+  [value _]
+  (json/generate-smile value))
+
+(defmethod serialize "application/smile"
+  [value _]
+  (json/generate-smile value))
+
+;; Clojure
 (defmethod serialize "application/clojure"
   [value _]
   (binding [*print-dup* true]
@@ -342,6 +351,15 @@
   [value _]
   (with-open [in (GZIPInputStream. (ByteArrayInputStream. ^bytes value))]
     (json/decode-stream (InputStreamReader. in "UTF-8") true)))
+
+;; SMILE (binary JSON)
+(defmethod deserialize "application/jackson-smile"
+  [value _]
+  (json/decode-smile value true))
+
+(defmethod deserialize "application/smile"
+  [value _]
+  (json/decode-smile value true))
 
 ;; Clojure
 (defmethod deserialize "application/clojure"

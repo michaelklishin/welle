@@ -1,5 +1,13 @@
 ## Changes between Welle 1.2.0 and 1.3.0
 
+### Support for SMILE 
+
+Welle now provides transparent serialization and deserialization support for SMILE, just like it has for
+JSON, compressed data and Clojure reader. To use it, set `:content-type` of an value to `"application/jackson-smile"`.
+
+SMILE serialization can be extended to custom data types, see [Cheshire documentation](https://github.com/dakrone/cheshire) for
+more information.
+
 ### Cheshire For JSON Serliazation
 
 Welle now uses (and depends on) [Cheshire](https://github.com/dakrone/cheshire) for JSON serialization.
@@ -16,6 +24,8 @@ We encourage all users to upgrade to 1.4, it is a drop-in replacement for the ma
 
 `clojurewerkz.welle.kv/fetch-all` is a convenience functions that retrieves multiple keys concurrently (and in parallel, on multi-core
 machines), optimistically assuming there will be no siblings for each one.
+
+
 
 
 ## Changes between Welle 1.1.0 and 1.2.0
