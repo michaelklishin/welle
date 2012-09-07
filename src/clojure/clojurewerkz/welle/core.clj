@@ -1,8 +1,9 @@
 (ns clojurewerkz.welle.core
   (:import com.basho.riak.client.raw.RawClient
-           [com.basho.riak.client.raw.http HTTPClientAdapter HTTPClusterClient HTTPClusterConfig]
+           [com.basho.riak.client.raw.http HTTPClusterClient HTTPClusterConfig]
            [com.basho.riak.client.raw.pbc PBClientAdapter PBClusterClient PBClusterConfig]
-           com.basho.riak.client.raw.config.ClusterConfig))
+           com.basho.riak.client.raw.config.ClusterConfig
+           clojurewerkz.welle.HTTPClient))
 
 
 
@@ -20,16 +21,16 @@
 (def ^{:const true} default-cluster-connection-limit 32)
 
 
-(defn ^com.basho.riak.client.raw.RawClient
+(defn ^clojurewerkz.welle.HTTPClient
   connect
   ([]
      (connect default-url))
   ([^String url]
-     (let [c (HTTPClientAdapter. (com.basho.riak.client.http.RiakClient. ^String url))]
+     (let [c (HTTPClient. (com.basho.riak.client.http.RiakClient. ^String url))]
        (.generateAndSetClientId c)
        c))
   ([^String url ^bytes client-id]
-     (let [^RawClient c (connect url)]
+     (let [^HTTPClient c (connect url)]
        (.setClientId c client-id)
        c)))
 
@@ -114,3 +115,24 @@
 (defn stats
   []
   (.stats *riak-client*))
+
+(defn get-base-url
+  "Returns base HTTP transport URL (e.g. http://127.0.0.1:8098)"
+  ([]
+     (.getBaseUrl ^HTTPClient *riak-client*))
+  ([^HTTPClient client]
+     (.getBaseUrl client)))
+
+(defn get-base-solr-url
+  "Returns base Sorl API URL (e.g. http://127.0.0.1:8098/solr)"
+  ([]
+     (get-base-solr-url *riak-client*))
+  ([^HTTPClient client]
+     (str (.getBaseUrl client) "/solr")))
+
+(defn get-solr-url
+  "Returns Sorl endpoint URL for the given index (e.g. http://127.0.0.1:8098/solr/production_index/select)"
+  ([^String index]
+     (get-solr-url *riak-client* index))
+  ([^HTTPClient client ^String index]
+     (str (get-base-solr-url *riak-client*) "/" index "/select")))
