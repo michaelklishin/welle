@@ -3,7 +3,7 @@
 ### Support for SMILE 
 
 Welle now provides transparent serialization and deserialization support for SMILE, just like it has for
-JSON, compressed data and Clojure reader. To use it, set `:content-type` of an value to `"application/jackson-smile"`.
+JSON, compressed data and Clojure reader. To use it, set `:content-type` of a value to `"application/jackson-smile"`.
 
 SMILE serialization can be extended to custom data types, see [Cheshire documentation](https://github.com/dakrone/cheshire) for
 more information.
