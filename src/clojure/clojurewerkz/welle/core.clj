@@ -122,17 +122,3 @@
      (.getBaseUrl ^HTTPClient *riak-client*))
   ([^HTTPClient client]
      (.getBaseUrl client)))
-
-(defn get-base-solr-url
-  "Returns base Sorl API URL (e.g. http://127.0.0.1:8098/solr)"
-  ([]
-     (get-base-solr-url *riak-client*))
-  ([^HTTPClient client]
-     (str (.getBaseUrl client) "/solr")))
-
-(defn get-solr-url
-  "Returns Sorl endpoint URL for the given index (e.g. http://127.0.0.1:8098/solr/production_index/select)"
-  ([^String index]
-     (get-solr-url *riak-client* index))
-  ([^HTTPClient client ^String index]
-     (str (get-base-solr-url *riak-client*) "/" index "/select")))

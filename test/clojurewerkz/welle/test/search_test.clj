@@ -10,18 +10,18 @@
 (wc/connect!)
 
 (deftest ^{:search true} test-query-string-query-via-the-solr-api
-  (let [bucket-name "clojurewerkz.welle.solr-search-api"
+  (let [bucket-name "clojurewerkz.welle.solr.tweets"
         bucket      (wb/update bucket-name :last-write-wins true :enable-search true)]
     (drain bucket-name)
-    (kv/store bucket-name "1" {:field "one"}   :content-type Constants/CTYPE_JSON)
-    (kv/store bucket-name "2" {:field "two"}   :content-type Constants/CTYPE_JSON)
-    (kv/store bucket-name "3" {:field "three"} :content-type Constants/CTYPE_JSON)
-    (kv/store bucket-name "4" {:field "four"}  :content-type Constants/CTYPE_JSON)
-    (kv/store bucket-name "5" {:field "five"}  :content-type Constants/CTYPE_JSON)
-    (kv/store bucket-name "6" {:field "six"}   :content-type Constants/CTYPE_JSON)
-    (Thread/sleep 1000)
-    (let [result (wsolr/search bucket-name "five")
+    (wsolr/delete-via-query bucket-name "text:*")
+    (wsolr/index bucket-name {:username  "clojurewerkz"
+                              :text      "Elastisch beta3 is out, several more @elasticsearch features supported github.com/clojurewerkz/elastisch, improved docs http://clojureelasticsearch.info #clojure"
+                              :timestamp "20120802T101232+0100"
+                              :id        1})
+    (let [result (wsolr/search bucket-name "*")
           hits   (wsolr/hits-from result)]
       (println result)
-      (println hits))
+      (println hits)
+      (is (> (count hits) 0)))
+    ;; (wsolr/delete-via-query bucket-name "text:*")
     (drain bucket-name)))
