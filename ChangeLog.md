@@ -1,5 +1,34 @@
 ## Changes between Welle 1.2.0 and 1.3.0
 
+### Search Support
+
+`clojurewerkz.welle.solr` is a new namespace that provides support for [Riak Search](http://wiki.basho.com/Riak-Search.html) using the Solr API.
+Both indexing and querying are supported:
+
+``` clojure
+(require '[clojurewerkz.welle.solr    :as wsolr])
+
+;; indexing
+(wsolr/delete-via-query "an-index" "text:*")
+(wsolr/index bucket-name {:username  "clojurewerkz"
+                          :text      "Elastisch beta3 is out, several more @elasticsearch features supported github.com/clojurewerkz/elastisch, improved docs http://clojureelasticsearch.info #clojure"
+                          :timestamp "20120802T101232+0100"
+                          :id        1})
+```
+
+``` clojure
+(require '[clojurewerkz.welle.solr    :as wsolr])
+
+;; querying
+(let [result (wsolr/search "an-index" "title:feature")
+      hits   (wsolr/hits-from result)]
+  (println result)
+  (println hits)
+  (is (> (count hits) 0)))
+```
+
+
+
 ### Support for SMILE 
 
 Welle now provides transparent serialization and deserialization support for SMILE, just like it has for
