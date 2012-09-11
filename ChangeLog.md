@@ -27,6 +27,8 @@ Both indexing and querying are supported:
   (is (> (count hits) 0)))
 ```
 
+Documents stored via Riak K/V (`clojurewerkz.welle.kv/store`) with the content type of `application/json`, `application/xml` or `text/plain` will be indexed
+if Riak Search is enabled for the bucket.
 
 
 ### Support for SMILE 
