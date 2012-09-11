@@ -9,19 +9,17 @@
 
 (wc/connect!)
 
-(deftest ^{:search true} test-query-string-query-via-the-solr-api
+(deftest ^{:search true} test-term-query-via-the-solr-api
   (let [bucket-name "clojurewerkz.welle.solr.tweets"
-        bucket      (wb/update bucket-name :last-write-wins true :enable-search true)]
+        bucket      (wb/update bucket-name :last-write-wins true :enable-search true)
+        doc         {:username  "clojurewerkz"
+                     :text      "Elastisch beta3 is out, several more @elasticsearch features supported github.com/clojurewerkz/elastisch, improved docs http://clojureelasticsearch.info #clojure"
+                     :timestamp "20120802T101232+0100"
+                     :id        1}]
     (drain bucket-name)
-    (wsolr/delete-via-query bucket-name "text:*")
-    (wsolr/index bucket-name {:username  "clojurewerkz"
-                              :text      "Elastisch beta3 is out, several more @elasticsearch features supported github.com/clojurewerkz/elastisch, improved docs http://clojureelasticsearch.info #clojure"
-                              :timestamp "20120802T101232+0100"
-                              :id        1})
-    (let [result (wsolr/search bucket-name "*")
+    (kv/store bucket-name "a-key" doc :content-type "application/json")
+    (let [result (wsolr/search bucket-name "username:clojurewerkz")
           hits   (wsolr/hits-from result)]
-      (println result)
-      (println hits)
+      (is (= "a-key" (-> hits first :id)))
       (is (> (count hits) 0)))
-    ;; (wsolr/delete-via-query bucket-name "text:*")
     (drain bucket-name)))
