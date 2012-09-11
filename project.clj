@@ -7,8 +7,14 @@
                  [com.basho.riak/riak-client "1.0.5"]
                  [cheshire                   "4.0.2"]
                  [clojurewerkz/support       "0.7.0"]
-                 [com.novemberain/validateur "1.2.0"]]
-  :source-paths ["src/clojure"]
+                 [com.novemberain/validateur "1.2.0"]
+                 ;; for the Riak Search Solr API support. When Riak Client supports
+                 ;; search natively, we should be able to just use what it provides.
+                 [clj-http                   "0.5.2"]
+                 [org.clojure/data.xml       "0.0.6" :exclusions [org.clojure/clojure]]]
+  :source-paths      ["src/clojure"]
+  :java-source-paths ["src/java"]
+  :javac-options     ["-target" "1.6" "-source" "1.6"]
   :profiles       {:1.3 {:dependencies [[org.clojure/clojure "1.3.0"]]}
                    :1.5 {:dependencies [[org.clojure/clojure "1.5.0-master-SNAPSHOT"]]}
                    :dev {:resource-paths ["test/resources"]
