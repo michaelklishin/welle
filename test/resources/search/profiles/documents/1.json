@@ -1,0 +1,9 @@
+{
+ "name": "Alyssa P. Hacker",
+ "username": "alyssa",
+ "bio": "I'm an engineer, making awesome things.",
+ "favorites":{
+              "book": "The Moon is a Harsh Mistress",
+              "album": "Magical Mystery Tour"
+             }
+}
