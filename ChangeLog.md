@@ -23,8 +23,7 @@ Both indexing and querying are supported:
 (let [result (wsolr/search "an-index" "title:feature")
       hits   (wsolr/hits-from result)]
   (println result)
-  (println hits)
-  (is (> (count hits) 0)))
+  (println hits))
 ```
 
 Documents stored via Riak K/V (`clojurewerkz.welle.kv/store`) with the content type of `application/json`, `application/xml` or `text/plain` will be indexed
