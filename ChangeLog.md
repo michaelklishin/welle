@@ -1,6 +1,6 @@
 ## Changes between Welle 1.2.0 and 1.3.0
 
-### Search Support
+### Riak Search Support
 
 `clojurewerkz.welle.solr` is a new namespace that provides support for [Riak Search](http://wiki.basho.com/Riak-Search.html) using the Solr API.
 Both indexing and querying are supported:
