@@ -1,3 +1,8 @@
+## Changes between Welle 1.3.0 and 1.4.0
+
+No changes yet.
+
+
 ## Changes between Welle 1.2.0 and 1.3.0
 
 ### Riak Search Support
