@@ -44,10 +44,4 @@
                    "sonatype-snapshots" {:url "http://oss.sonatype.org/content/repositories/snapshots"
                                          :snapshots true
                                          :releases {:checksum :fail :update :always}}}
-  :warn-on-reflection true
-  :mailing-list {:name "clojure-riak"
-                 :archive "https://groups.google.com/group/clojure-riak"
-                 :post "clojure-riak@googlegroups.com"}
-  :plugins [[codox "0.6.1"]]
-  :codox {:sources ["src/clojure"]
-          :output-dir "doc/api"})
+  :warn-on-reflection true)
