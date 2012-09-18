@@ -1,4 +1,4 @@
-## Changes between Welle 1.3.0 and 1.4.0
+## Changes between Welle 1.3.0 and 1.3.1
 
 ### Reasonable Vlock Pruning Defaults
 
