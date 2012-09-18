@@ -217,7 +217,7 @@
 ;; kv/delete
 ;;
 
-(deftest test-fetching-deleted-value
+(deftest test-fetching-deleted-value-with-rw=2
   (let [bucket-name "clojurewerkz.welle.kv3"
         bucket      (wb/update bucket-name :last-write-wins true)
         k           "delete-me"
@@ -227,5 +227,19 @@
     (is (empty? (kv/fetch bucket-name k :r 2)))
     (kv/store bucket-name k v)
     (is (first (kv/fetch bucket-name k)))
-    (kv/delete bucket-name k :w 2)
+    (kv/delete bucket-name k :rw 2)
     (is (empty? (kv/fetch bucket-name k :r 2)))))
+
+
+(deftest test-fetching-deleted-value-with-bucket-settings
+  (let [bucket-name "clojurewerkz.welle.kv4"
+        bucket      (wb/update bucket-name :big-vclock 50 :old-vclock 30000)
+        k           "delete-me"
+        v           "another value"]
+    (drain bucket-name)
+    (Thread/sleep 150)
+    (is (nil? (kv/fetch-one bucket-name k :r 2)))
+    (kv/store bucket-name k v)
+    (is (kv/fetch-one bucket-name k))
+    (kv/delete bucket-name k :rw 2)
+    (is (nil? (kv/fetch-one bucket-name k :r 2)))))

@@ -1,6 +1,10 @@
 ## Changes between Welle 1.3.0 and 1.4.0
 
-No changes yet.
+### Reasonable Vlock Pruning Defaults
+
+Welle now uses reasonable vclock pruning setting defaults in `clojurewerkz.welle.buckets/update`.
+
+Kudos to @mefesto for reporting the issue.
 
 
 ## Changes between Welle 1.2.0 and 1.3.0

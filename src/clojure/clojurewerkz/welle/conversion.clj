@@ -399,12 +399,10 @@
     :or {allow-siblings  false
          n-val           3
          enable-search   false
-         ;; same as BucketPropertiesBuilder defaults for
-         ;; the respective fields (Java int/long field initial values). MK.
-         old-vclock 0
-         young-vclock 0
-         small-vclock 0
-         big-vclock 0}}]
+         old-vclock      86400
+         young-vclock    20
+         small-vclock    50
+         big-vclock      50}}]
   (let [bldr (doto (BucketPropertiesBuilder.)
                (.r             (to-quorum r))
                (.w             (to-quorum w))
