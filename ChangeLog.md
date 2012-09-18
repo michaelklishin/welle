@@ -4,6 +4,9 @@
 
 Welle now uses reasonable vclock pruning setting defaults in `clojurewerkz.welle.buckets/update`.
 
+Previously settings like `:big-vclock`, `:small-vclock`, etc all were set to 0 that caused Riak K/V to not
+accept writes. Welle now uses the same default bucket settings as Riak K/V.
+
 Kudos to @mefesto for reporting the issue.
 
 
