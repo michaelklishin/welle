@@ -233,7 +233,7 @@
 
 (deftest test-fetching-deleted-value-with-bucket-settings
   (let [bucket-name "clojurewerkz.welle.kv4"
-        bucket      (wb/update bucket-name :big-vclock 50 :old-vclock 30000)
+        bucket      (wb/update bucket-name)
         k           "delete-me"
         v           "another value"]
     (drain bucket-name)
