@@ -1,5 +1,24 @@
 ## Changes between Welle 1.3.0 and 1.4.0
 
+### HTTP Cluster Connection URLs
+
+Updated HTTP cluster connections to be full URLs.  This change is
+primarily to allow users to specify alternate ports.
+
+HTTP cluster connections now require a full url:
+
+``` clojure
+(require '[clojurewerkz.welle.core :as wc])
+
+(wc/connect-to-cluster! ["http://node1:8098/riak" "http://node2:8098/riak"])
+```
+
+Also included in this change:
+
+`clojurewerkz.welle.core/default-port` removed and replaced by the following:
+  - `clojurewerkz.welle.core/default-http-port`
+  - `clojurewerkz.welle.core/default-pb-port`
+
 ### Reasonable Vlock Pruning Defaults
 
 Welle now uses reasonable vclock pruning setting defaults in `clojurewerkz.welle.buckets/update`.
