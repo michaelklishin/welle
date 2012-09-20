@@ -21,14 +21,32 @@
 
 
 (deftest connect-using-clustered-http-client
-  (let [^RawClient client (wc/connect-to-cluster ["127.0.0.1" "localhost"])]
+  (let [^RawClient client (wc/connect-to-cluster ["http://127.0.0.1:8098/riak"
+                                                  "http://localhost:8098/riak"])]
+    (dotimes [x 10]
+      (.ping client)
+      (wc/ping client)
+      (wc/shutdown client))))
+
+(deftest connect-using-clustered-http-client-with-port-specified
+  (let [^RawClient client (wc/connect-to-cluster ["http://127.0.0.1:8098/riak"
+                                                  "http://localhost:8098/riak"])]
     (dotimes [x 10]
       (.ping client)
       (wc/ping client)
       (wc/shutdown client))))
 
 (deftest connect-using-clustered-http-client-and-default-client
-  (wc/connect-to-cluster! ["127.0.0.1" "localhost"])
+  (wc/connect-to-cluster! ["http://127.0.0.1:8098/riak"
+                           "http://localhost:8098/riak"])
+  (dotimes [x 10]
+    (.ping ^RawClient wc/*riak-client*)
+    (wc/ping)
+    (wc/shutdown)))
+
+(deftest connect-using-clustered-http-client-and-default-client-with-port-specified
+  (wc/connect-to-cluster! ["http://127.0.0.1:8098/riak"
+                           "http://localhost:8098/riak"])
   (dotimes [x 10]
     (.ping ^RawClient wc/*riak-client*)
     (wc/ping)

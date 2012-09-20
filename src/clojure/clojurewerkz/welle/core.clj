@@ -1,6 +1,7 @@
 (ns clojurewerkz.welle.core
   (:import com.basho.riak.client.raw.RawClient
-           [com.basho.riak.client.raw.http HTTPClusterClient HTTPClusterConfig]
+           [com.basho.riak.client.raw.http HTTPClientConfig HTTPClientConfig$Builder
+            HTTPClusterClient HTTPClusterConfig]
            [com.basho.riak.client.raw.pbc PBClientAdapter PBClusterClient PBClusterConfig]
            com.basho.riak.client.raw.config.ClusterConfig
            clojurewerkz.welle.HTTPClient))
@@ -12,7 +13,8 @@
 ;;
 
 (def ^{:private true :const true} default-host "127.0.0.1")
-(def ^{:private true :const true} default-port 8087)
+(def ^{:private true :const true} default-http-port 8098)
+(def ^{:private true :const true} default-pb-port 8087)
 
 (def ^{:private true :const true} default-url "http://127.0.0.1:8098/riak")
 
@@ -44,7 +46,7 @@
 
 (defn connect-via-pb
   ([]
-     (connect-via-pb default-host default-port))
+     (connect-via-pb default-host default-pb-port))
   ([^String host ^long port]
      (PBClientAdapter. (com.basho.riak.pbc.RiakClient. host port))))
 
@@ -54,11 +56,22 @@
   ([host port]
      (alter-var-root (var *riak-client*) (constantly (connect-via-pb host port)))))
 
+(defprotocol HTTPClusterConfigurator
+  (http-cluster-config-from [self]))
 
-(defn- http-cluster-config-from
-  ([endpoints]
-     (doto (HTTPClusterConfig. default-cluster-connection-limit)
-       (.addHosts (into-array String endpoints)))))
+(extend-type HTTPClusterConfig
+  HTTPClusterConfigurator
+  (http-cluster-config-from [self] self))
+
+(extend-type java.util.Collection
+  HTTPClusterConfigurator
+  (http-cluster-config-from [endpoints]
+    (let [res (HTTPClusterConfig. default-cluster-connection-limit)]
+      (doseq [^String endpoint endpoints]
+        (.addClient res (-> (HTTPClientConfig$Builder.)
+                            (.withUrl endpoint)
+                            (.build))))
+      res)))
 
 (defn ^com.basho.riak.client.raw.RawClient
   connect-to-cluster
