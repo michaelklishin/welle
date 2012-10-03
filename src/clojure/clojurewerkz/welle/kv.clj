@@ -34,8 +34,11 @@
                                          :vtag          vtag
                                          :last-modified last-modified})
         ;; implements Iterable. MK.
-        ^RiakResponse xs (.store *riak-client* ro md)]
-    (map from-riak-object xs)))
+        ^RiakResponse xs (.store *riak-client* ro md)
+        mf               (if return-body
+                           (comp deserialize-value from-riak-object)
+                           from-riak-object)]
+    (map mf xs)))
 
 
 (defn fetch

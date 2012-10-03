@@ -132,6 +132,16 @@
     (drain bucket-name)))
 
 
+(deftest test-basic-store-with-text-utf8-content-type-and-return-body
+  (let [bucket-name "clojurewerkz.welle.kv"
+        bucket      (wb/update bucket-name)
+        k           "store-as-utf8-text"
+        v           "value"
+        stored      (kv/store bucket-name k v :content-type Constants/CTYPE_TEXT_UTF8 :return-body true)]
+    (is (= v (-> stored first :value)))
+    (drain bucket-name)))
+
+
 ;;
 ;; Metadata
 ;;

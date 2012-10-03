@@ -1,5 +1,13 @@
 ## Changes between Welle 1.3.0 and 1.4.0
 
+### Automatic Deserialization Support For clojurewerkz.welle.kv/store
+
+`clojurewerkz.welle.kv/store`, when used with the `:return-body` option, now will automatically deserialize it
+the same way `clojurewerkz.welle.kv/fetch` and `clojurewerkz.welle.kv/fetch-one` do.
+
+Suggested by Allen Johnson.
+
+
 ### clj-http Update
 
 [clj-http](https://github.com/dakrone/clj-http/) dependency has been upgraded to version `0.5.4`.
