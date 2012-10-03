@@ -5,7 +5,8 @@
         [clojure.walk :only [stringify-keys]])
   (:import [com.basho.riak.client IRiakClient IRiakObject]
            [com.basho.riak.client.raw StoreMeta FetchMeta DeleteMeta RawClient RiakResponse]
-           com.basho.riak.client.http.util.Constants))
+           com.basho.riak.client.http.util.Constants
+           java.util.Date))
 
 
 ;;
@@ -15,7 +16,7 @@
 (defn store
   "Stores an object in Riak"
   [^String bucket-name ^String key value &{ :keys [w dw pw
-                                                   indexes links vclock ^String vtag ^Long last-modified
+                                                   indexes links vclock ^String vtag ^Date last-modified
                                                    ^Boolean return-body ^Boolean if-none-match ^Boolean if-not-modified
                                                    content-type metadata]
                                            :or {content-type Constants/CTYPE_OCTET_STREAM
