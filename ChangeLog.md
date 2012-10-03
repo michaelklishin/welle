@@ -10,7 +10,7 @@ Suggested by Allen Johnson.
 
 ### clj-http Update
 
-[clj-http](https://github.com/dakrone/clj-http/) dependency has been upgraded to version `0.5.4`.
+[clj-http](https://github.com/dakrone/clj-http/) dependency has been upgraded to version `0.5.5`.
 
 
 ### HTTP Cluster Connection URLs
