@@ -243,3 +243,21 @@
     (is (kv/fetch-one bucket-name k))
     (kv/delete bucket-name k :rw 2)
     (is (nil? (kv/fetch-one bucket-name k :r 2)))))
+
+;;
+;; store with options
+;;
+
+(deftest test-store-if-none-modified
+  (let [bucket-name "clojurewerkz.welle.kv"
+        key         "none-modified-key"
+        _           (kv/store bucket-name key "value1")
+        res         (kv/fetch-one bucket-name key)
+        vclock      (:vclock res)
+        _           (kv/store bucket-name key "value2")
+        _           (kv/store bucket-name key "value3"
+                              :vclock vclock
+                              :if-none-modified true)
+        res         (kv/fetch-one bucket-name key)]
+    (is (= "value2" (String. ^bytes (:value res))))
+    (drain bucket-name)))
