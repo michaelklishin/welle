@@ -253,3 +253,21 @@
     (is (kv/fetch-one bucket-name k))
     (kv/delete bucket-name k :rw 2)
     (is (nil? (kv/fetch-one bucket-name k :r 2)))))
+
+
+(deftest test-fetching-multiple-deleted-values-with-bucket-settings
+  (let [bucket-name "clojurewerkz.welle.kv5"
+        bucket      (wb/update bucket-name)
+        key         "delete-me"
+        value       "another value"
+        key-values  (map (fn [i] [(str key i) (str value i)]) (range 10))]
+    (drain bucket-name)
+    (Thread/sleep 150)
+
+    (doseq [[k v] key-values]
+      (is (nil? (kv/fetch-one bucket-name k)))
+      (kv/store bucket-name k v)
+      (is (kv/fetch-one bucket-name k)))
+    (kv/delete-all bucket-name (map first key-values))
+    (doseq [[k v] key-values]
+      (is (nil? (kv/fetch-one bucket-name k))))))
