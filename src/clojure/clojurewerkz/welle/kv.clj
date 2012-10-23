@@ -106,13 +106,13 @@
    operations is a problem. For deleting a very large number of keys (say, thousands), consider using
    map/reduce"
   ([^String bucket-name keys]
-     (pmap (fn [^String k]
-             (delete bucket-name k))
-           keys))
+     (doall (pmap (fn [^String k]
+                    (delete bucket-name k))
+                  keys)))
   ([^String bucket-name keys & rest]
-     (pmap (fn [^String k]
-             (apply delete (concat [bucket-name k] rest)))
-           keys)))
+     (doall (pmap (fn [^String k]
+                    (apply delete (concat [bucket-name k] rest)))
+                  keys))))
 
 
 (defn delete-all-via-2i
