@@ -2,7 +2,7 @@
 
 ### clojurewekz.welle.kv/delete-all Is No Longer Lazily Evaluated
 
-Contributed by Renaud Tircher..
+Contributed by Renaud Tircher.
 
 
 ### Automatic Deserialization Support For clojurewerkz.welle.kv/store
