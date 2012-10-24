@@ -1,5 +1,10 @@
 ## Changes between Welle 1.3.0 and 1.4.0
 
+### clojurewekz.welle.kv/delete-all Is No Longer Lazily Evaluated
+
+Contributed by Renaud Tircher..
+
+
 ### Automatic Deserialization Support For clojurewerkz.welle.kv/store
 
 `clojurewerkz.welle.kv/store`, when used with the `:return-body` option, now will automatically deserialize it
