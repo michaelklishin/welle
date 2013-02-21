@@ -43,7 +43,22 @@
 (declare tombstone?)
 (defn fetch
   "Fetches an object and all its siblings (if there are any). As such, it always returns a list. In cases you are
-   sure will produce no siblings, consider using `clojurewerkz.welle.kv/fetch-one`."
+   sure will produce no siblings, consider using `clojurewerkz.welle.kv/fetch-one`.
+
+   This function will filter out tombstones (objects that were deleted but not yet
+   resolved/garbage collected by the storage engine) unless :return-deleted-vclock
+   is passed as true.
+
+   Available options:
+
+   `:basic-quorum` (true or false): whether to return early in some failure cases (eg. when `:r` is 1 and you get 2 errors and a success `:basic-quorum` set to true would return an error)
+   `:notfound-ok` (true or false): whether to treat notfounds as successful reads for the purposes of `:r`
+   `:vtag`: when accessing an object with siblings, which sibling to retrieve.
+   `:if-none-match` (date): a date for conditional get. Only supported by HTTP transport.
+   `:if-modified-vclock`: a vclock instance to use for conditional get. Only supported by Protocol Buffers transport.
+   `:return-deleted-vlock` (true or false): should tombstones (objects that have been deleted but not yet resolved/GCed) be returned?
+   `:head-only` (true or false): should the response only return object metadata, not its value?
+  "
   [^String bucket-name ^String key &{:keys [r pr not-found-ok basic-quorum head-only
                                             return-deleted-vclock if-modified-since if-modified-vclock]
                                      :or {}}]
