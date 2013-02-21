@@ -1,5 +1,15 @@
 ## Changes between Welle 1.3.0 and 1.4.0
 
+### Tombstones Handling
+
+In eventually consistent systems such as Riak, deleted objects may
+sometimes "reappear" due to concurrent modifications.  Welle by
+default will filter out tombstones in
+`clojurewerkz.welle.kv/fetch`. If you want to retrieve all objects
+including tombstones, pass `:return-deleted-vlock` as `true` to
+`clojurewerkz.welle.kv/fetch`. This behavior is new in Welle `1.4.0`
+which uses Riak Java client `1.1.0`.
+
 ### Riak Java Client Update
 
 Welle now uses Riak Java client [1.1.0](http://lists.basho.com/pipermail/riak-users_lists.basho.com/2013-February/011094.html).
