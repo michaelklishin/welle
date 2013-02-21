@@ -40,33 +40,38 @@
                            from-riak-object)]
     (map mf xs)))
 
-
+(declare tombstone?)
 (defn fetch
   "Fetches an object and all its siblings (if there are any). As such, it always returns a list. In cases you are
    sure will produce no siblings, consider using `clojurewerkz.welle.kv/fetch-one`."
   [^String bucket-name ^String key &{:keys [r pr not-found-ok basic-quorum head-only
-                                            return-deleted-vlock if-modified-since if-modified-vclock]
+                                            return-deleted-vclock if-modified-since if-modified-vclock]
                                      :or {}}]
-  (let [^FetchMeta md (to-fetch-meta r pr not-found-ok basic-quorum head-only return-deleted-vlock if-modified-since if-modified-vclock)
-        results       (.fetch *riak-client* bucket-name key md)]
-    (map (comp deserialize-value from-riak-object) results)))
+  (let [^FetchMeta md (to-fetch-meta r pr not-found-ok basic-quorum head-only return-deleted-vclock if-modified-since if-modified-vclock)
+        results       (.fetch *riak-client* bucket-name key md)
+        ;; return-deleted-vclock = we should return tombstones. See
+        ;; https://github.com/basho/riak-java-client/commit/416a901ff1de8e4eb559db21ac5045078d278e86 for more info. MK.
+        ros           (if return-deleted-vclock
+                        results
+                        (remove #(.isDeleted %) results))]
+    (map (comp deserialize-value from-riak-object) ros)))
 
 (defn fetch-one
   "Fetches a single object. This is a convenience function: it optimistically assumes there will be only one
    objects and no siblings. In situations when you are not sure about this, consider using `clojurewerkz.welle.kv/fetch`
    instead."
   [^String bucket-name ^String key &{:keys [r pr not-found-ok basic-quorum head-only
-                                            return-deleted-vlock if-modified-since if-modified-vclock]
+                                            return-deleted-vclock if-modified-since if-modified-vclock]
                                      :or {}}]
-  (let [^FetchMeta md (to-fetch-meta r pr not-found-ok basic-quorum head-only return-deleted-vlock if-modified-since if-modified-vclock)
+  (let [^FetchMeta md (to-fetch-meta r pr not-found-ok basic-quorum head-only return-deleted-vclock if-modified-since if-modified-vclock)
         results       (.fetch *riak-client* bucket-name key md)]
     (if (.hasSiblings results)
       (throw (IllegalStateException.
               "Riak response to clojurewerkz.welle.kv/fetch-one contains siblings. If conflicts/siblings are expected here, use clojurewerkz.welle.kv/fetch"))
-      (when-let [ro (first results)]
-        (-> (first results)
-            from-riak-object
-            deserialize-value)))))
+      (when (not (empty? results))
+        (let [fr (first results)]
+          (when (not (.isDeleted fr))
+            (-> fr from-riak-object deserialize-value)))))))
 
 (defn fetch-all
   "Fetches multiple objects concurrently. This is a convenience function: it optimistically assumes there will be only one
@@ -122,3 +127,9 @@
   ([^String bucket-name field value & rest]
      (let [keys (set (index-query bucket-name field value))]
        (apply delete-all (concat [bucket-name keys] rest)))))
+
+(defn tombstone?
+  "Returns true if a given Riak object is a tombstone
+   (was deleted but not yet GCed)"
+  [m]
+  (:deleted? m))

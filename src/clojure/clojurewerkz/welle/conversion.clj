@@ -103,13 +103,13 @@
 (defn to-fetch-meta
   "Builds a FetchMeta instance from provided arguments"
   (^com.basho.riak.client.raw.FetchMeta
-   [r pr not-found-ok basic-quorum head-only return-deleted-vlock if-modified-since if-modified-vclock]
+   [r pr not-found-ok basic-quorum head-only return-deleted-vclock if-modified-since if-modified-vclock]
    (FetchMeta. (to-quorum r)
                (to-quorum pr)
                ^Boolean not-found-ok
                ^Boolean basic-quorum
                ^Boolean head-only
-               ^Boolean return-deleted-vlock
+               ^Boolean return-deleted-vclock
                ^Date if-modified-since
                ^VClock if-modified-vclock)))
 
@@ -193,7 +193,9 @@
    :metadata      (into {} (.getMeta ro))
    :value         (.getValue ro)
    :indexes       (indexes-from ro)
-   :links         (links-from ro)})
+   :links         (links-from ro)
+   ;; true for tombstones
+   :deleted?      (.isDeleted ro)})
 
 
 ;; Index queries
