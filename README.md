@@ -38,12 +38,14 @@ by one of Basho's engineers. If you are evaluating Welle, please consider Sumo a
 Welle is built from the ground up for Clojure 1.3 and up. To store dates/instants with Clojure data serialization, Clojure 1.4.0
 is the minimum required version because Clojure 1.3 reader cannot handle `java.util.Date` instances.
 
-Clojure 1.4 is highly recommended.
+The most recent stable Clojure release is highly recommended.
 
 
-## Supported Riak versions
+## Supported Riak Versions
 
 Welle targets Riak 1.1+ but some features (for example, [2i and Search support via Protocol Buffers transport](http://basho.com/blog/technical/2012/08/07/Riak-1-2-released/)) are 1.2-specific.
+
+Welle `1.4.0` is compatible with Riak `1.3.0`.
 
 
 ## Getting Started
@@ -69,7 +71,7 @@ Welle artifacts are [released to Clojars](https://clojars.org/com.novemberain/we
 Add dependency in your `project.clj`:
 
 ``` clojure
-[com.novemberain/welle "1.3.1"]
+[com.novemberain/welle "1.4.0"]
 ```
 
 ### With Maven
@@ -89,7 +91,7 @@ and then the dependency:
 <dependency>
   <groupId>com.novemberain</groupId>
   <artifactId>welle</artifactId>
-  <version>1.3.1</version>
+  <version>1.4.0</version>
 </dependency>
 ```
 
