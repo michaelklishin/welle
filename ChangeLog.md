@@ -1,5 +1,14 @@
 ## Changes between Welle 1.3.0 and 1.4.0
 
+### Riak Java Client Update
+
+Welle now uses Riak Java client [1.1.0](http://lists.basho.com/pipermail/riak-users_lists.basho.com/2013-February/011094.html).
+
+### Cheshire Update
+
+[Cheshire](https://github.com/dakrone/cheshire/) dependency has been upgraded to version `5.0.2`.
+
+
 ### clojurewekz.welle.kv/delete-all Is No Longer Lazily Evaluated
 
 Contributed by Renaud Tircher.
@@ -15,7 +24,7 @@ Suggested by Allen Johnson.
 
 ### clj-http Update
 
-[clj-http](https://github.com/dakrone/clj-http/) dependency has been upgraded to version `0.5.5`.
+[clj-http](https://github.com/dakrone/clj-http/) dependency has been upgraded to version `0.6.4`.
 
 
 ### HTTP Cluster Connection URLs
