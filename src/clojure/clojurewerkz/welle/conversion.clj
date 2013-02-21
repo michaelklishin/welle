@@ -227,9 +227,9 @@
 
   Long
   (to-range-query [^Long start ^Long end ^String bucket-name index-name]
-    (IntRangeQuery. (int-index index-name) bucket-name (Integer/valueOf start) (Integer/valueOf end)))
+    (IntRangeQuery. (int-index index-name) bucket-name (Long/valueOf start) (Long/valueOf end)))
   (to-value-query [^Long value ^String bucket-name index-name]
-    (IntValueQuery. (int-index index-name) bucket-name (Integer/valueOf value))))
+    (IntValueQuery. (int-index index-name) bucket-name (Long/valueOf value))))
 
 
 
