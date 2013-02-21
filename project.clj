@@ -4,7 +4,7 @@
   :license {:name "Eclipse Public License"}
   :min-lein-version "2.0.0"
   :dependencies [[org.clojure/clojure        "1.4.0"]
-                 [com.basho.riak/riak-client "1.0.6"]
+                 [com.basho.riak/riak-client "1.1.0"]
                  [cheshire                   "5.0.2"]
                  [clojurewerkz/support       "0.13.0"]
                  [com.novemberain/validateur "1.2.0"]
