@@ -58,7 +58,7 @@ Also included in this change:
   * `clojurewerkz.welle.core/default-pb-port`
 
 
-### Reasonable Vlock Pruning Defaults
+### Reasonable Vclock Pruning Defaults
 
 Welle now uses reasonable vclock pruning setting defaults in `clojurewerkz.welle.buckets/update`.
 
