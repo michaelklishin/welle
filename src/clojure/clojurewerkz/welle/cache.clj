@@ -1,4 +1,4 @@
-(ns ^{:doc "clojure.core.cache implementation(s) on top of MongoDB."
+(ns ^{:doc "clojure.core.cache implementation(s) on top of Riak."
       :author "Michael S. Klishin"}
   clojurewerkz.welle.cache
   (:require [clojurewerkz.welle.kv :as kv]
