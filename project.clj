@@ -28,7 +28,7 @@
   :mailing-list {:name "clojure-riak"
                  :archive "https://groups.google.com/group/clojure-riak"
                  :post "clojure-riak@googlegroups.com"}
-  :aliases        {"all" ["with-profile" "dev:dev,1.3:dev,1.4:dev,1.6"]}
+  :aliases        {"all" ["with-profile" "dev:dev,1.3:dev,1.4:dev,1.6:dev,master"]}
   :test-selectors {:focus   :focus
                    :2i      :2i
                    :cache   :cache
