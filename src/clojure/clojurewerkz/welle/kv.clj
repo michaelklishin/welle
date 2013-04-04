@@ -58,9 +58,10 @@
    `:if-modified-vclock`: a vclock instance to use for conditional get. Only supported by Protocol Buffers transport.
    `:return-deleted-vlock` (true or false): should tombstones (objects that have been deleted but not yet resolved/GCed) be returned?
    `:head-only` (true or false): should the response only return object metadata, not its value?
+   `:skip-deserialize` (true or false): should the deserialization of the value be skipped?
   "
   [^String bucket-name ^String key &{:keys [r pr not-found-ok basic-quorum head-only
-                                            return-deleted-vclock if-modified-since if-modified-vclock]
+                                            return-deleted-vclock if-modified-since if-modified-vclock skip-deserialize]
                                      :or {}}]
   (let [^FetchMeta md (to-fetch-meta r pr not-found-ok basic-quorum head-only return-deleted-vclock if-modified-since if-modified-vclock)
         results       (.fetch *riak-client* bucket-name key md)
@@ -69,14 +70,16 @@
         ros           (if return-deleted-vclock
                         results
                         (remove #(.isDeleted %) results))]
-    (map (comp deserialize-value from-riak-object) ros)))
+    (if skip-deserialize
+      (map from-riak-object ros)
+      (map (comp deserialize-value from-riak-object) ros))))
 
 (defn fetch-one
   "Fetches a single object. This is a convenience function: it optimistically assumes there will be only one
    objects and no siblings. In situations when you are not sure about this, consider using `clojurewerkz.welle.kv/fetch`
    instead."
   [^String bucket-name ^String key &{:keys [r pr not-found-ok basic-quorum head-only
-                                            return-deleted-vclock if-modified-since if-modified-vclock]
+                                            return-deleted-vclock if-modified-since if-modified-vclock skip-deserialize]
                                      :or {}}]
   (let [^FetchMeta md (to-fetch-meta r pr not-found-ok basic-quorum head-only return-deleted-vclock if-modified-since if-modified-vclock)
         results       (.fetch *riak-client* bucket-name key md)]
@@ -86,7 +89,9 @@
       (when (not (empty? results))
         (let [fr (first results)]
           (when (not (.isDeleted fr))
-            (-> fr from-riak-object deserialize-value)))))))
+            (if skip-deserialize
+              (from-riak-object fr)
+              (-> fr from-riak-object deserialize-value))))))))
 
 (defn fetch-all
   "Fetches multiple objects concurrently. This is a convenience function: it optimistically assumes there will be only one

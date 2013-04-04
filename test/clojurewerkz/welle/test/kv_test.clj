@@ -3,7 +3,8 @@
             [clojurewerkz.welle.testkit :only [drain]])
   (:require [clojurewerkz.welle.core    :as wc]
             [clojurewerkz.welle.buckets :as wb]
-            [clojurewerkz.welle.kv      :as kv])
+            [clojurewerkz.welle.kv      :as kv]
+            [cheshire.custom            :as json])
   (:import  com.basho.riak.client.http.util.Constants
             java.util.UUID))
 
@@ -222,6 +223,36 @@
       (is (= {} (:metadata o)))
       (is-riak-object o))
     (drain bucket-name)))
+
+
+(deftest test-fetch-one-with-skip-deserialize
+  (let [bucket-name "clojurewerkz.welle.kv"
+        bucket      (wb/update bucket-name)
+        ct          Constants/CTYPE_JSON
+        k           "skip-deserialize-fetch-one"
+        v           {:name "Riak"}
+        stored      (kv/store bucket-name k v :content-type ct)
+        fetched     (kv/fetch-one bucket-name k :r 1 :skip-deserialize true)]
+    (is (= ct (:content-type fetched)))
+    (is (= {} (:metadata fetched)))
+    (is (= (json/encode v) (String. ^bytes (:value fetched))))
+    (is-riak-object fetched)
+    (drain bucket-name)))
+
+(deftest test-fetch-with-skip-deserialize
+  (let [bucket-name "clojurewerkz.welle.kv"
+        bucket      (wb/update bucket-name)
+        ct          Constants/CTYPE_JSON
+        k           "skip-deserialize-fetch"
+        v           {:name "Riak"}
+        stored      (kv/store bucket-name k v :content-type ct)
+        [fetched]   (kv/fetch bucket-name k :r 1 :skip-deserialize true)]
+    (is (= ct (:content-type fetched)))
+    (is (= {} (:metadata fetched)))
+    (is (= (json/encode v) (String. ^bytes (:value fetched))))
+    (is-riak-object fetched)
+    (drain bucket-name)))
+
 
 ;;
 ;; kv/delete
