@@ -58,6 +58,7 @@
    `:if-modified-vclock`: a vclock instance to use for conditional get. Only supported by Protocol Buffers transport.
    `:return-deleted-vlock` (true or false): should tombstones (objects that have been deleted but not yet resolved/GCed) be returned?
    `:head-only` (true or false): should the response only return object metadata, not its value?
+   `:skip-deserialize` (true or false): should the deserialization of the value be skipped?
   "
   [^String bucket-name ^String key &{:keys [r pr not-found-ok basic-quorum head-only
                                             return-deleted-vclock if-modified-since if-modified-vclock skip-deserialize]
