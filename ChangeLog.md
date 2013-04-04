@@ -1,5 +1,13 @@
 ## Changes between Welle 1.4.0 and 1.5.0
 
+### Skipping Deserialization for clojurewerkz.welle.kv/fetch
+
+`clojurewerkz.welle.kv/fetch` supports a new boolean option `:skip-deserialize` that allows
+automatic deserialization to be skipped.
+
+Contributed by Jonas Tehler.
+
+
 ### Clojure 1.5 By Default
 
 Welle now depends on `org.clojure/clojure` version `1.5.1`. It is
