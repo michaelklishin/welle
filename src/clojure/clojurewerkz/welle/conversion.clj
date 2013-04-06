@@ -519,8 +519,8 @@
     (attempt [this ^Callable c]
       (f c))))
 
-(defn ^DefaultRetrier default-retrier
-  "Instantiates a default retrier that will retry the operation given
+(defn ^DefaultRetrier counting-retrier
+  "Instantiates a default (counting) retrier that will retry the operation given
    number of times (by default 3)"
   ([]
      (default-retrier 3))
