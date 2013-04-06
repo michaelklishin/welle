@@ -523,7 +523,7 @@
   "Instantiates a default (counting) retrier that will retry the operation given
    number of times (by default 3)"
   ([]
-     (default-retrier 3))
+     (counting-retrier 3))
   ([^long n]
      (DefaultRetrier. n)))
 
