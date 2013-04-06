@@ -5,7 +5,7 @@
             [clojure.java.io   :as io])
   (:use     [clojure.walk :only [stringify-keys]]
             clojurewerkz.welle.hooks)
-  (:import [com.basho.riak.client.cap Quora Quorum VClock BasicVClock Retrier DefaultRetrier]
+  (:import [com.basho.riak.client.cap Quora Quorum VClock BasicVClock Retrier DefaultRetrier ConflictResolver Mutation]
            [com.basho.riak.client.raw StoreMeta FetchMeta DeleteMeta]
            [com.basho.riak.client IRiakObject RiakLink]
            [com.basho.riak.client.builders RiakObjectBuilder BucketPropertiesBuilder]
@@ -526,3 +526,31 @@
      (default-retrier 3))
   ([^long n]
      (DefaultRetrier. n)))
+
+;;
+;; Resolvers
+;;
+
+(defn ^ConflictResolver resolver-from
+  "Instantiates a new sibling resolver that will delegate to the provided function.
+
+   The function is supposed to take a collection of siblings and implement any resolution logic
+   necessary."
+  [f]
+  (reify ConflictResolver
+    (resolve [this siblings]
+      (f siblings))))
+
+;;
+;; Mutations
+;;
+
+(defn ^Mutation mutation-from
+  "Instantiates a new mutation that will delegate to the provided function.
+
+   The function is supposed to take a value and implement any mutation logic
+   necessary."
+  [f]
+  (reify Mutation
+    (apply [this original]
+      (f original))))
