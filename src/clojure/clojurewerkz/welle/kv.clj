@@ -131,16 +131,20 @@
 
    Learn more in Riak's documentation on secondary indexes at http://wiki.basho.com/Secondary-Indexes.html"
   [^String bucket-name field value]
-  (.fetchIndex *riak-client* (to-index-query value bucket-name field)))
+  (.attempt default-retrier ^Callable (fn []
+                                        (.fetchIndex *riak-client* (to-index-query value bucket-name field)))))
 
 
 
 (defn delete
   "Deletes an object"
   ([^String bucket-name ^String key]
-     (.delete *riak-client* bucket-name key))
-  ([^String bucket-name ^String key &{:keys [r pr w dw pw rw vclock]}]
-     (.delete *riak-client* bucket-name key (to-delete-meta r pr w dw pw rw vclock))))
+     (.attempt default-retrier ^Callable (fn []
+                                           (.delete *riak-client* bucket-name key))))
+  ([^String bucket-name ^String key &{:keys [r pr w dw pw rw vclock ^Retrier retrier]
+                                      :or {retrier default-retrier}}]
+     (.attempt retrier ^Callable (fn []
+                                   (.delete *riak-client* bucket-name key (to-delete-meta r pr w dw pw rw vclock))))))
 
 (defn delete-all
   "Deletes multiple objects. This function relies on clojure.core/pmap to delete multiple keys,
