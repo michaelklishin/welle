@@ -5,7 +5,7 @@
             [clojure.java.io   :as io])
   (:use     [clojure.walk :only [stringify-keys]]
             clojurewerkz.welle.hooks)
-  (:import [com.basho.riak.client.cap Quora Quorum VClock BasicVClock]
+  (:import [com.basho.riak.client.cap Quora Quorum VClock BasicVClock Retrier DefaultRetrier]
            [com.basho.riak.client.raw StoreMeta FetchMeta DeleteMeta]
            [com.basho.riak.client IRiakObject RiakLink]
            [com.basho.riak.client.builders RiakObjectBuilder BucketPropertiesBuilder]
@@ -503,3 +503,26 @@
      (LinkWalkStep. bucket-name tag LinkWalkStep$Accumulate/DEFAULT))
   ([^String bucket-name ^String tag accumulate?]
      (LinkWalkStep. bucket-name tag (to-link-walk-step-accumulate accumulate?))))
+
+
+;;
+;; Retriers
+;;
+
+(defn ^Retrier retrier-from
+  "Instantiates a new retrier that will delegate to the provided function.
+
+   The function is supposed to take a callable and implement any retrier logic
+   necessary."
+  [f]
+  (reify Retrier
+    (attempt [this ^Callable c]
+      (f c))))
+
+(defn ^DefaultRetrier default-retrier
+  "Instantiates a default retrier that will retry the operation given
+   number of times (by default 3)"
+  ([]
+     (default-retrier 3))
+  ([^long n]
+     (DefaultRetrier. n)))
