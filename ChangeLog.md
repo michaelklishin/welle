@@ -1,5 +1,23 @@
 ## Changes between Welle 1.4.0 and 1.5.0
 
+### Retriers
+
+`clojurewerkz.welle.kv/fetch`, `clojurewerkz.welle.kv/fetch-one`, `clojurewerkz.welle.kv/store`,
+`clojurewerkz.welle.kv/delete`, and `clojurewerkz.welle.kv/index-query` now retry operations
+that fail due to a network issue or any other exception.
+
+By default, the operations will be retrier 3 times. It is possible to provide a custom
+retrier using the `:retrier` option. Retriers can be created using
+`clojurewerkz.welle.conversion/retrier-from` takes a function that accepts a callable
+(an operation that may need to be retried) and needs to invoke it, handling exceptions
+and applying any retrying logic needed.
+
+
+`clojurewerkz.welle.conversion/counting-retrier` produces a retrier that will retry an operation
+given number of times. This is the kind of retrier Welle uses by default.
+
+
+
 ### Skipping Deserialization for clojurewerkz.welle.kv/fetch
 
 `clojurewerkz.welle.kv/fetch` supports a new boolean option `:skip-deserialize` that allows
