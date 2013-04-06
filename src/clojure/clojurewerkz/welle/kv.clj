@@ -6,8 +6,18 @@
   (:import [com.basho.riak.client IRiakClient IRiakObject]
            [com.basho.riak.client.raw StoreMeta FetchMeta DeleteMeta RawClient RiakResponse]
            com.basho.riak.client.http.util.Constants
+           [com.basho.riak.client.raw RiakResponse]
+           [com.basho.riak.client.cap Retrier DefaultRetrier]
            java.util.Date))
 
+
+;;
+;; Implementation
+;;
+
+(def ^DefaultRetrier default-retrier
+  "Default operation retrier that will be used by operations such as fetch and store"
+  (counting-retrier 3))
 
 ;;
 ;; API
@@ -18,9 +28,11 @@
   [^String bucket-name ^String key value &{ :keys [w dw pw
                                                    indexes links vclock ^String vtag ^Date last-modified
                                                    ^Boolean return-body ^Boolean if-none-match ^Boolean if-not-modified
-                                                   content-type metadata]
+                                                   content-type metadata
+                                                   ^Retrier retrier]
                                            :or {content-type Constants/CTYPE_OCTET_STREAM
-                                                metadata     {}}}]
+                                                metadata     {}
+                                                retrier default-retrier}}]
   (let [v               (serialize value content-type)
         ^StoreMeta   md (to-store-meta w dw pw return-body if-none-match if-not-modified)
         ^IRiakObject ro (to-riak-object {:bucket        bucket-name
@@ -34,7 +46,8 @@
                                          :vtag          vtag
                                          :last-modified last-modified})
         ;; implements Iterable. MK.
-        ^RiakResponse xs (.store *riak-client* ro md)
+        ^RiakResponse xs (.attempt retrier ^Callable (fn []
+                                                       (.store *riak-client* ro md)))
         mf               (if return-body
                            (comp deserialize-value from-riak-object)
                            from-riak-object)]
@@ -61,15 +74,17 @@
    `:skip-deserialize` (true or false): should the deserialization of the value be skipped?
   "
   [^String bucket-name ^String key &{:keys [r pr not-found-ok basic-quorum head-only
-                                            return-deleted-vclock if-modified-since if-modified-vclock skip-deserialize]
-                                     :or {}}]
+                                            return-deleted-vclock if-modified-since if-modified-vclock skip-deserialize
+                                            ^Retrier retrier]
+                                     :or {retrier default-retrier}}]
   (let [^FetchMeta md (to-fetch-meta r pr not-found-ok basic-quorum head-only return-deleted-vclock if-modified-since if-modified-vclock)
-        results       (.fetch *riak-client* bucket-name key md)
+        results       (.attempt retrier ^Callable (fn []
+                                                    (.fetch *riak-client* bucket-name key md)))
         ;; return-deleted-vclock = we should return tombstones. See
         ;; https://github.com/basho/riak-java-client/commit/416a901ff1de8e4eb559db21ac5045078d278e86 for more info. MK.
         ros           (if return-deleted-vclock
                         results
-                        (remove #(.isDeleted %) results))]
+                        (remove #(.isDeleted ^IRiakObject %) results))]
     (if skip-deserialize
       (map from-riak-object ros)
       (map (comp deserialize-value from-riak-object) ros))))
@@ -79,16 +94,18 @@
    objects and no siblings. In situations when you are not sure about this, consider using `clojurewerkz.welle.kv/fetch`
    instead."
   [^String bucket-name ^String key &{:keys [r pr not-found-ok basic-quorum head-only
-                                            return-deleted-vclock if-modified-since if-modified-vclock skip-deserialize]
-                                     :or {}}]
-  (let [^FetchMeta md (to-fetch-meta r pr not-found-ok basic-quorum head-only return-deleted-vclock if-modified-since if-modified-vclock)
-        results       (.fetch *riak-client* bucket-name key md)]
+                                            return-deleted-vclock if-modified-since if-modified-vclock skip-deserialize
+                                            ^Retrier retrier]
+                                     :or {retrier default-retrier}}]
+  (let [^FetchMeta    md      (to-fetch-meta r pr not-found-ok basic-quorum head-only return-deleted-vclock if-modified-since if-modified-vclock)
+        ^RiakResponse results (.attempt retrier ^Callable (fn []
+                                                            (.fetch *riak-client* bucket-name key md)))]
     (if (.hasSiblings results)
       (throw (IllegalStateException.
               "Riak response to clojurewerkz.welle.kv/fetch-one contains siblings. If conflicts/siblings are expected here, use clojurewerkz.welle.kv/fetch"))
       (when (not (empty? results))
         (let [fr (first results)]
-          (when (not (.isDeleted fr))
+          (when (not (.isDeleted ^IRiakObject fr))
             (if skip-deserialize
               (from-riak-object fr)
               (-> fr from-riak-object deserialize-value))))))))
