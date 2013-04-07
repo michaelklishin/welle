@@ -7,7 +7,7 @@
            [com.basho.riak.client.raw StoreMeta FetchMeta DeleteMeta RawClient RiakResponse]
            com.basho.riak.client.http.util.Constants
            [com.basho.riak.client.raw RiakResponse]
-           [com.basho.riak.client.cap Retrier DefaultRetrier]
+           [com.basho.riak.client.cap Retrier DefaultRetrier ConflictResolver]
            java.util.Date))
 
 
@@ -29,7 +29,8 @@
                                                    indexes links vclock ^String vtag ^Date last-modified
                                                    ^Boolean return-body ^Boolean if-none-match ^Boolean if-not-modified
                                                    content-type metadata
-                                                   ^Retrier retrier]
+                                                   ^Retrier retrier
+                                                   ^ConflictResolver resolver]
                                            :or {content-type Constants/CTYPE_OCTET_STREAM
                                                 metadata     {}
                                                 retrier default-retrier}}]
@@ -50,8 +51,11 @@
                                                        (.store *riak-client* ro md)))
         mf               (if return-body
                            (comp deserialize-value from-riak-object)
-                           from-riak-object)]
-    (map mf xs)))
+                           from-riak-object)
+        ys               (map mf xs)]
+    (if resolver
+      (.resolve resolver ys)
+      ys)))
 
 (declare tombstone?)
 (defn fetch
@@ -75,7 +79,7 @@
   "
   [^String bucket-name ^String key &{:keys [r pr not-found-ok basic-quorum head-only
                                             return-deleted-vclock if-modified-since if-modified-vclock skip-deserialize
-                                            ^Retrier retrier]
+                                            ^Retrier retrier ^ConflictResolver resolver]
                                      :or {retrier default-retrier}}]
   (let [^FetchMeta md (to-fetch-meta r pr not-found-ok basic-quorum head-only return-deleted-vclock if-modified-since if-modified-vclock)
         results       (.attempt retrier ^Callable (fn []
@@ -84,10 +88,13 @@
         ;; https://github.com/basho/riak-java-client/commit/416a901ff1de8e4eb559db21ac5045078d278e86 for more info. MK.
         ros           (if return-deleted-vclock
                         results
-                        (remove #(.isDeleted ^IRiakObject %) results))]
-    (if skip-deserialize
-      (map from-riak-object ros)
-      (map (comp deserialize-value from-riak-object) ros))))
+                        (remove #(.isDeleted ^IRiakObject %) results))
+        xs            (if skip-deserialize
+                        (map from-riak-object ros)
+                        (map (comp deserialize-value from-riak-object) ros))]
+    (if resolver
+      (.resolve resolver xs)
+      xs)))
 
 (defn fetch-one
   "Fetches a single object. This is a convenience function: it optimistically assumes there will be only one
