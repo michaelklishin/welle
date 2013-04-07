@@ -1,5 +1,21 @@
 ## Changes between Welle 1.4.0 and 1.5.0
 
+### Conflcit Resolvers
+
+`clojurewerkz.welle.kv/fetch`, and `clojurewerkz.welle.kv/store` now accept a new
+option: `:resolver`. Resolvers are basically pure functions that take a collection of
+siblings and return a collection of .
+
+Resolvers can be created using
+`clojurewerkz.welle.conversion/resolver-from` which takes a function that accepts a collection
+of deserialized (unless `fetch` was told otherwise) values and applies any conflict resolution
+logic necessary.
+
+`clojurewerkz.welle.kv/fetch-one` preserves its behavior (it will raise an exception
+if siblings are detected).
+
+
+
 ### Retriers
 
 `clojurewerkz.welle.kv/fetch`, `clojurewerkz.welle.kv/fetch-one`, `clojurewerkz.welle.kv/store`,
@@ -8,7 +24,7 @@ that fail due to a network issue or any other exception.
 
 By default, the operations will be retrier 3 times. It is possible to provide a custom
 retrier using the `:retrier` option. Retriers can be created using
-`clojurewerkz.welle.conversion/retrier-from` takes a function that accepts a callable
+`clojurewerkz.welle.conversion/retrier-from` which takes a function that accepts a callable
 (an operation that may need to be retried) and needs to invoke it, handling exceptions
 and applying any retrying logic needed.
 
