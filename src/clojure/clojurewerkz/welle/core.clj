@@ -30,9 +30,8 @@
   ([]
      (connect default-url))
   ([^String url]
-     (let [c (HTTPClient. (com.basho.riak.client.http.RiakClient. ^String url))]
-       (.generateAndSetClientId c)
-       c))
+     (doto (HTTPClient. (com.basho.riak.client.http.RiakClient. ^String url))
+       (.generateAndSetClientId)))
   ([^String url ^bytes client-id]
      (let [^HTTPClient c (connect url)]
        (.setClientId c client-id)
@@ -55,7 +54,8 @@
   ([]
      (connect-via-pb default-host default-pb-port))
   ([^String host ^long port]
-     (PBClientAdapter. (com.basho.riak.pbc.RiakClient. host port))))
+     (doto (PBClientAdapter. (com.basho.riak.pbc.RiakClient. host port))
+       (.generateAndSetClientId))))
 
 (defn connect-via-pb!
   "Creates a Protocol Buffers client for the given host and port, and sets the
