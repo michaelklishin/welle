@@ -25,6 +25,8 @@
 
 (defn ^clojurewerkz.welle.HTTPClient
   connect
+  "Creates an HTTP client for a given URL, optionally with a custom client ID.
+  With no arguments, connects to localhost on the default Riak port."
   ([]
      (connect default-url))
   ([^String url]
@@ -37,6 +39,9 @@
        c)))
 
 (defn connect!
+  "Creates an HTTP client for a given URL, and sets the global variable
+  *riak-client*. All Welle functions which are not passed a client will use
+  this client by default."
   ([]
      (alter-var-root (var *riak-client*) (constantly (connect))))
   ([^String url]
@@ -45,12 +50,17 @@
      (alter-var-root (var *riak-client*) (constantly (connect url client-id)))))
 
 (defn connect-via-pb
+  "Creates a Protocol Buffers client for the given host and port, or, by
+  default, to localhost on the default Riak PB port."
   ([]
      (connect-via-pb default-host default-pb-port))
   ([^String host ^long port]
      (PBClientAdapter. (com.basho.riak.pbc.RiakClient. host port))))
 
 (defn connect-via-pb!
+  "Creates a Protocol Buffers client for the given host and port, and sets the
+  global variable *riak-client*. All Welle functions which are not passed a
+  client will use this client by default."
   ([]
      (alter-var-root (var *riak-client*) (constantly (connect-via-pb))))
   ([host port]
@@ -75,11 +85,15 @@
 
 (defn ^com.basho.riak.client.raw.RawClient
   connect-to-cluster
+  "Creates an HTTP cluster client."
   [endpoints]
   (let [^ClusterConfig cc (http-cluster-config-from endpoints)]
     (HTTPClusterClient. cc)))
 
 (defn connect-to-cluster!
+  "Creates an HTTP cluster client, and sets the global variable *riak-client*.
+  All Welle functions which are not passed a client will use this client by
+  default."
   [endpoints]
   (alter-var-root (var *riak-client*) (constantly (connect-to-cluster endpoints))))
 
@@ -92,29 +106,38 @@
 
 (defn ^com.basho.riak.client.raw.RawClient
   connect-to-cluster-via-pb
+  "Creates a Protocol Buffers cluster client given a sequence of string
+  endpoints."
   [endpoints]
   (let [^ClusterConfig cc (pbc-cluster-config-from endpoints)]
     (PBClusterClient. cc)))
 
 (defn connect-to-cluster-via-pb!
+  "Creates a Protocol Buffers cluster client given a sequence of string
+  endpoints, and sets the global variable *riak-client*.  All Welle functions
+  which are not passed a client will use this client by default."
   [endpoints]
   (alter-var-root (var *riak-client*) (constantly (connect-to-cluster-via-pb endpoints))))
 
 
 
 (defmacro with-client
+  "Evaluates body within an implicit do, with the Welle client *riak-client*
+  bound to the given Riak client."
   [client & forms]
   `(binding [*riak-client* ~client]
      (do ~@forms)))
 
 
 (defn ping
+  "Pings a client."
   ([]
      (.ping *riak-client*))
   ([^RawClient client]
      (.ping client)))
 
 (defn shutdown
+  "Shuts down a client."
   ([]
      (.shutdown *riak-client*))
   ([^RawClient client]
@@ -122,10 +145,12 @@
 
 
 (defn get-client-id
+  "The client ID used by a given client."
   []
   (.getClientId *riak-client*))
 
 (defn stats
+  "Returns statistics for a client."
   []
   (.stats *riak-client*))
 
