@@ -161,9 +161,9 @@
    so it may be inappropriate for cases where results need to be retrieved pre-ordered. In such cases, use map/reduce queries
    instead."
   [^String bucket-name keys]
-  (pmap (fn [^String k]
-          (fetch-one bucket-name k))
-        keys))
+  (doall (pmap (fn [^String k]
+                 (fetch-one bucket-name k))
+               keys)))
 
 
 (defn index-query
