@@ -1,18 +1,32 @@
 ## Changes between Welle 1.4.0 and 1.5.0
 
+### clojurewerkz.welle.kv/modify
+
+`clojurewerkz.welle.kv/modify` is a new function that combines `clojurewerkz.welle.kv/fetch` and
+`clojurewerkz.welle.kv/store` with a user-provided mutation functions. The mutation function
+should take a single Riak object as an immutable map and return a modified one.
+
+In case of siblings, a resolver should be used.
+
+`clojurewerkz.welle.kv/modify` will update modification timestamp of the object.
+
+`clojurewerkz.welle.kv/modify` takes the same options as `clojurewerkz.welle.kv/fetch` and
+`clojurewerkz.welle.kv/store`
+
+
 ### Conflcit Resolvers
 
 `clojurewerkz.welle.kv/fetch`, and `clojurewerkz.welle.kv/store` now accept a new
 option: `:resolver`. Resolvers are basically pure functions that take a collection of
-siblings and return a collection of .
+siblings and return a collection of Riak object maps.
 
 Resolvers can be created using
 `clojurewerkz.welle.conversion/resolver-from` which takes a function that accepts a collection
 of deserialized (unless `fetch` was told otherwise) values and applies any conflict resolution
 logic necessary.
 
-`clojurewerkz.welle.kv/fetch-one` preserves its behavior (it will raise an exception
-if siblings are detected).
+`clojurewerkz.welle.kv/fetch-one` now also supports resolvers via the `:resolver` option.
+It will raise an exception if siblings are detected and no resolver is provided.
 
 
 
