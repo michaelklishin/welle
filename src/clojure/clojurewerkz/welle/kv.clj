@@ -132,25 +132,15 @@
            :resolver     resolver)))
 
 (defn fetch-one
-  "Fetches a single object. This is a convenience function: it optimistically assumes there will be only one
-   objects and no siblings. In situations when you are not sure about this, consider using `clojurewerkz.welle.kv/fetch`
+  "Fetches a single object. If siblings are found, passes the on to the provided resolver or raises an exception.
+   In situations when you are interested in getting all siblings back, use `clojurewerkz.welle.kv/fetch`
    instead."
-  [^String bucket-name ^String key &{:keys [r pr not-found-ok basic-quorum head-only
-                                            return-deleted-vclock if-modified-since if-modified-vclock skip-deserialize
-                                            ^Retrier retrier]
-                                     :or {retrier default-retrier}}]
-  (let [^FetchMeta    md      (to-fetch-meta r pr not-found-ok basic-quorum head-only return-deleted-vclock if-modified-since if-modified-vclock)
-        ^RiakResponse results (.attempt retrier ^Callable (fn []
-                                                            (.fetch *riak-client* bucket-name key md)))]
-    (if (.hasSiblings results)
+  [& args]
+  (let [xs (apply fetch args)]
+    (if (> (count xs) 1)
       (throw (IllegalStateException.
-              "Riak response to clojurewerkz.welle.kv/fetch-one contains siblings. If conflicts/siblings are expected here, use clojurewerkz.welle.kv/fetch"))
-      (when (not (empty? results))
-        (let [fr (first results)]
-          (when (not (.isDeleted ^IRiakObject fr))
-            (if skip-deserialize
-              (from-riak-object fr)
-              (-> fr from-riak-object deserialize-value))))))))
+              "Riak response to clojurewerkz.welle.kv/fetch-one contains siblings. If conflicts/siblings are expected here, provide a resolver or use clojurewerkz.welle.kv/fetch"))
+      (first xs))))
 
 (defn fetch-all
   "Fetches multiple objects concurrently. This is a convenience function: it optimistically assumes there will be only one
