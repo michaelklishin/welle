@@ -1,4 +1,4 @@
-(defproject com.novemberain/welle "1.5.0-beta3-SNAPSHOT"
+(defproject com.novemberain/welle "1.5.0-beta3"
   :description "Welle is an expressive Clojure client for Riak with batteries included"
   :url "http://clojureriak.info"
   :license {:name "Eclipse Public License"}
