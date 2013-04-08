@@ -96,6 +96,41 @@
       (.resolve resolver xs)
       xs)))
 
+(defn modify
+  "Modifies an object with the given bucket and key by fetching it, applying a function to it
+   and storing it back. Assumes that the fetch operation returns no siblings (a collection with
+   just one Riak object), either via request or after applying a resolver.
+
+   The mutating function is passed the entire Riak object as an immutable map, not just value.
+   Mutation sets :last-modified of the object to the current timestamp.
+
+   Takes the same options as clojurewerkz.welle.kv/fetch and clojurewerkz.welle.kv/store.
+
+   Returns the same results as clojurewerkz.welle.kv/store"
+  [^String bucket-name ^String key f &{:keys [r pr not-found-ok basic-quorum head-only
+                                              return-deleted-vclock if-modified-since if-modified-vclock skip-deserialize
+                                              ^Retrier retrier ^ConflictResolver resolver
+                                              w dw pw
+                                              indexes links vclock ^String vtag ^Date last-modified
+                                              ^Boolean return-body ^Boolean if-none-match ^Boolean if-not-modified
+                                              content-type metadata]
+                                       :or {retrier default-retrier}}]
+  (let [xs (fetch bucket-name key
+                  :r r :pr pr :not-found-ok not-found-ok :basic-quorum basic-quorum :head-only head-only
+                  :return-deleted-vclock return-deleted-vclock :if-modified-since if-modified-since :if-modified-vclock if-modified-vclock
+                  :skip-deserialize skip-deserialize :retrier retrier :resolver resolver)
+        ;; modify here only makes sense for a single value.
+        ;; This is how mutations work in the Riak Java client. Resolvers are supposed to take care of this. MK.
+        m  (f (first xs))]
+    (store bucket-name key (:value m)
+           :w w :dw dw :pw pw
+           :indexes (get m :indexes indexes) :links (get m :links links) :vlock (get m :vclock vclock) :vtag (get m :vtag vtag) :last-modified (.getTime (Date.))
+           :return-body return-body :if-none-match if-none-match :if-not-modified if-not-modified
+           :content-type (get m :content-type content-type)
+           :metadata     (get m :metadata metadata)
+           :retrier      retrier
+           :resolver     resolver)))
+
 (defn fetch-one
   "Fetches a single object. This is a convenience function: it optimistically assumes there will be only one
    objects and no siblings. In situations when you are not sure about this, consider using `clojurewerkz.welle.kv/fetch`

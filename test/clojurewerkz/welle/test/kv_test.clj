@@ -4,7 +4,8 @@
   (:require [clojurewerkz.welle.core    :as wc]
             [clojurewerkz.welle.buckets :as wb]
             [clojurewerkz.welle.kv      :as kv]
-            [cheshire.custom            :as json])
+            [cheshire.custom            :as json]
+            [clojure.set                :as set])
   (:import  com.basho.riak.client.http.util.Constants
             java.util.UUID))
 
@@ -303,3 +304,25 @@
     (kv/delete-all bucket-name (map first key-values))
     (doseq [[k v] key-values]
       (is (nil? (kv/fetch-one bucket-name k))))))
+
+;;
+;; kv/modify
+;;
+
+(deftest test-basic-store-with-json-content-type
+  (let [bucket-name "clojurewerkz.welle.kv"
+        bucket      (wb/update bucket-name)
+        k           (str (UUID/randomUUID))
+        v           {:name "Clojure" :kind "Programming Language" :influenced-by #{"Common Lisp", "C#"}}
+        stored      (kv/store  bucket-name k v :content-type Constants/CTYPE_JSON)
+        updated     (kv/modify bucket-name k (fn [m]
+                                               (update-in m [:value :influenced-by] set/union #{"Java" "Haskell"}))
+                               :r 1 :w 1)
+        [fetched]   (kv/fetch  bucket-name k)]
+    (is (empty? stored))
+    (is (= Constants/CTYPE_JSON (:content-type fetched)))
+    (is (= {} (:metadata fetched)))
+    (is (= (sort ["C#" "Common Lisp" "Java" "Haskell"])
+           (sort (get-in fetched [:value :influenced-by]))))
+    (is-riak-object fetched)
+    (drain bucket-name)))
