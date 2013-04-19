@@ -71,7 +71,7 @@ Welle artifacts are [released to Clojars](https://clojars.org/com.novemberain/we
 Add dependency in your `project.clj`:
 
 ``` clojure
-[com.novemberain/welle "1.5.0-beta3"]
+[com.novemberain/welle "1.5.0"]
 ```
 
 ### With Maven
@@ -91,7 +91,7 @@ and then the dependency:
 <dependency>
   <groupId>com.novemberain</groupId>
   <artifactId>welle</artifactId>
-  <version>1.5.0-beta3</version>
+  <version>1.5.0</version>
 </dependency>
 ```
 
