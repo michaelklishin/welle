@@ -10,7 +10,7 @@
                  [com.novemberain/validateur "1.4.0"]
                  ;; for the Riak Search Solr API support. When Riak Client supports
                  ;; search natively, we should be able to just use what it provides.
-                 [clj-http                   "0.7.0"]
+                 [clj-http                   "0.7.2"]
                  [org.clojure/data.xml       "0.0.6" :exclusions [org.clojure/clojure]]]
   :source-paths      ["src/clojure"]
   :java-source-paths ["src/java"]
