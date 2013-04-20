@@ -21,7 +21,7 @@
                    :master {:dependencies [[org.clojure/clojure "1.6.0-master-SNAPSHOT"]]}
                    :dev {:resource-paths ["test/resources"]
                          :dependencies [[org.clojure/core.cache "0.6.2" :exclusions [org.clojure/clojure]]
-                                        [ring/ring-core         "1.1.3"]]
+                                        [ring/ring-core         "1.1.8"]]
                          :plugins [[codox "0.6.4"]]
                          :codox {:sources ["src/clojure"]
                                  :output-dir "doc/api"}}}
