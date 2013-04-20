@@ -27,6 +27,8 @@
 (def ^{:doc "Type object for a Java primitive byte array."}
   byte-array-type (class (make-array Byte/TYPE 0)))
 
+(def ^:dynamic ^java.lang.Boolean *convert-json-keys-to-keywords* true)
+
 
 ;;
 ;; API
@@ -338,21 +340,21 @@
 ;; JSON
 (defmethod deserialize Constants/CTYPE_JSON
   [value _]
-  (json/parse-string (String. ^bytes value) true))
+  (json/parse-string (String. ^bytes value) *convert-json-keys-to-keywords*))
 ;; as of Riak Java client 1.1, this constant's value is "application/json;charset=UTF-8"
 ;; (no space between base content type and parameters). However, Riak returns content type *with*
 ;; the space so we have to cover both. Reported to Basho at https://github.com/basho/riak-java-client/issues/125.
 ;; MK.
 (defmethod deserialize Constants/CTYPE_JSON_UTF8
   [value _]
-  (json/decode (String. ^bytes value "UTF-8") true))
+  (json/decode (String. ^bytes value "UTF-8") *convert-json-keys-to-keywords*))
 (defmethod deserialize "application/json; charset=UTF-8"
   [value _]
-  (json/decode (String. ^bytes value "UTF-8") true))
+  (json/decode (String. ^bytes value "UTF-8") *convert-json-keys-to-keywords*))
 (defmethod deserialize "application/json+gzip"
   [value _]
   (with-open [in (GZIPInputStream. (ByteArrayInputStream. ^bytes value))]
-    (json/decode-stream (InputStreamReader. in "UTF-8") true)))
+    (json/decode-stream (InputStreamReader. in "UTF-8") *convert-json-keys-to-keywords*)))
 
 ;; SMILE (binary JSON)
 (defmethod deserialize "application/jackson-smile"
