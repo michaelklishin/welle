@@ -18,7 +18,12 @@ by one of Basho's engineers. If you are evaluating Welle, please consider Sumo a
  * Be friendly to Heroku and other PaaS providers
 
 
-## Supported Features
+## Project Maturity
+
+Welle is a mature project that is over 1 year old and has been used to build systems that process at least tens of gigabytes
+of data per day.
+
+### Supported Features
 
  * [HTTP and Protocol Buffers transports](http://clojureriak.info/articles/connecting.html)
  * [Bucket operations](http://clojureriak.info/articles/buckets.html): create, update, delete
