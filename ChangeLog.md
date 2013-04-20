@@ -1,3 +1,23 @@
+## Changes between Welle 1.5.0 and 1.6.0
+
+### Validateur Update
+
+[Validateur](http://clojurevalidations.info) dependency has been upgraded to version `1.4.0`.
+
+### clj-http Update
+
+[clj-http](https://github.com/dakrone/clj-http/) dependency has been upgraded to version `0.7.2`.
+
+### Optional Keywordization of Keys With JSON Serialization
+
+Automatic JSON serialization previously unconditionally converted keys to keywords.
+This may be a problem for some projects, because keywords are not garbage collected.
+
+`clojurewerkz.welle.conversion/*convert-json-keys-to-keywords*` is a new dynamic var that
+controls this behavior. When bound to false, automatic JSON serialization won't convert
+keys to keywords.
+
+
 ## Changes between Welle 1.4.0 and 1.5.0
 
 ### clojurewerkz.welle.kv/modify
