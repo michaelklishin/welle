@@ -309,15 +309,31 @@
 ;; kv/modify
 ;;
 
-(deftest test-basic-store-with-json-content-type
+(deftest test-modify-with-json-content-type-and-no-existing-value
+  (let [bucket-name "clojurewerkz.welle.kv"
+        bucket      (wb/update bucket-name)
+        k           (str (UUID/randomUUID))
+        f           (fn [m]
+                      (update-in m [:value :influenced-by] set/union #{"Java" "Haskell"}))
+        updated     (kv/modify bucket-name k f :r 1 :w 1 :content-type "application/json")
+        [fetched]   (kv/fetch  bucket-name k)]
+    (is (= Constants/CTYPE_JSON (:content-type fetched)))
+    (is (= {} (:metadata fetched)))
+    (is (= (sort ["Java" "Haskell"])
+           (sort (get-in fetched [:value :influenced-by]))))
+    (is-riak-object fetched)
+    (drain bucket-name)))
+
+
+(deftest test-modify-with-json-content-type-and-one-existing-value
   (let [bucket-name "clojurewerkz.welle.kv"
         bucket      (wb/update bucket-name)
         k           (str (UUID/randomUUID))
         v           {:name "Clojure" :kind "Programming Language" :influenced-by #{"Common Lisp", "C#"}}
         stored      (kv/store  bucket-name k v :content-type Constants/CTYPE_JSON)
-        updated     (kv/modify bucket-name k (fn [m]
-                                               (update-in m [:value :influenced-by] set/union #{"Java" "Haskell"}))
-                               :r 1 :w 1)
+        f           (fn [m]
+                      (update-in m [:value :influenced-by] set/union #{"Java" "Haskell"}))
+        updated     (kv/modify bucket-name k f :r 1 :w 1)
         [fetched]   (kv/fetch  bucket-name k)]
     (is (empty? stored))
     (is (= Constants/CTYPE_JSON (:content-type fetched)))

@@ -121,8 +121,11 @@
                   :skip-deserialize skip-deserialize :retrier retrier :resolver resolver)
         ;; modify here only makes sense for a single value.
         ;; This is how mutations work in the Riak Java client. Resolvers are supposed to take care of this. MK.
-        m  (f (first xs))]
-    (store bucket-name key (:value m)
+        m  (if (coll? xs)
+             (first xs)
+             xs)
+        m' (f m)]
+    (store bucket-name key (:value m')
            :w w :dw dw :pw pw
            :indexes (get m :indexes indexes) :links (get m :links links) :vlock (get m :vclock vclock) :vtag (get m :vtag vtag) :last-modified (.getTime (Date.))
            :return-body return-body :if-none-match if-none-match :if-not-modified if-not-modified
