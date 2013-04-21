@@ -1,11 +1,12 @@
 (ns clojurewerkz.welle.test.kv-test
   (:use     clojure.test
             [clojurewerkz.welle.testkit :only [drain]])
-  (:require [clojurewerkz.welle.core    :as wc]
-            [clojurewerkz.welle.buckets :as wb]
-            [clojurewerkz.welle.kv      :as kv]
-            [cheshire.custom            :as json]
-            [clojure.set                :as set])
+  (:require [clojurewerkz.welle.core        :as wc]
+            [clojurewerkz.welle.conversion :as conversion]
+            [clojurewerkz.welle.buckets     :as wb]
+            [clojurewerkz.welle.kv          :as kv]
+            [cheshire.custom                :as json]
+            [clojure.set                    :as set])
   (:import  com.basho.riak.client.http.util.Constants
             java.util.UUID))
 
@@ -342,3 +343,37 @@
            (sort (get-in fetched [:value :influenced-by]))))
     (is-riak-object fetched)
     (drain bucket-name)))
+
+(defn spy [arg] (prn arg) arg)
+(defn union-resolver
+  [default]
+  (conversion/resolver-from
+    (fn [siblings]
+;      (prn "Resolving siblings" siblings)
+;      (spy
+      (condp = (count siblings)
+        0 [{:value default
+           :content-type "application/clojure"
+           :metadata {}}]
+        1 siblings
+        [(-> (first siblings)
+           (select-keys [:content-type :metadata :links])
+           (assoc :value (apply set/union (map :value siblings))))]))))
+
+(deftest ^:focus test-modify-vclocks
+         (let [bucket-name "clojurewerkz.welle.kv"
+               bucket      (wb/update bucket-name :allow-siblings true)
+               k           (str (UUID/randomUUID))
+               append!     (fn [x] (kv/modify bucket-name k
+                                          (fn [o]
+                                            (update-in o [:value] conj x))
+                                          :resolver (union-resolver #{})
+                                          :pr 2
+                                          :pw 2))
+               adds        (doall (map append! (range 10)))
+               final       (kv/fetch bucket-name k :pr 3)]
+
+           ; (prn (count final) :final final)
+           ; There should not be 10 siblings.
+           (is (< (count final) 10))
+           (drain bucket-name)))
