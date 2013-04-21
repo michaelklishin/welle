@@ -369,7 +369,6 @@
                                        :pw 2))
         adds        (doall (map append! (range 10)))
         final       (kv/fetch bucket-name k :pr 3)]
-
-                                        ; There should not be 10 siblings.
+    ;; There should not be 10 siblings.
     (is (< (count final) 4))
     (drain bucket-name)))
