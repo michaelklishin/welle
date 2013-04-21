@@ -344,13 +344,10 @@
     (is-riak-object fetched)
     (drain bucket-name)))
 
-(defn spy [arg] (prn arg) arg)
 (defn union-resolver
   [default]
   (conversion/resolver-from
     (fn [siblings]
-;      (prn "Resolving siblings" siblings)
-;      (spy
       (condp = (count siblings)
         0 [{:value default
            :content-type "application/clojure"
@@ -373,7 +370,6 @@
                adds        (doall (map append! (range 10)))
                final       (kv/fetch bucket-name k :pr 3)]
 
-           ; (prn (count final) :final final)
            ; There should not be 10 siblings.
-           (is (< (count final) 10))
+           (is (< (count final) 4))
            (drain bucket-name)))
