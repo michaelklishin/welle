@@ -347,29 +347,29 @@
 (defn union-resolver
   [default]
   (conversion/resolver-from
-    (fn [siblings]
-      (condp = (count siblings)
-        0 [{:value default
+   (fn [siblings]
+     (condp = (count siblings)
+       0 [{:value default
            :content-type "application/clojure"
            :metadata {}}]
-        1 siblings
-        [(-> (first siblings)
-           (select-keys [:content-type :metadata :links])
-           (assoc :value (apply set/union (map :value siblings))))]))))
+       1 siblings
+       [(-> (first siblings)
+            (select-keys [:content-type :metadata :links])
+            (assoc :value (apply set/union (map :value siblings))))]))))
 
-(deftest ^:focus test-modify-vclocks
-         (let [bucket-name "clojurewerkz.welle.kv"
-               bucket      (wb/update bucket-name :allow-siblings true)
-               k           (str (UUID/randomUUID))
-               append!     (fn [x] (kv/modify bucket-name k
-                                          (fn [o]
-                                            (update-in o [:value] conj x))
-                                          :resolver (union-resolver #{})
-                                          :pr 2
-                                          :pw 2))
-               adds        (doall (map append! (range 10)))
-               final       (kv/fetch bucket-name k :pr 3)]
+(deftest test-modify-vclocks
+  (let [bucket-name "clojurewerkz.welle.kv"
+        bucket      (wb/update bucket-name :allow-siblings true)
+        k           (str (UUID/randomUUID))
+        append!     (fn [x] (kv/modify bucket-name k
+                                       (fn [o]
+                                         (update-in o [:value] conj x))
+                                       :resolver (union-resolver #{})
+                                       :pr 2
+                                       :pw 2))
+        adds        (doall (map append! (range 10)))
+        final       (kv/fetch bucket-name k :pr 3)]
 
-           ; There should not be 10 siblings.
-           (is (< (count final) 4))
-           (drain bucket-name)))
+                                        ; There should not be 10 siblings.
+    (is (< (count final) 4))
+    (drain bucket-name)))
