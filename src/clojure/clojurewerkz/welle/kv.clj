@@ -127,10 +127,10 @@
         m' (f m)]
     (store bucket-name key (:value m')
            :w w :dw dw :pw pw
-           :indexes (get m :indexes indexes) :links (get m :links links) :vlock (get m :vclock vclock) :vtag (get m :vtag vtag) :last-modified (.getTime (Date.))
+           :indexes (get m' :indexes indexes) :links (get m' :links links) :vlock (get m' :vclock vclock) :vtag (get m' :vtag vtag) :last-modified (.getTime (Date.))
            :return-body return-body :if-none-match if-none-match :if-not-modified if-not-modified
-           :content-type (get m :content-type content-type)
-           :metadata     (get m :metadata metadata)
+           :content-type (get m' :content-type content-type)
+           :metadata     (get m' :metadata metadata)
            :retrier      retrier
            :resolver     resolver)))
 
