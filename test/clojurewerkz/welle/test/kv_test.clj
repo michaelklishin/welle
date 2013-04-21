@@ -358,7 +358,7 @@
             (assoc :value (apply set/union (map :value siblings))))]))))
 
 (deftest test-modify-vclocks
-  (let [bucket-name "clojurewerkz.welle.kv"
+  (let [bucket-name "clojurewerkz.welle.kv.siblings"
         bucket      (wb/update bucket-name :allow-siblings true)
         k           (str (UUID/randomUUID))
         append!     (fn [x] (kv/modify bucket-name k
