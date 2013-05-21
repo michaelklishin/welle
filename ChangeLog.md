@@ -1,8 +1,10 @@
-## Changes between Welle 1.5.0 and 1.6.0
+## Changes between Welle 1.5.0 and 2.0
 
-### Validateur Update
+### Validateur Dependency Dropped
 
-[Validateur](http://clojurevalidations.info) dependency has been upgraded to version `1.4.0`.
+[Validateur](http://clojurevalidations.info) is no longer a dependency of Welle.
+
+Don't worry, they still work well together.
 
 ### clj-http Update
 

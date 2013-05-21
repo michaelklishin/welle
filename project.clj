@@ -7,7 +7,6 @@
                  [com.basho.riak/riak-client "1.1.0"]
                  [cheshire                   "5.1.0"]
                  [clojurewerkz/support       "0.16.0"]
-                 [com.novemberain/validateur "1.4.0"]
                  ;; for the Riak Search Solr API support. When Riak Client supports
                  ;; search natively, we should be able to just use what it provides.
                  [clj-http                   "0.7.2"]
