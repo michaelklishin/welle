@@ -12,7 +12,7 @@
 
 (println (str "Using Clojure version " *clojure-version*))
 
-(wc/connect-to-cluster! ["127.0.0.1" "localhost"])
+(wc/connect!)
 
 (defn- is-riak-object
   [m]
@@ -21,6 +21,8 @@
   (is (:last-modified m))
   (is (:content-type m))
   (is (:metadata m))
+  (is (:links m))
+  (is (:indexes m))
   (is (:value m)))
 
 ;;
@@ -33,8 +35,11 @@
         k           "store-with-all-defaults"
         v           "value"
         stored      (kv/store bucket-name k v)
-        [fetched]   (kv/fetch bucket-name k :r 1)]
-    (is (empty? stored))
+        {:keys [result] :as m} (kv/fetch bucket-name k :r 1)
+        fetched     (first result)]
+    (is (not (:has-value? stored)))
+    (is (not (:has-siblings? stored)))
+    (is (:modified? stored))
     (is (= Constants/CTYPE_OCTET_STREAM (:content-type fetched)))
     (is (= {} (:metadata fetched)))
     (is (= v (String. ^bytes (:value fetched))))
@@ -52,8 +57,18 @@
         k           "store-as-utf8-text"
         v           "value"
         stored      (kv/store bucket-name k v :content-type Constants/CTYPE_TEXT_UTF8)
-        [fetched]   (kv/fetch bucket-name k)]
-    (is (empty? stored))
+        {:keys [result] :as m} (kv/fetch bucket-name k)
+        ;; ex.: {:metadata {},
+        ;;       :deleted? false,
+        ;;       :content-type "text/plain; charset=UTF-8",
+        ;;       :vtag "\"2IxTVEGoIW8DCRT25rLl83\"",
+        ;;       :vclock #<BasicVClock com.basho.riak.client.cap.BasicVClock@67d53134>,
+        ;;       :indexes {},
+        ;;       :links (),
+        ;;       :last-modified #inst "2013-05-22T17:17:30.000-00:00",
+        ;;       :value "value"}
+        fetched     (first result)]
+    (is (not (:has-value? stored)))
     (is (= Constants/CTYPE_TEXT_UTF8 (:content-type fetched)))
     (is (= {} (:metadata fetched)))
     (is (= v (:value fetched)))
@@ -67,8 +82,8 @@
         k           "store-as-json"
         v           {:name "Riak" :kind "Data store" :influenced-by #{"Dynamo"}}
         stored      (kv/store bucket-name k v :content-type Constants/CTYPE_JSON)
-        [fetched]   (kv/fetch bucket-name k)]
-    (is (empty? stored))
+        {:keys [result] :as m} (kv/fetch bucket-name k)
+        fetched     (first result)]
     (is (= Constants/CTYPE_JSON (:content-type fetched)))
     (is (= {} (:metadata fetched)))
     (is (= {:kind "Data store" :name "Riak" :influenced-by ["Dynamo"]} (:value fetched)))
@@ -82,7 +97,8 @@
         k           "store-as-utf8-json"
         v           {:name "Riak" :kind "Data store" :influenced-by #{"Dynamo"}}
         stored      (kv/store bucket-name k v :content-type Constants/CTYPE_JSON_UTF8)
-        [fetched]   (kv/fetch bucket-name k)]
+        {:keys [result] :as m} (kv/fetch bucket-name k)
+        fetched     (first result)]
     ;; cannot use constant value here see https://github.com/basho/riak-java-client/issues/125
     (is (= "application/json; charset=UTF-8"  (:content-type fetched)))
     (is (= {:kind "Data store" :name "Riak" :influenced-by ["Dynamo"]} (:value fetched)))
@@ -96,7 +112,8 @@
         k           "store-as-jackson-smile"
         v           {:name "Riak" :kind "Data store" :influenced-by #{"Dynamo"}}
         stored      (kv/store bucket-name k v :content-type ct)
-        [fetched]   (kv/fetch bucket-name k)]
+        {:keys [result] :as m} (kv/fetch bucket-name k)
+        fetched     (first result)]
     (is (= ct  (:content-type fetched)))
     (is (= {:kind "Data store" :name "Riak" :influenced-by ["Dynamo"]} (:value fetched)))
     (drain bucket-name)))
@@ -110,10 +127,10 @@
                      :venue {:name "Sheraton New York Hotel & Towers" :address "811 Seventh Avenue" :street "Seventh Avenue"}}
         ct          "application/clojure"
         stored      (kv/store bucket-name k v :content-type ct)
-        fetched     (kv/fetch-one bucket-name k)]
+        {:keys [result] :as m} (kv/fetch-one bucket-name k)]
     ;; cannot use constant value here see https://github.com/basho/riak-java-client/issues/125
-    (is (= ct  (:content-type fetched)))
-    (is (= v (:value fetched)))
+    (is (= ct  (:content-type result)))
+    (is (= v (:value result)))
     (drain bucket-name)))
 
 
@@ -126,8 +143,9 @@
         ;; idea here but PB cannot support it (as of Riak 1.1). MK.
         ct          "application/json+gzip"
         stored      (kv/store bucket-name k v :content-type ct)
-        [fetched]   (kv/fetch bucket-name k)]
-    (is (empty? stored))
+        {:keys [result] :as m} (kv/fetch bucket-name k)
+        fetched     (first result)]
+    (is (not (:has-value? stored)))
     (is (= ct (:content-type fetched)))
     (is (= {} (:metadata fetched)))
     (is (= {:kind "Data store" :name "Riak" :influenced-by ["Dynamo"]} (:value fetched)))
@@ -140,8 +158,8 @@
         bucket      (wb/update bucket-name)
         k           "store-as-utf8-text"
         v           "value"
-        stored      (kv/store bucket-name k v :content-type Constants/CTYPE_TEXT_UTF8 :return-body true)]
-    (is (= v (-> stored first :value)))
+        {:keys [result]}      (kv/store bucket-name k v :content-type Constants/CTYPE_TEXT_UTF8 :return-body true)]
+    (is (= v (-> result first :value)))
     (drain bucket-name)))
 
 
@@ -156,8 +174,9 @@
         v           "value"
         ;; metadata values currently have to be strings. MK.
         metadata    {:author "Joe" :density "5"}
-        stored      (kv/store bucket-name k v :content-type Constants/CTYPE_TEXT_UTF8 :metadata metadata)
-        [fetched]   (kv/fetch bucket-name k)]
+        _           (kv/store bucket-name k v :content-type Constants/CTYPE_TEXT_UTF8 :metadata metadata)
+        {:keys [result] :as m} (kv/fetch bucket-name k)
+        fetched     (first result)]
     (is (= Constants/CTYPE_TEXT_UTF8 (:content-type fetched)))
     (is (= {"author" "Joe" "density" "5"} (:metadata fetched)))
     (is (= v (:value fetched)))
@@ -175,12 +194,12 @@
         k           "store-with-links"
         v           "value"
         links       [{:bucket "pages" :key "clojurewerkz.org" :tag "links"}]
-        stored      (kv/store bucket-name k v :content-type Constants/CTYPE_TEXT_UTF8 :links links)
-        [fetched]   (kv/fetch bucket-name k)]
-    (is (= Constants/CTYPE_TEXT_UTF8 (:content-type fetched)))
-    (is (= links (:links fetched)))
-    (is (= v (:value fetched)))
-    (is-riak-object fetched)
+        _           (kv/store bucket-name k v :content-type Constants/CTYPE_TEXT_UTF8 :links links)
+        {:keys [result] :as m} (kv/fetch-one bucket-name k)]
+    (is (= Constants/CTYPE_TEXT_UTF8 (:content-type result)))
+    (is (= links (:links result)))
+    (is (= v (:value result)))
+    (is-riak-object result)
     (drain bucket-name)))
 
 
@@ -192,7 +211,7 @@
 (deftest test-fetching-a-non-existent-object
   (let [bucket-name "clojurewerkz.welle.kv"
         bucket      (wb/update bucket-name)
-        result      (kv/fetch bucket-name (str (UUID/randomUUID)))]
+        {:keys [result]}           (kv/fetch bucket-name (str (UUID/randomUUID)))]
     (is (empty? result))))
 
 (deftest test-optimistic-fetching-of-a-single-object
@@ -200,30 +219,12 @@
         bucket      (wb/update bucket-name)
         k           "optimistic-fetch"
         v           "value"
-        stored      (kv/store bucket-name k v)
-        fetched     (kv/fetch-one bucket-name k :r 1)]
-    (is (= Constants/CTYPE_OCTET_STREAM (:content-type fetched)))
-    (is (= {} (:metadata fetched)))
-    (is (= v (String. ^bytes (:value fetched))))
-    (is-riak-object fetched)
-    (drain bucket-name)))
-
-(deftest test-fetching-of-a-group-of-objects
-  (let [bucket-name "clojurewerkz.welle.kv"
-        bucket      (wb/update bucket-name)
-        k1          "multifetch-key1"
-        k2          "multifetch-key2"
-        stored1     (kv/store bucket-name k1 "value1")
-        stored2     (kv/store bucket-name k2 "value2")
-        xs          (kv/fetch-all bucket-name [k1 k2])
-        ft1         (first xs)
-        ft2         (last xs)]
-    (is (= "value1" (String. ^bytes (:value ft1))))
-    (is (= "value2" (String. ^bytes (:value ft2))))
-    (doseq [o [ft1 ft2]]
-      (is (= Constants/CTYPE_OCTET_STREAM (:content-type o)))
-      (is (= {} (:metadata o)))
-      (is-riak-object o))
+        _                (kv/store bucket-name k v)
+        {:keys [result]} (kv/fetch-one bucket-name k :r 1)]
+    (is (= Constants/CTYPE_OCTET_STREAM (:content-type result)))
+    (is (= {} (:metadata result)))
+    (is (= v (String. ^bytes (:value result))))
+    (is-riak-object result)
     (drain bucket-name)))
 
 
@@ -233,12 +234,12 @@
         ct          Constants/CTYPE_JSON
         k           "skip-deserialize-fetch-one"
         v           {:name "Riak"}
-        stored      (kv/store bucket-name k v :content-type ct)
-        fetched     (kv/fetch-one bucket-name k :r 1 :skip-deserialize true)]
-    (is (= ct (:content-type fetched)))
-    (is (= {} (:metadata fetched)))
-    (is (= (json/encode v) (String. ^bytes (:value fetched))))
-    (is-riak-object fetched)
+        _                (kv/store bucket-name k v :content-type ct)
+        {:keys [result]} (kv/fetch-one bucket-name k :r 1 :skip-deserialize true)]
+    (is (= ct (:content-type result)))
+    (is (= {} (:metadata result)))
+    (is (= (json/encode v) (String. ^bytes (:value result))))
+    (is-riak-object result)
     (drain bucket-name)))
 
 (deftest test-fetch-with-skip-deserialize
@@ -247,8 +248,10 @@
         ct          Constants/CTYPE_JSON
         k           "skip-deserialize-fetch"
         v           {:name "Riak"}
-        stored      (kv/store bucket-name k v :content-type ct)
-        [fetched]   (kv/fetch bucket-name k :r 1 :skip-deserialize true)]
+        _                (kv/store bucket-name k v :content-type ct)
+        {:keys [result]} (kv/fetch bucket-name k :r 1 :skip-deserialize true)
+        fetched          (first result)]
+    (println )
     (is (= ct (:content-type fetched)))
     (is (= {} (:metadata fetched)))
     (is (= (json/encode v) (String. ^bytes (:value fetched))))
@@ -267,12 +270,18 @@
         v           "another value"]
     (drain bucket-name)
     (Thread/sleep 150)
-    (is (empty? (kv/fetch bucket-name k :r 2)))
+    (is (not (:has-value? (kv/fetch bucket-name k :r 2))))
     (kv/store bucket-name k v)
-    (is (first (kv/fetch bucket-name k)))
+    (is (:has-value? (kv/fetch bucket-name k)))
     (kv/delete bucket-name k :rw 2)
     (kv/fetch bucket-name k :r 2)
-    (is (empty? (kv/fetch bucket-name k :r 2)))))
+    ;; {:vclock #<BasicVClock com.basho.riak.client.cap.BasicVClock@43bed599>,
+    ;;  :has-siblings? false,
+    ;;  :has-value? false,
+    ;;  :deleted? false,
+    ;;  :modified? true,
+    ;;  :result ()}
+    (is (not (:has-value? (kv/fetch bucket-name k :r 2))))))
 
 
 (deftest test-fetching-deleted-value-with-bucket-settings
@@ -282,11 +291,11 @@
         v           "another value"]
     (drain bucket-name)
     (Thread/sleep 150)
-    (is (nil? (kv/fetch-one bucket-name k :r 2)))
+    (is (not (:has-value? (kv/fetch-one bucket-name k :r 2))))
     (kv/store bucket-name k v)
-    (is (kv/fetch-one bucket-name k))
+    (is (:has-value? (kv/fetch-one bucket-name k)))
     (kv/delete bucket-name k :rw 2)
-    (is (nil? (kv/fetch-one bucket-name k :r 2)))))
+    (is (not (:has-value? (kv/fetch-one bucket-name k :r 2))))))
 
 
 (deftest test-fetching-multiple-deleted-values-with-bucket-settings
@@ -299,12 +308,12 @@
     (Thread/sleep 150)
 
     (doseq [[k v] key-values]
-      (is (nil? (kv/fetch-one bucket-name k)))
+      (is (not (:has-value? (kv/fetch-one bucket-name k))))
       (kv/store bucket-name k v)
-      (is (kv/fetch-one bucket-name k)))
+      (is (:has-value? (kv/fetch-one bucket-name k))))
     (kv/delete-all bucket-name (map first key-values))
     (doseq [[k v] key-values]
-      (is (nil? (kv/fetch-one bucket-name k))))))
+      (is (not (:has-value? (kv/fetch-one bucket-name k)))))))
 
 ;;
 ;; kv/modify
@@ -314,15 +323,15 @@
   (let [bucket-name "clojurewerkz.welle.kv"
         bucket      (wb/update bucket-name)
         k           (str (UUID/randomUUID))
-        f           (fn [m]
+        f           (fn [[m]]
                       (update-in m [:value :influenced-by] set/union #{"Java" "Haskell"}))
         updated     (kv/modify bucket-name k f :r 1 :w 1 :content-type "application/json")
-        [fetched]   (kv/fetch  bucket-name k)]
-    (is (= Constants/CTYPE_JSON (:content-type fetched)))
-    (is (= {} (:metadata fetched)))
+        {:keys [result]} (kv/fetch-one  bucket-name k)]
+    (is (= Constants/CTYPE_JSON (:content-type result)))
+    (is (= {} (:metadata result)))
     (is (= (sort ["Java" "Haskell"])
-           (sort (get-in fetched [:value :influenced-by]))))
-    (is-riak-object fetched)
+           (sort (get-in result [:value :influenced-by]))))
+    (is-riak-object result)
     (drain bucket-name)))
 
 
@@ -332,16 +341,16 @@
         k           (str (UUID/randomUUID))
         v           {:name "Clojure" :kind "Programming Language" :influenced-by #{"Common Lisp", "C#"}}
         stored      (kv/store  bucket-name k v :content-type Constants/CTYPE_JSON)
-        f           (fn [m]
+        f           (fn [[m]]
                       (update-in m [:value :influenced-by] set/union #{"Java" "Haskell"}))
-        updated     (kv/modify bucket-name k f :r 1 :w 1)
-        [fetched]   (kv/fetch  bucket-name k)]
-    (is (empty? stored))
-    (is (= Constants/CTYPE_JSON (:content-type fetched)))
-    (is (= {} (:metadata fetched)))
+        _           (kv/modify bucket-name k f :r 1 :w 1)
+        {:keys [result]} (kv/fetch-one  bucket-name k)]
+    (is (empty? (:result stored)))
+    (is (= Constants/CTYPE_JSON (:content-type result)))
+    (is (= {} (:metadata result)))
     (is (= (sort ["C#" "Common Lisp" "Java" "Haskell"])
-           (sort (get-in fetched [:value :influenced-by]))))
-    (is-riak-object fetched)
+           (sort (get-in result [:value :influenced-by]))))
+    (is-riak-object result)
     (drain bucket-name)))
 
 (defn union-resolver
@@ -362,13 +371,13 @@
         bucket      (wb/update bucket-name :allow-siblings true)
         k           (str (UUID/randomUUID))
         append!     (fn [x] (kv/modify bucket-name k
-                                       (fn [o]
+                                       (fn [[o]]
                                          (update-in o [:value] conj x))
                                        :resolver (union-resolver #{})
                                        :pr 2
                                        :pw 2))
-        adds        (doall (map append! (range 10)))
-        final       (kv/fetch bucket-name k :pr 3)]
+        adds             (doall (map append! (range 10)))
+        {:keys [result]} (kv/fetch bucket-name k :pr 3)]
     ;; There should not be 10 siblings.
-    (is (< (count final) 4))
+    (is (< (count result) 4))
     (drain bucket-name)))

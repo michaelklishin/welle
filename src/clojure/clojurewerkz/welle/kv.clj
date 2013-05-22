@@ -52,10 +52,11 @@
         mf               (if return-body
                            (comp deserialize-value from-riak-object)
                            from-riak-object)
-        ys               (map mf xs)]
-    (if resolver
-      (.resolve resolver ys)
-      ys)))
+        ys               (map mf xs)
+        result           (if resolver
+                           (.resolve resolver ys)
+                           ys)]
+    {:vclock (.getVclock xs) :has-siblings? (.hasSiblings xs) :has-value? (.hasValue xs) :deleted? (.isDeleted xs) :modified? (not (.isUnmodified xs)) :result result}))
 
 (declare tombstone?)
 (defn fetch
@@ -81,20 +82,34 @@
                                             return-deleted-vclock if-modified-since if-modified-vclock skip-deserialize
                                             ^Retrier retrier ^ConflictResolver resolver]
                                      :or {retrier default-retrier}}]
-  (let [^FetchMeta md (to-fetch-meta r pr not-found-ok basic-quorum head-only return-deleted-vclock if-modified-since if-modified-vclock)
-        results       (.attempt retrier ^Callable (fn []
-                                                    (.fetch *riak-client* bucket-name key md)))
+  (let [^FetchMeta    md  (to-fetch-meta r pr not-found-ok basic-quorum head-only return-deleted-vclock if-modified-since if-modified-vclock)
+        ^RiakResponse res (.attempt retrier ^Callable (fn []
+                                                        (.fetch *riak-client* bucket-name key md)))
         ;; return-deleted-vclock = we should return tombstones. See
         ;; https://github.com/basho/riak-java-client/commit/416a901ff1de8e4eb559db21ac5045078d278e86 for more info. MK.
         ros           (if return-deleted-vclock
-                        results
-                        (remove #(.isDeleted ^IRiakObject %) results))
+                        res
+                        (remove #(.isDeleted ^IRiakObject %) res))
         xs            (if skip-deserialize
                         (map from-riak-object ros)
-                        (map (comp deserialize-value from-riak-object) ros))]
-    (if resolver
-      (.resolve resolver xs)
-      xs)))
+                        (map (comp deserialize-value from-riak-object) ros))
+        result        (if resolver
+                        (.resolve resolver xs)
+                        xs)]
+    {:vclock (.getVclock res) :has-siblings? (.hasSiblings res) :has-value? (> (count ros) 0) :deleted? (.isDeleted res) :modified? (not (.isUnmodified res)) :result result}))
+
+(defn fetch-one
+  "Fetches a single object. If siblings are found, passes the on to the provided resolver or raises an exception.
+   In situations when you are interested in getting all siblings back, use `clojurewerkz.welle.kv/fetch`
+   instead."
+  [& args]
+  (let [{:keys [has-siblings? result] :as m} (apply fetch args)]
+    (if has-siblings?
+      (throw (IllegalStateException.
+              "Riak response to clojurewerkz.welle.kv/fetch-one contains siblings. If conflicts/siblings are expected here, provide a resolver or use clojurewerkz.welle.kv/fetch"))
+      (assoc m :result (if (coll? result)
+                         (first result)
+                         result)))))
 
 (defn modify
   "Modifies an object with the given bucket and key by fetching it, applying a function to it
@@ -111,53 +126,23 @@
                                               return-deleted-vclock if-modified-since if-modified-vclock skip-deserialize
                                               ^Retrier retrier ^ConflictResolver resolver
                                               w dw pw
-                                              indexes links vclock ^String vtag ^Date last-modified
+                                              indexes links ^String vtag ^Date last-modified
                                               ^Boolean return-body ^Boolean if-none-match ^Boolean if-not-modified
                                               content-type metadata]
                                        :or {retrier default-retrier}}]
-  (let [xs (fetch bucket-name key
-                  :r r :pr pr :not-found-ok not-found-ok :basic-quorum basic-quorum :head-only head-only
-                  :return-deleted-vclock return-deleted-vclock :if-modified-since if-modified-since :if-modified-vclock if-modified-vclock
-                  :skip-deserialize skip-deserialize :retrier retrier :resolver resolver)
-        ;; modify here only makes sense for a single value.
-        ;; This is how mutations work in the Riak Java client. Resolvers are supposed to take care of this. MK.
-        m  (if (coll? xs)
-             (first xs)
-             xs)
-        m' (f m)]
+  (let [{:keys [result vclock] :as m} (fetch bucket-name key
+                                             :r r :pr pr :not-found-ok not-found-ok :basic-quorum basic-quorum :head-only head-only
+                                             :return-deleted-vclock return-deleted-vclock :if-modified-since if-modified-since :if-modified-vclock if-modified-vclock
+                                             :skip-deserialize skip-deserialize :retrier retrier :resolver resolver)
+        m' (f result)]
     (store bucket-name key (:value m')
            :w w :dw dw :pw pw
-           :indexes (get m' :indexes indexes) :links (get m' :links links) :vclock (get m' :vclock vclock) :vtag (get m' :vtag vtag) :last-modified (.getTime (Date.))
+           :indexes (get m' :indexes indexes) :links (get m' :links links) :vclock vclock :vtag (get m' :vtag vtag) :last-modified (.getTime (Date.))
            :return-body return-body :if-none-match if-none-match :if-not-modified if-not-modified
            :content-type (get m' :content-type content-type)
            :metadata     (get m' :metadata metadata)
            :retrier      retrier
            :resolver     resolver)))
-
-(defn fetch-one
-  "Fetches a single object. If siblings are found, passes the on to the provided resolver or raises an exception.
-   In situations when you are interested in getting all siblings back, use `clojurewerkz.welle.kv/fetch`
-   instead."
-  [& args]
-  (let [xs (apply fetch args)]
-    (if (> (count xs) 1)
-      (throw (IllegalStateException.
-              "Riak response to clojurewerkz.welle.kv/fetch-one contains siblings. If conflicts/siblings are expected here, provide a resolver or use clojurewerkz.welle.kv/fetch"))
-      (first xs))))
-
-(defn fetch-all
-  "Fetches multiple objects concurrently. This is a convenience function: it optimistically assumes there will be only one
-   objects for each key and no siblings. In situations when you are not sure about this, use `clojurewerkz.welle.kv/fetch`
-   `clojure.core/pmap` in combination instead.
-
-   This function relies on clojure.core/pmap to fetch multiple keys,
-   so it may be inappropriate for cases where results need to be retrieved pre-ordered. In such cases, use map/reduce queries
-   instead."
-  [^String bucket-name keys]
-  (doall (pmap (fn [^String k]
-                 (fetch-one bucket-name k))
-               keys)))
-
 
 (defn index-query
   "Performs a secondary index (2i) query. Provided value can be either non-collection
@@ -209,3 +194,8 @@
    (was deleted but not yet GCed)"
   [m]
   (:deleted? m))
+
+(defn has-value?
+  "Returns true if a given Riak response is empty"
+  [m]
+  (:has-value? m))

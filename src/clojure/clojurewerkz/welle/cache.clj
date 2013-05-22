@@ -22,9 +22,10 @@
 (cache/defcache BasicWelleCache [^String bucket ^String content-type ^Integer w]
   cache/CacheProtocol
   (lookup [c k]
-    (:value (kv/fetch-one (.bucket c) k)))
+    (get-in (kv/fetch-one (.bucket c) k) [:result :value]))
   (has? [c k]
-    (not (empty? (kv/fetch (.bucket c) k :head-only true))))
+        (println (kv/fetch (.bucket c) k :head-only true))
+    (not (:has-value? (kv/fetch (.bucket c) k :head-only true))))
   (hit [this k]
     this)
   (miss [c k v]
