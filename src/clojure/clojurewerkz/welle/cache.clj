@@ -1,6 +1,5 @@
-(ns ^{:doc "clojure.core.cache implementation(s) on top of Riak."
-      :author "Michael S. Klishin"}
-  clojurewerkz.welle.cache
+(ns clojurewerkz.welle.cache
+  "clojure.core.cache implementation(s) on top of Riak."
   (:require [clojurewerkz.welle.kv :as kv]
             [clojure.core.cache    :as cache])
   (:import clojure.core.cache.CacheProtocol
