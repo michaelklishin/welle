@@ -1,3 +1,30 @@
+## Changes between Welle 1.5.0 and 1.5.1
+
+### Ports Support in PB Cluster Client
+
+While creating a protocol buffer cluster client you can now provide
+hosts and ports separated by a colon, e.g. "127.0.0.1:10017". If a port is not
+provided, the default port will be used.
+
+So now you can use following format:
+
+``` clojure
+(wc/connect-to-cluster-via-pb! ["10.0.1.2",
+			        "10.0.1.3",
+				"10.0.1.4",
+				"10.0.1.5",
+				"10.0.1.6"])
+
+as well as following format:
+
+``` clojure
+(wc/connect-to-cluster-via-pb! ["127.0.0.1:10017",
+			        "127.0.0.1:10027",
+				"127.0.0.1:10037",
+				"127.0.0.1:10047"])
+```
+
+
 ## Changes between Welle 1.4.0 and 1.5.0
 
 ### clojurewerkz.welle.kv/modify
@@ -165,7 +192,7 @@ Documents stored via Riak K/V (`clojurewerkz.welle.kv/store`) with the content t
 if Riak Search is enabled for the bucket.
 
 
-### Support for SMILE 
+### Support for SMILE
 
 Welle now provides transparent serialization and deserialization support for SMILE, just like it has for
 JSON, compressed data and Clojure reader. To use it, set `:content-type` of a value to `"application/jackson-smile"`.
