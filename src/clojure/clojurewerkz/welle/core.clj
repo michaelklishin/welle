@@ -2,7 +2,8 @@
   (:import com.basho.riak.client.raw.RawClient
            [com.basho.riak.client.raw.http HTTPClientConfig HTTPClientConfig$Builder
             HTTPClusterClient HTTPClusterConfig]
-           [com.basho.riak.client.raw.pbc PBClientAdapter PBClusterClient PBClusterConfig]
+           [com.basho.riak.client.raw.pbc PBClientAdapter PBClusterClient
+            PBClusterConfig PBClientConfig$Builder]
            com.basho.riak.client.raw.config.ClusterConfig
            clojurewerkz.welle.HTTPClient))
 
@@ -97,12 +98,26 @@
   [endpoints]
   (alter-var-root (var *riak-client*) (constantly (connect-to-cluster endpoints))))
 
+(defprotocol PBClusterConfigurator
+  (pbc-cluster-config-from [self]))
 
+(extend-type PBClusterConfig
+  PBClusterConfigurator
+  (pbc-cluster-config-from [self] self))
 
-(defn- pbc-cluster-config-from
-  ([endpoints]
-     (doto (PBClusterConfig. default-cluster-connection-limit)
-       (.addHosts (into-array String endpoints)))))
+(extend-type java.util.Collection
+  PBClusterConfigurator
+  (pbc-cluster-config-from [endpoints]
+    (let [res (PBClusterConfig. default-cluster-connection-limit)]
+      (doseq [^String endpoint endpoints]
+        (let [[host port-str] (seq (.split endpoint ":" 2))
+              port (when port-str (Integer/parseInt port-str))]
+          (.addClient res (-> (PBClientConfig$Builder.)
+                              (.withHost host)
+                              (.withPort (or port
+                                             default-pb-port))
+                              (.build)))))
+      res)))
 
 (defn ^com.basho.riak.client.raw.RawClient
   connect-to-cluster-via-pb
