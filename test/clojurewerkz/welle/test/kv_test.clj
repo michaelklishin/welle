@@ -381,3 +381,21 @@
     ;; There should not be 10 siblings.
     (is (< (count result) 4))
     (drain bucket-name)))
+
+(deftest test-counter
+  (let [bucket-name "clojurewerkz.welle.kv"
+        counter "counter1"
+        bucket  (wb/update bucket-name :allow-siblings true)
+        v1      (kv/increment-counter bucket-name counter)
+        v2      (kv/fetch-counter bucket-name counter)
+        v3      (kv/increment-counter bucket-name counter :value 2)
+        v4      (kv/fetch-counter bucket-name counter)
+        v5      (kv/increment-counter bucket-name counter :value -1)
+        v6      (kv/fetch-counter bucket-name counter)]
+    (is (= 1 v1))
+    (is (= 1 v2))
+    (is (= 3 v3))
+    (is (= 3 v4))
+    (is (= 2 v5))
+    (is (= 2 v6))
+    (drain bucket-name)))
