@@ -24,8 +24,7 @@
   (lookup [c k]
     (get-in (kv/fetch-one (.bucket c) k) [:result :value]))
   (has? [c k]
-        (println (kv/fetch (.bucket c) k :head-only true))
-    (not (:has-value? (kv/fetch (.bucket c) k :head-only true))))
+        (:has-value? (kv/fetch (.bucket c) k :head-only true)))
   (hit [this k]
     this)
   (miss [c k v]

@@ -30,7 +30,10 @@
 
   (read-session [store key]
     (if-let [m (and key
-                    (:value (kv/fetch-one (.bucket-name store) key :r (.r store))))]
+                    (let [reply (kv/fetch-one (.bucket-name store) key :r (.r store))
+                          result (:result reply)]
+                      (when result
+                        (:value result))))]
       m
       {}))
 
