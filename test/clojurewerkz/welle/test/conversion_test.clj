@@ -238,14 +238,18 @@
     (is (not (.getNotFoundOK result)))))
 
 
-(deftest test-to-index-query
+(deftest test-to-index-spec
   (testing "with int values"
     (let [bucket-name "bucket-o"
           index-name  "email"
           value       "johndoe@example.com"
-          query       (to-index-query value bucket-name index-name)]
-      (is (= "email_bin" (.getIndex query)))
-      (is (= bucket-name (.getBucket query))))))
+          spec       (to-index-spec value bucket-name index-name true 64 nil)]
+      (is (= "email_bin" (.getIndexName spec)))
+      (is (= bucket-name (.getBucketName spec)))
+      (is (= true (.isReturnTerms spec)))
+      (is (= 64 (.getMaxResults spec)))
+      (is (= (str value) (.getIndexKey spec)))
+      (is (nil? (.getContinuation spec))))))
 
 
 (deftest ^{:links true} test-to-riak-link

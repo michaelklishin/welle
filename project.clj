@@ -4,7 +4,7 @@
   :license {:name "Eclipse Public License"}
   :min-lein-version "2.0.0"
   :dependencies [[org.clojure/clojure        "1.5.1"]
-                 [com.basho.riak/riak-client "1.4.1"]
+                 [com.basho.riak/riak-client "1.4.2"]
                  [cheshire                   "5.1.0"]
                  [clojurewerkz/support       "0.16.0"]
                  ;; for the Riak Search Solr API support. When Riak Client supports

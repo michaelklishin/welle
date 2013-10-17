@@ -8,6 +8,8 @@
            com.basho.riak.client.http.util.Constants
            [com.basho.riak.client.raw RiakResponse]
            [com.basho.riak.client.cap Retrier DefaultRetrier ConflictResolver]
+           [com.basho.riak.client.query StreamingOperation]
+           [com.basho.riak.client IndexEntry]
            java.util.Date))
 
 
@@ -146,17 +148,47 @@
            :retrier      retrier
            :resolver     resolver)))
 
+(defn- from-streaming-operation
+  ([^StreamingOperation sop cont]
+     (lazy-seq
+      (cond
+       (.hasNext sop) (let [^IndexEntry idx-entry (.next sop)]
+                        (cons (if (.hasIndexValue idx-entry)
+                                [(.getObjectKey idx-entry) (.getIndexValue idx-entry)]
+                                (.getObjectKey idx-entry))
+                              (from-streaming-operation sop cont)))
+       (and cont
+            (.hasContinuation sop)) (from-streaming-operation (cont (.getContinuation sop))
+                                                              cont)
+            :else (do (.cancel sop)
+                 nil)))))
+
 (defn index-query
   "Performs a secondary index (2i) query. Provided value can be either non-collection
    or a collection (typically vector). In the former case, a value query is performed. In the latter
    case, a range query is performed.
-
+Returns sequence of pairs [`object key` `index value`] if `:return-terms` or object keys.
+`:return-terms` (true or false): how to return result
+`:max-results` (int): how many results to return
+`:fetch-all` (true or false): if set all results are fetched in `max-results` chunks
    Learn more in Riak's documentation on secondary indexes at http://wiki.basho.com/Secondary-Indexes.html"
-  [^String bucket-name field value]
-  (.attempt default-retrier ^Callable (fn []
-                                        (.fetchIndex *riak-client* (to-index-query value bucket-name field)))))
-
-
+  [^String bucket-name field value &{:keys [^Boolean return-terms ^Integer max-results ^String continuation ^Boolean fetch-all]
+                                     :or {return-terms false
+                                          fetch-all true}}]
+  (let [index-spec (to-index-spec value bucket-name field return-terms  max-results continuation)
+        res (.attempt default-retrier
+                      ^Callable (fn []
+                                  (.fetchIndex *riak-client* index-spec)))]
+    (if continuation
+      res
+      (from-streaming-operation res
+                                (when fetch-all
+                                  (fn [cont]
+                                    (index-query bucket-name field value
+                                                 :return-terms return-terms
+                                                 :max-results max-results
+                                                 :continuation cont
+                                                 :fetch-all true)))))))
 
 (defn delete
   "Deletes an object"
@@ -211,7 +243,7 @@
 "
   [^String bucket-name ^String counter-name &{ :keys [w dw pw
                                                       ^long value
-                                                       ^Boolean return-body
+                                                      ^Boolean return-body
                                                       ^Integer timeout
                                                       ^Retrier retrier]
                                               :or {value 1
@@ -220,7 +252,7 @@
   (let [^StoreMeta   md (to-store-meta w dw pw return-body nil nil timeout)
         ^Long value (or value 1)
         ^Long result (.attempt retrier ^Callable (fn []
-                                                           (.incrementCounter *riak-client* bucket-name counter-name value md)))]
+                                                   (.incrementCounter *riak-client* bucket-name counter-name value md)))]
     result))
 
 (defn fetch-counter
