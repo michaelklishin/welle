@@ -210,10 +210,16 @@
   (to-range-spec [start end builder] "Builds a range 2i query")
   (to-value-spec [value builder] "Builds a value 2i query"))
 
+(defn- make-index-name [index-name suffix]
+  (let [iname (name index-name)]
+    (case iname
+      ("$key" "$bucket") iname
+      (str iname suffix))))
+
 (extend-protocol IndexSpecConversion
   String
   (to-index-name [^String value index-name]
-    (str (name index-name) "_bin"))
+    (make-index-name index-name "_bin"))
   (to-range-spec [^String start ^String end ^IndexSpec$Builder builder]
     (.withRangeEnd (.withRangeStart builder start) end))
   (to-value-spec [^String value  ^IndexSpec$Builder builder]
@@ -222,7 +228,7 @@
 
   Integer
   (to-index-name [^Integer value index-name]
-    (str (name index-name) "_int"))
+    (make-index-name index-name "_int"))
   (to-range-spec [^Integer start ^Integer end ^IndexSpec$Builder builder]
     (.withRangeEnd (.withRangeStart builder (long start)) (long end)))
   (to-value-spec [^Integer value  ^IndexSpec$Builder builder]
@@ -231,7 +237,7 @@
 
   Long
   (to-index-name [^Long value index-name]
-    (str (name index-name) "_int"))
+    (make-index-name index-name "_int"))
   (to-range-spec [^Long start ^Long end ^IndexSpec$Builder builder]
     (.withRangeEnd (.withRangeStart builder start) end))
   (to-value-spec [^Integer value  ^IndexSpec$Builder builder]
