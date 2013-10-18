@@ -12,9 +12,9 @@
            [com.basho.riak.client.bucket BucketProperties TunableCAPProps]
            [com.basho.riak.client.query LinkWalkStep LinkWalkStep$Accumulate]
            com.basho.riak.client.http.util.Constants
-           [com.basho.riak.client.query.indexes RiakIndex IntIndex BinIndex]
+           [com.basho.riak.client.query.indexes RiakIndex]
            com.basho.riak.client.query.functions.NamedErlangFunction
-           [com.basho.riak.client.raw.query.indexes BinValueQuery BinRangeQuery IntValueQuery IntRangeQuery]
+           [com.basho.riak.client.raw.query IndexSpec IndexSpec$Builder]
            java.util.Date
            [java.io ByteArrayOutputStream PrintWriter InputStreamReader ByteArrayInputStream]
            [java.util.zip GZIPOutputStream GZIPInputStream]))
@@ -204,61 +204,61 @@
    :deleted?      (.isDeleted ro)})
 
 
-;; Index queries
+;; Index spec
+(defprotocol IndexSpecConversion
+  (to-index-name [value bucket-name])
+  (to-range-spec [start end builder] "Builds a range 2i query")
+  (to-value-spec [value builder] "Builds a value 2i query"))
 
-(defmacro bin-index
-  [index-name]
-  `(BinIndex/named (name ~index-name)))
+(defn- make-index-name [index-name suffix]
+  (let [iname (name index-name)]
+    (case iname
+      ("$key" "$bucket") iname
+      (str iname suffix))))
 
-(defmacro int-index
-  [index-name]
-  `(IntIndex/named (name ~index-name)))
-
-(defprotocol IndexQueryConversion
-  (to-range-query [start end bucket-name index-name] "Builds a range 2i query")
-  (to-value-query [value bucket-name index-name] "Builds a value 2i query"))
-
-(extend-protocol IndexQueryConversion
+(extend-protocol IndexSpecConversion
   String
-  (to-range-query [^String start ^String end ^String bucket-name index-name]
-    (BinRangeQuery. (bin-index index-name) bucket-name start end))
-  (to-value-query [^String value ^String bucket-name index-name]
-    (BinValueQuery. (bin-index index-name) bucket-name value))
+  (to-index-name [^String value index-name]
+    (make-index-name index-name "_bin"))
+  (to-range-spec [^String start ^String end ^IndexSpec$Builder builder]
+    (.withRangeEnd (.withRangeStart builder start) end))
+  (to-value-spec [^String value  ^IndexSpec$Builder builder]
+    (.withIndexKey builder value))
 
 
   Integer
-  (to-range-query [^Integer start ^Integer end ^String bucket-name index-name]
-    (IntRangeQuery. (int-index index-name) bucket-name start end))
-  (to-value-query [^Integer value ^String bucket-name index-name]
-    (IntValueQuery. (int-index index-name) bucket-name value))
+  (to-index-name [^Integer value index-name]
+    (make-index-name index-name "_int"))
+  (to-range-spec [^Integer start ^Integer end ^IndexSpec$Builder builder]
+    (.withRangeEnd (.withRangeStart builder (long start)) (long end)))
+  (to-value-spec [^Integer value  ^IndexSpec$Builder builder]
+    (.withIndexKey builder (long value)))
 
 
   Long
-  (to-range-query [^Long start ^Long end ^String bucket-name index-name]
-    (IntRangeQuery. (int-index index-name) bucket-name (Long/valueOf start) (Long/valueOf end)))
-  (to-value-query [^Long value ^String bucket-name index-name]
-    (IntValueQuery. (int-index index-name) bucket-name (Long/valueOf value))))
+  (to-index-name [^Long value index-name]
+    (make-index-name index-name "_int"))
+  (to-range-spec [^Long start ^Long end ^IndexSpec$Builder builder]
+    (.withRangeEnd (.withRangeStart builder start) end))
+  (to-value-spec [^Integer value  ^IndexSpec$Builder builder]
+    (.withIndexKey builder value)))
 
 
-
-
-(defmulti ^com.basho.riak.client.raw.query.indexes.IndexQuery
-  to-index-query (fn [value _ _]
-                   (if (coll? value)
-                     :range
-                     :value)))
-(defmethod to-index-query :range
-  [value ^String bucket-name index-name]
-  (let [start (first value)
-        end   (last  value)]
-    (to-range-query start end bucket-name index-name)))
-(defmethod to-index-query :value
-  [value ^String bucket-name index-name]
-  (to-value-query value bucket-name index-name))
-
-
-
-
+(defn ^com.basho.riak.client.raw.query.IndexSpec
+  to-index-spec [value ^String bucket-name index-name ^Boolean return-terms  ^Integer max-results ^String continuation ]
+  (let [range? (coll? value)
+        builder (IndexSpec$Builder. bucket-name
+                                    (to-index-name (if range? (first value) value)
+                                                   index-name))]
+    (when return-terms
+      (.withReturnKeyAndIndex builder true))
+    (when max-results
+      (.withMaxResults builder (int max-results)))
+    (when continuation
+      (.withContinuation builder continuation))
+    (.build (if range?
+              (to-range-spec (first value) (last value) builder)
+              (to-value-spec value builder)))))
 
 ;; Serialization
 
