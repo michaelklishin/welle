@@ -57,13 +57,15 @@
           return-body     true
           if-none-match   true
           if-not-modified false
-          meta            (to-store-meta w dw pw return-body if-none-match if-not-modified)]
+          timeout         1024
+          meta            (to-store-meta w dw pw return-body if-none-match if-not-modified timeout)]
       (is (= (to-quorum 1) (.getW meta)))
       (is (= (to-quorum 2) (.getDw meta)))
       (is (= (to-quorum 3) (.getPw meta)))
       (is (.getReturnBody meta))
       (is (.getIfNoneMatch meta))
-      (is (not (.getIfNotModified meta))))))
+      (is (not (.getIfNotModified meta)))
+      (is (= 1024 (.getTimeout meta))))))
 
 (deftest test-to-fetch-meta
   (testing "arity-8"
@@ -75,7 +77,8 @@
           return-deleted-vclock true
           if-modified-since     (Date.)
           if-modified-vclock    (vclock-for "I am a vclock")
-          meta                  (to-fetch-meta r pr not-found-ok basic-quorum head-only return-deleted-vclock if-modified-since if-modified-vclock)]
+          timeout         1024
+          meta                  (to-fetch-meta r pr not-found-ok basic-quorum head-only return-deleted-vclock if-modified-since if-modified-vclock timeout)]
       (is (= (to-quorum 1) (.getR meta)))
       (is (= (to-quorum 2) (.getPr meta)))
       (is (not (.getNotFoundOK meta)))
@@ -83,7 +86,8 @@
       (is (.getHeadOnly meta))
       (is (.getReturnDeletedVClock meta))
       (is (= if-modified-since  (.getIfModifiedSince meta)))
-      (is (= if-modified-vclock (.getIfModifiedVClock meta))))))
+      (is (= if-modified-vclock (.getIfModifiedVClock meta)))
+      (is (= 1024 (.getTimeout meta))))))
 
 (deftest test-to-delete-meta
   (testing "arity-7"
@@ -94,14 +98,16 @@
           pw     5
           rw     6
           vclock (vclock-for "I am a vclock")
-          meta   (to-delete-meta r pr w dw pw rw vclock)]
+          timeout         1024
+          meta   (to-delete-meta r pr w dw pw rw vclock timeout)]
       (is (= (to-quorum 1) (.getR meta)))
       (is (= (to-quorum 2) (.getPr meta)))
       (is (= (to-quorum 3) (.getW meta)))
       (is (= (to-quorum 4) (.getDw meta)))
       (is (= (to-quorum 5) (.getPw meta)))
       (is (= (to-quorum 6) (.getRw meta)))
-      (is (= vclock (.getVclock meta))))))
+      (is (= vclock (.getVclock meta)))
+      (is (= 1024 (.getTimeout meta))))))
 
 (deftest test-to-riak-object
   (testing "building an object with all fields set"

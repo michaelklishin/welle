@@ -94,18 +94,20 @@
 (defn to-store-meta
   "Builds a StoreMeta instance from provided arguments"
   (^com.basho.riak.client.raw.StoreMeta
-   [w dw pw return-body if-none-match if-not-modified]
+   [w dw pw return-body if-none-match if-not-modified timeout]
    (StoreMeta. (to-quorum w)
                (to-quorum dw)
                (to-quorum pw)
                ^Boolean return-body nil
                ^Boolean if-none-match
-               ^Boolean if-not-modified)))
+               ^Boolean if-not-modified
+               nil
+               ^Integer (when timeout (int timeout)))))
 
 (defn to-fetch-meta
   "Builds a FetchMeta instance from provided arguments"
   (^com.basho.riak.client.raw.FetchMeta
-   [r pr not-found-ok basic-quorum head-only return-deleted-vclock if-modified-since if-modified-vclock]
+   [r pr not-found-ok basic-quorum head-only return-deleted-vclock if-modified-since if-modified-vclock timeout]
    (FetchMeta. (to-quorum r)
                (to-quorum pr)
                ^Boolean not-found-ok
@@ -113,19 +115,21 @@
                ^Boolean head-only
                ^Boolean return-deleted-vclock
                ^Date if-modified-since
-               ^VClock if-modified-vclock)))
+               ^VClock if-modified-vclock
+               ^Integer (when timeout (int timeout)))))
 
 (defn to-delete-meta
   "Builds a DeleteMeta instance from provided arguments"
   (^com.basho.riak.client.raw.DeleteMeta
-   [r pr w dw pw rw vclock]
+   [r pr w dw pw rw vclock timeout]
    (DeleteMeta. (to-quorum r)
                 (to-quorum pr)
                 (to-quorum w)
                 (to-quorum dw)
                 (to-quorum pw)
                 (to-quorum rw)
-                ^VClock vclock)))
+                ^VClock vclock
+                ^Integer (when timeout (int timeout)))))
 
 
 ;; Clojure <=> IRiakObject
@@ -407,6 +411,7 @@
          young-vclock    20
          small-vclock    50
          big-vclock      50}}]
+  (prn (type n-val))
   (let [bldr (doto (BucketPropertiesBuilder.)
                (.r             (to-quorum r))
                (.w             (to-quorum w))
@@ -416,12 +421,13 @@
                (.pw            (to-quorum pw))
                (.allowSiblings allow-siblings)
                (.search        enable-search)
-               (.nVal          n-val)
+               (.nVal          (int n-val))
                (.backend       backend)
-               (.smallVClock   small-vclock)
-               (.bigVClock     big-vclock)
+               (.smallVClock   (int small-vclock))
+               (.bigVClock     (int big-vclock))
                (.oldVClock     old-vclock)
-               (.youngVClock   young-vclock))]
+               (.youngVClock   young-vclock)
+               )]
     (when (not-nil? not-found-ok)    (.notFoundOK    bldr not-found-ok))
     (when (not-nil? last-write-wins) (.lastWriteWins bldr last-write-wins))
     (when (not-nil? basic-quorum)    (.basicQuorum   bldr basic-quorum))

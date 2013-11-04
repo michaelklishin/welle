@@ -18,7 +18,7 @@
         indexes     {:email    #{"john@example.com"}
                      :username #{"johndoe"}}
         stored      (kv/store bucket-name k v :indexes indexes)
-        [fetched]   (kv/fetch bucket-name k)]
+        [fetched]   (:result (kv/fetch bucket-name k))]
     (is (:indexes fetched))
     (is (= indexes (:indexes fetched)))
     (kv/delete bucket-name k)))
@@ -32,7 +32,7 @@
         indexes     {:email #{"johndoe@example.com" "timsmith@example.com"}}
         stored      (kv/store bucket-name k v :indexes indexes :content-type Constants/CTYPE_OCTET_STREAM)
         [idx-key]   (kv/index-query bucket-name :email "johndoe@example.com")
-        [fetched]   (kv/fetch bucket-name idx-key)]
+        [fetched]   (:result (kv/fetch bucket-name idx-key))]
     (is (:indexes fetched))
     (is (= (String. ^bytes (:value fetched))
            (String. ^bytes v)))
@@ -66,7 +66,7 @@
         indexes     {:age 27}
         stored      (kv/store bucket-name k v :indexes indexes :content-type Constants/CTYPE_TEXT_UTF8)
         [idx-key]   (kv/index-query bucket-name :age 27)
-        [fetched]   (kv/fetch bucket-name idx-key)]
+        [fetched]   (:result (kv/fetch bucket-name idx-key))]
     (is (:indexes fetched))
     (is (= (:value fetched) v))
     (is (= (:indexes fetched) {:age #{27}}))
