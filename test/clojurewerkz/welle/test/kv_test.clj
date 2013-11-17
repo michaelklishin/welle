@@ -1,12 +1,12 @@
 (ns clojurewerkz.welle.test.kv-test
-  (:use     clojure.test
-            [clojurewerkz.welle.testkit :only [drain]])
   (:require [clojurewerkz.welle.core        :as wc]
-            [clojurewerkz.welle.conversion :as conversion]
+            [clojurewerkz.welle.conversion  :as conversion]
             [clojurewerkz.welle.buckets     :as wb]
             [clojurewerkz.welle.kv          :as kv]
             [cheshire.custom                :as json]
-            [clojure.set                    :as set])
+            [clojure.set                    :as set]
+            [clojure.test :refer :all]
+            [clojurewerkz.welle.testkit :refer [drain]])
   (:import  com.basho.riak.client.http.util.Constants
             java.util.UUID))
 
@@ -251,7 +251,6 @@
         _                (kv/store bucket-name k v :content-type ct)
         {:keys [result]} (kv/fetch bucket-name k :r 1 :skip-deserialize true)
         fetched          (first result)]
-    (println )
     (is (= ct (:content-type fetched)))
     (is (= {} (:metadata fetched)))
     (is (= (json/encode v) (String. ^bytes (:value fetched))))
@@ -380,22 +379,4 @@
         {:keys [result]} (kv/fetch bucket-name k :pr 3)]
     ;; There should not be 10 siblings.
     (is (< (count result) 4))
-    (drain bucket-name)))
-
-(deftest test-counter
-  (let [bucket-name "clojurewerkz.welle.kv"
-        counter "counter1"
-        bucket  (wb/update bucket-name :allow-siblings true)
-        v1      (kv/increment-counter bucket-name counter)
-        v2      (kv/fetch-counter bucket-name counter)
-        v3      (kv/increment-counter bucket-name counter :value 2)
-        v4      (kv/fetch-counter bucket-name counter)
-        v5      (kv/increment-counter bucket-name counter :value -1)
-        v6      (kv/fetch-counter bucket-name counter)]
-    (is (= 1 v1))
-    (is (= 1 v2))
-    (is (= 3 v3))
-    (is (= 3 v4))
-    (is (= 2 v5))
-    (is (= 2 v6))
     (drain bucket-name)))
