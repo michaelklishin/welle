@@ -4,6 +4,25 @@
 
 Welle no longer supports Clojure 1.3.
 
+## Counters Support (Riak 1.4+)
+
+`clojurewerkz.welle.counters` is a new namespace that provides operations on [Riak counters](http://basho.com/counters-in-riak-1-4/):
+
+``` clojure
+(require '[clojurewerkz.welle.counters :as wcnt])
+
+(let [bucket-name "counters"
+      counter     "hit-points"]
+  (wcnt/increment-counter bucket-name counter)
+  ;= 1
+  (wcnt/fetch-counter bucket-name counter)
+  ;= 1
+  (wcnt/increment-counter bucket-name counter :value 2))
+  ;= 3
+  (wcnt/increment-counter bucket-name counter :value -3))
+  ;= 0
+```
+
 ### Riak Java Client Update
 
 Welle now uses Riak Java client [1.4.2](https://github.com/basho/riak-java-client/blob/1.4.2/CHANGELOG).
