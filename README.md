@@ -13,7 +13,7 @@ by one of Basho's engineers. If you are evaluating Welle, please consider Sumo a
  * Be well maintained
  * Be [well documented](http://clojureriak.info)
  * Be [well tested](https://github.com/michaelklishin/welle/tree/master/test/clojurewerkz/welle/test)
- * Target Clojure 1.3.0 and later from the ground up
+ * Target modern Clojure versions
  * Batteries included: [clojure.core.cache](http://github.com/clojure/core.cache) implementation on top of Riak and so on
  * Be friendly to Heroku and other PaaS providers
 
@@ -29,6 +29,7 @@ of data per day.
  * [Bucket operations](http://clojureriak.info/articles/buckets.html): create, update, delete
  * [Key/Value operations](http://clojureriak.info/articles/kv.html): put, fetch, delete
  * [Secondary indexes](http://clojureriak.info/articles/2i.html) (2i): indexing, index queries
+ * Counters (Riak 1.4)
  * [Content-type based serialization of values](http://clojureriak.info/articles/kv.html#automatic_serialization_for_common_formats) in common formats (bytes, JSON, Clojure data/reader, UTF-8 text, gzipped JSON)
  * [Riak Search](http://clojureriak.info/articles/search.html) support
  * Storing links on values, [link walking](http://clojureriak.info/articles/links.html)
@@ -40,17 +41,15 @@ of data per day.
 
 ## Supported Clojure versions
 
-Welle is built from the ground up for Clojure 1.3 and up. To store dates/instants with Clojure data serialization, Clojure 1.4.0
-is the minimum required version because Clojure 1.3 reader cannot handle `java.util.Date` instances.
-
+Welle requires Clojure 1.4.
 The most recent stable Clojure release is highly recommended.
 
 
 ## Supported Riak Versions
 
-Welle targets Riak 1.1+ but some features (for example, [2i and Search support via Protocol Buffers transport](http://basho.com/blog/technical/2012/08/07/Riak-1-2-released/)) are 1.2-specific.
+Welle `2.0` targets Riak 1.4+ and has breaking API changes compared to `1.5.0`.
 
-Welle `1.4.0` is compatible with Riak `1.3.0`.
+Welle `1.5.0` is compatible with Riak `1.3.0`.
 
 
 ## Getting Started
@@ -76,7 +75,7 @@ Welle artifacts are [released to Clojars](https://clojars.org/com.novemberain/we
 Add dependency in your `project.clj`:
 
 ``` clojure
-[com.novemberain/welle "1.5.0"]
+[com.novemberain/welle "2.0.0-beta1"]
 ```
 
 ### With Maven
@@ -96,7 +95,7 @@ and then the dependency:
 <dependency>
   <groupId>com.novemberain</groupId>
   <artifactId>welle</artifactId>
-  <version>1.5.0</version>
+  <version>2.0.0-beta1</version>
 </dependency>
 ```
 
