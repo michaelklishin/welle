@@ -51,10 +51,6 @@ as well as following format:
 
 Don't worry, they still work well together.
 
-### clj-http Update
-
-[clj-http](https://github.com/dakrone/clj-http/) dependency has been upgraded to version `0.7.2`.
-
 ### Optional Keywordization of Keys With JSON Serialization
 
 Automatic JSON serialization previously unconditionally converted keys to keywords.
