@@ -12,6 +12,10 @@ Welle now uses Riak Java client [1.4.2](https://github.com/basho/riak-java-clien
 
 Cheshire has been updated to `5.2.0`.
 
+### clj-http Update
+
+clj-http has been updated to `0.7.7`.
+
 ### Ports Support in PB Cluster Client
 
 While creating a protocol buffer cluster client you can now provide
