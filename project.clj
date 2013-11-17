@@ -6,7 +6,7 @@
   :dependencies [[org.clojure/clojure        "1.5.1"]
                  [com.basho.riak/riak-client "1.4.2"]
                  [cheshire                   "5.2.0"]
-                 [clojurewerkz/support       "0.16.0"]
+                 [clojurewerkz/support       "0.20.0"]
                  ;; for the Riak Search Solr API support. When Riak Client supports
                  ;; search natively, we should be able to just use what it provides.
                  [clj-http                   "0.7.2"]
