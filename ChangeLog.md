@@ -1,5 +1,42 @@
 ## Changes between Welle 1.5.0 and 2.0
 
+Welle 2.0 has **breaking API changes** in `welle.kv` functions.
+
+### Changes in K/V Function Return Values
+
+This is a **breaking API change**.
+
+Welle 2.0 changes how Riak responses are represented as Clojure maps.
+Welle now will correctly preserve all vector clocks associated with multiple
+siblings in the response and the response itself.
+
+This means that `welle.kv/modify` will work correctly and won't make sibling
+explosions worse.
+
+The most important part of the change is how responses are represented:
+every response is an immutable map that has `:result` key as well as other
+metadata keys (`:has-value?`, `:has-siblings?`, `:modified?`, `:content-type` and so on).
+
+This contrasts with earlier versions, where results were returned directly by functions
+such as `welle.kv/fetch`, it is now possible to destructure the response in order to
+obtain the returned value:
+
+``` clojure
+(require '[clojurewerkz.welle.kv :as kv])
+
+(let [{:keys [result] :as m} (kv/fetch bucket-name k :r 1)]
+  (comment "Do something with the result"))
+```
+
+Here are the keys that `clojurewerkz.welle.kv/fetch` returns now for every response:
+
+ * `:result`: one or more objects returned by Riak
+ * `:vclock`: vector clock of the response
+ * `:has-siblings?`: true if response has siblings
+ * `:has-value?`: true if response is non-empty
+ * `:modified?`: false when conditional GET returned a non-modified response
+ * `:deleted?`: true if this object has been deleted but there is a vclock for it
+
 ### Clojure 1.3 Support Dropped
 
 Welle no longer supports Clojure 1.3.
