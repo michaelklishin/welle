@@ -14,8 +14,7 @@
   :source-paths      ["src/clojure"]
   :java-source-paths ["src/java"]
   :javac-options     ["-target" "1.6" "-source" "1.6"]
-  :profiles       {:1.3 {:dependencies [[org.clojure/clojure "1.3.0"]]}
-                   :1.4 {:dependencies [[org.clojure/clojure "1.4.0"]]}
+  :profiles       {:1.4 {:dependencies [[org.clojure/clojure "1.4.0"]]}
                    :1.6 {:dependencies [[org.clojure/clojure "1.6.0-master-SNAPSHOT"]]}
                    :master {:dependencies [[org.clojure/clojure "1.6.0-master-SNAPSHOT"]]}
                    :dev {:resource-paths ["test/resources"]
@@ -27,7 +26,7 @@
   :mailing-list {:name "clojure-riak"
                  :archive "https://groups.google.com/group/clojure-riak"
                  :post "clojure-riak@googlegroups.com"}
-  :aliases        {"all" ["with-profile" "dev:dev,1.3:dev,1.4:dev,1.6:dev,master"]}
+  :aliases        {"all" ["with-profile" "dev:dev,1.4:dev,1.6:dev,master"]}
   :test-selectors {:focus   :focus
                    :2i      :2i
                    :cache   :cache
