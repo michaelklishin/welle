@@ -4,7 +4,7 @@
 
 Welle no longer supports Clojure 1.3.
 
-## Counters Support (Riak 1.4+)
+### Counters Support (Riak 1.4+)
 
 `clojurewerkz.welle.counters` is a new namespace that provides operations on [Riak counters](http://basho.com/counters-in-riak-1-4/):
 
