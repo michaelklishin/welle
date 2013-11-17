@@ -60,7 +60,7 @@ Don't hesitate to join our [mailing list](https://groups.google.com/forum/#!foru
 
 ## Community
 
-[Welle has a mailing list](https://groups.google.com/forum/#!forum/clojure-welle). Feel free to join it and ask any questions you may have.
+[Welle has a mailing list](https://groups.google.com/forum/#!forum/clojure-riak). Feel free to join it and ask any questions you may have.
 
 To subscribe for announcements of releases, important changes and so on, please follow [@ClojureWerkz](https://twitter.com/#!/clojurewerkz) on Twitter.
 
