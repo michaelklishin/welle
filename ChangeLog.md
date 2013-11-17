@@ -1,8 +1,16 @@
 ## Changes between Welle 1.5.0 and 2.0
 
+### Clojure 1.3 Support Dropped
+
+Welle no longer supports Clojure 1.3.
+
 ### Riak Java Client Update
 
 Welle now uses Riak Java client [1.4.2](https://github.com/basho/riak-java-client/blob/1.4.2/CHANGELOG).
+
+### Cheshire Update
+
+Cheshire has been updated to `5.2.0`.
 
 ### Ports Support in PB Cluster Client
 
