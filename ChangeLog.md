@@ -1,5 +1,9 @@
 ## Changes between Welle 1.5.0 and 2.0
 
+### Riak Java Client Update
+
+Welle now uses Riak Java client [1.4.2](https://github.com/basho/riak-java-client/blob/1.4.2/CHANGELOG).
+
 ### Ports Support in PB Cluster Client
 
 While creating a protocol buffer cluster client you can now provide
