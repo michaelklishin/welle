@@ -411,7 +411,6 @@
          young-vclock    20
          small-vclock    50
          big-vclock      50}}]
-  (prn (type n-val))
   (let [bldr (doto (BucketPropertiesBuilder.)
                (.r             (to-quorum r))
                (.w             (to-quorum w))
