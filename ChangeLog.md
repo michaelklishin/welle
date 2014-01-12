@@ -62,15 +62,15 @@ Welle no longer supports Clojure 1.3.
 
 ### Riak Java Client Update
 
-Welle now uses Riak Java client [1.4.2](https://github.com/basho/riak-java-client/blob/1.4.2/CHANGELOG).
+Welle now uses Riak Java client [1.4.x](https://github.com/basho/riak-java-client/blob/1.4.2/CHANGELOG).
 
 ### Cheshire Update
 
-Cheshire has been updated to `5.2.0`.
+Cheshire has been updated to `5.3.x`.
 
 ### clj-http Update
 
-clj-http has been updated to `0.7.7`.
+clj-http has been updated to `0.7.8`.
 
 ### Support Update
 
