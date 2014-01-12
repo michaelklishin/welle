@@ -4,13 +4,13 @@
   :license {:name "Eclipse Public License"}
   :min-lein-version "2.0.0"
   :dependencies [[org.clojure/clojure        "1.5.1"]
-                 [com.basho.riak/riak-client "1.4.2"]
-                 [cheshire                   "5.2.0"]
+                 [com.basho.riak/riak-client "1.4.4"]
+                 [cheshire                   "5.3.1"]
                  [clojurewerkz/support       "0.20.0"]
                  ;; for the Riak Search Solr API support. When Riak Client supports
                  ;; search natively, we should be able to just use what it provides.
-                 [clj-http                   "0.7.7"]
-                 [org.clojure/data.xml       "0.0.6" :exclusions [org.clojure/clojure]]]
+                 [clj-http                   "0.7.8"]
+                 [org.clojure/data.xml       "0.0.7" :exclusions [org.clojure/clojure]]]
   :source-paths      ["src/clojure"]
   :java-source-paths ["src/java"]
   :javac-options     ["-target" "1.6" "-source" "1.6"]
@@ -18,8 +18,8 @@
                    :1.6 {:dependencies [[org.clojure/clojure "1.6.0-master-SNAPSHOT"]]}
                    :master {:dependencies [[org.clojure/clojure "1.6.0-master-SNAPSHOT"]]}
                    :dev {:resource-paths ["test/resources"]
-                         :dependencies [[org.clojure/core.cache "0.6.2" :exclusions [org.clojure/clojure]]
-                                        [ring/ring-core         "1.1.8"]]
+                         :dependencies [[org.clojure/core.cache "0.6.3" :exclusions [org.clojure/clojure]]
+                                        [ring/ring-core         "1.2.1"]]
                          :plugins [[codox "0.6.4"]]
                          :codox {:sources ["src/clojure"]
                                  :output-dir "doc/api"}}}
