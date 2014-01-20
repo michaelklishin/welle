@@ -110,8 +110,14 @@ For additional code examples, see our [test suite](https://github.com/michaelkli
 ## Welle Is a ClojureWerkz Project
 
 Welle is part of the [group of Clojure libraries known as ClojureWerkz](http://clojurewerkz.org), together with
-[Monger](https://github.com/michaelklishin/monger), [Langohr](https://github.com/michaelklishin/langohr), [Elastisch](https://github.com/clojurewerkz/elastisch), [Quartzite](https://github.com/michaelklishin/quartzite), [Neocons](https://github.com/michaelklishin/neocons) and several others.
 
+ * [Monger](https://clojuremongodb.info)
+ * [Cassaforte](https://clojurecassandra.info)
+ * [Elastisch](https://clojureelasticsearch.info)
+ * [Neocons](https://clojureneo4j.info)
+ * [Meltdown](https://github.com/clojurewerkz/meltdown)
+
+and many others.
 
 
 ## Continuous Integration
