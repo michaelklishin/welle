@@ -102,8 +102,7 @@ and then the dependency:
 
 ## Documentation & Examples
 
-Welle has [documentation guides](http://clojureriak.info). Documentation is one
-of the top priorities for the project and we are improving things week after week.
+Welle has [documentation guides](http://clojureriak.info).
 
 For additional code examples, see our [test suite](https://github.com/michaelklishin/welle/tree/master/test/clojurewerkz/welle/test).
 
