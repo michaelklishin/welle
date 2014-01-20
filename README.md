@@ -120,6 +120,12 @@ Welle is part of the [group of Clojure libraries known as ClojureWerkz](http://c
 and many others.
 
 
+## Project Maturity
+
+Welle has been around since 2011. The API is generally stable with some (badly
+needed) breaking changes coming in 2.0.
+
+
 ## Continuous Integration
 
 [![Continuous Integration status](https://secure.travis-ci.org/michaelklishin/welle.png)](http://travis-ci.org/michaelklishin/welle)
