@@ -1,7 +1,7 @@
 (ns clojurewerkz.welle.buckets
   (:refer-clojure :exclude [list])
-  (:use clojurewerkz.welle.core
-        clojurewerkz.welle.conversion)
+  (:require [clojurewerkz.welle.core :refer :all]
+            [clojurewerkz.welle.conversion :refer :all])
   (:import [com.basho.riak.client IRiakClient IRiakObject]
            [com.basho.riak.client.bucket Bucket WriteBucket]
            [com.basho.riak.client.http.response BucketResponse ListBucketsResponse]
