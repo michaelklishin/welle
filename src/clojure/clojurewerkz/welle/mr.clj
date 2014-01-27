@@ -1,6 +1,6 @@
 (ns clojurewerkz.welle.mr
-  (:require [cheshire.custom :as json])
-  (:use clojurewerkz.welle.core)
+  (:require [cheshire.custom :as json]
+            [clojurewerkz.welle.core :refer :all])
   (:import com.basho.riak.client.raw.query.MapReduceSpec))
 
 
