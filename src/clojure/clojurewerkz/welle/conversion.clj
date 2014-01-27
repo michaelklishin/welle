@@ -2,9 +2,9 @@
   (:require [cheshire.custom   :as json]
             [cheshire.core     :as json2]
             [clojure.set       :as cs]
-            [clojure.java.io   :as io])
-  (:use     [clojure.walk :only [stringify-keys]]
-            clojurewerkz.welle.hooks)
+            [clojure.java.io   :as io]
+            [clojure.walk :refer [stringify-keys]]
+            [clojurewerkz.welle.hooks :refer :all])
   (:import [com.basho.riak.client.cap Quora Quorum VClock BasicVClock Retrier DefaultRetrier ConflictResolver Mutation]
            [com.basho.riak.client.raw StoreMeta FetchMeta DeleteMeta]
            [com.basho.riak.client IRiakObject RiakLink]
