@@ -1,5 +1,5 @@
 (ns clojurewerkz.welle.test.buckets-test
-  (:use     clojure.test clojurewerkz.welle.conversion)
+  (:require [clojure.test :refer :all] [clojurewerkz.welle.conversion :refer :all])
   (:require [clojurewerkz.welle.core    :as wc]
             [clojurewerkz.welle.buckets :as wb]
             [clojurewerkz.welle.kv      :as kv])
