@@ -1,8 +1,10 @@
 (ns clojurewerkz.welle.test.cache-test
   (:require [clojurewerkz.welle.core    :as wc]
-            [clojurewerkz.welle.buckets :as wb])
-  (:use clojure.core.cache clojure.test clojurewerkz.welle.cache
-        [clojurewerkz.welle.testkit :only [drain]])
+            [clojurewerkz.welle.buckets :as wb]
+            [clojure.core.cache :refer :all]
+            [clojure.test :refer :all]
+            [clojurewerkz.welle.cache :refer :all]
+            [clojurewerkz.welle.testkit :refer [drain]])
   (:import [clojure.core.cache BasicCache FIFOCache LRUCache TTLCache]
            java.util.UUID))
 
