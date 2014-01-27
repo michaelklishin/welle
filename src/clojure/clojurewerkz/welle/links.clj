@@ -1,6 +1,6 @@
 (ns clojurewerkz.welle.links
-  (:use clojurewerkz.welle.conversion
-        [clojurewerkz.welle.core :only [*riak-client*]])
+  (:require [clojurewerkz.welle.conversion :refer :all]
+            [clojurewerkz.welle.core :refer [*riak-client*]])
   (:import com.basho.riak.client.raw.query.LinkWalkSpec
            java.util.LinkedList))
 
