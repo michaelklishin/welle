@@ -1,5 +1,6 @@
 (ns clojurewerkz.welle.test.conversion-test
-  (:use     clojure.test clojurewerkz.welle.conversion)
+  (:require [clojure.test :refer :all]
+            [clojurewerkz.welle.conversion :refer :all])
   (:import [com.basho.riak.client.cap Quora Quorum VClock BasicVClock]
            com.basho.riak.client.bucket.TunableCAPProps
            com.basho.riak.client.util.CharsetUtils
