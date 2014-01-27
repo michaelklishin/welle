@@ -1,8 +1,8 @@
 (ns clojurewerkz.welle.test.core-test
   (:import com.basho.riak.client.raw.RawClient
            [com.basho.riak.client.raw.http HTTPClientConfig$Builder HTTPClusterConfig])
-  (:require [clojurewerkz.welle.core :as wc])
-  (:use clojure.test))
+  (:require [clojurewerkz.welle.core :as wc]
+            [clojure.test :refer :all]))
 
 (set! *warn-on-reflection* true)
 
