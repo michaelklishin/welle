@@ -1,10 +1,10 @@
 (ns clojurewerkz.welle.test.indices-http-test
-  (:use clojure.test
-        [clojurewerkz.welle.testkit :only [drain]]
-        [clojure.set :only [subset?]])
   (:require [clojurewerkz.welle.core    :as wc]
             [clojurewerkz.welle.buckets :as wb]
-            [clojurewerkz.welle.kv      :as kv])
+            [clojurewerkz.welle.kv      :as kv]
+            [clojure.test :refer :all]
+            [clojurewerkz.welle.testkit :refer [drain]]
+            [clojure.set :refer [subset?]])
   (:import java.util.UUID
            com.basho.riak.client.http.util.Constants))
 
