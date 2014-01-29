@@ -2,10 +2,10 @@
   (:require [clojurewerkz.welle.core :as wc]
             [clojurewerkz.welle.kv   :as kv]
             [clojurewerkz.welle.buckets :as wb]
-            [clojurewerkz.welle.mr   :as mr])
-  (:use clojure.test
-        [clojurewerkz.welle.testkit :only [drain]]
-        clojurewerkz.welle.links))
+            [clojurewerkz.welle.mr   :as mr]
+            [clojure.test :refer :all]
+            [clojurewerkz.welle.testkit :refer [drain]]
+            [clojurewerkz.welle.links :refer :all]))
 
 (wc/connect!)
 
