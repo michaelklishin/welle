@@ -4,9 +4,6 @@ Welle is an expressive Clojure client for Riak with batteries included.
 Its API and code style closely follow other [ClojureWerkz Clojure libraries](http://clojurewerkz.org), namely [Neocons](https://github.com/michaelklishin/neocons), [Elastisch](https://github.com/clojurewerkz/elastisch)
 and [Monger](https://github.com/michaelklishin/monger).
 
-Welle is not the only Clojure client for Riak on the block: there is a client called [Sumo](https://github.com/reiddraper/sumo)
-by one of Basho's engineers. If you are evaluating Welle, please consider Sumo as well.
-
 
 ## Project Goals
 
