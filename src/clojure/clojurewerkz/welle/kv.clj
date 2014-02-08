@@ -29,7 +29,14 @@
 ;;
 
 (defn store
-  "Stores an object in Riak"
+  "Stores an object in Riak. Example:
+
+  (kv/store bucket \"users\" \"mk\"
+    {:name  \"Michael Klishnin\"
+     :langs [\"Clojure\" \"Node.js\"]}
+     :content-type \"application/clojure\")
+
+  => ()"
   [^String bucket-name
    ^String key
    value
@@ -106,7 +113,19 @@
 
   `:skip-deserialize` (true or false): should the deserialization of the value
   be skipped?
-  "
+
+  (fetch \"users\" \"mk\")
+
+  => {:metadata      {},
+     :deleted?      false,
+     :content-type  \"application/clojure\",
+     :vtag          \"53PBvB5tCAx6LWmXgviUKy\",
+     :vclock        #<BasicVClock com.basho.riak.client.cap.BasicVClock@2599f63>,
+     :indexes       {},
+     :links         (),
+     :last-modified #inst \"2014-02-07T23:52:09.620-00:00\",
+     :value         {:name  \"Michael Klishnin\"
+                     :langs [\"Clojure\" \"Node.js\"]}}"
   [^String bucket-name
    ^String key
    & {:keys [r pr not-found-ok basic-quorum head-only return-deleted-vclock
@@ -158,14 +177,18 @@
   no siblings (a collection with just one Riak object), either via request or
   after applying a resolver.
 
-   The mutating function is passed the entire Riak object as an immutable map,
+  The mutating function is passed the entire Riak object as an immutable map,
   not just value.  Mutation sets :last-modified of the object to the current
   timestamp.
 
-   Takes the same options as clojurewerkz.welle.kv/fetch and
+  Takes the same options as clojurewerkz.welle.kv/fetch and
   clojurewerkz.welle.kv/store.
 
-   Returns the same results as clojurewerkz.welle.kv/store"
+  Returns the same results as clojurewerkz.welle.kv/store.
+
+  (kv/store bucket \"test\" {:age 34}
+            :content-type \"application/clojure\")
+  (kv/modify bucket \"test\" #(update-in % [:value :age] inc))"
   [^String bucket-name
    ^String key
    f
