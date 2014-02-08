@@ -17,7 +17,8 @@ and [Monger](https://github.com/michaelklishin/monger).
 
 ## Project Maturity
 
-Welle is a mature project that is over 1 year old and has been used to build systems that process terabytes of data per day.
+Welle is a mature project that is over 2 years old and has been used
+to build systems that process terabytes of data per day.
 
 ### Supported Features
 
