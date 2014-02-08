@@ -151,7 +151,7 @@
    or a collection (typically vector). In the former case, a value query is performed. In the latter
    case, a range query is performed.
 
-   Learn more in Riak's documentation on secondary indexes at http://wiki.basho.com/Secondary-Indexes.html"
+   Learn more in Riak's documentation on secondary indexes at http://docs.basho.com/riak/latest/dev/using/2i/"
   [^String bucket-name field value]
   (.attempt default-retrier ^Callable (fn []
                                         (.fetchIndex *riak-client* (to-index-query value bucket-name field)))))
