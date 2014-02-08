@@ -1,10 +1,10 @@
 (ns clojurewerkz.welle.test.search-test
-  (:use clojure.test
-        [clojurewerkz.welle.testkit :only [drain]])
   (:require [clojurewerkz.welle.core :as wc]
             [clojurewerkz.welle.kv   :as kv]
             [clojurewerkz.welle.buckets :as wb]
-            [clojurewerkz.welle.solr    :as wsolr])
+            [clojurewerkz.welle.solr    :as wsolr]
+            [clojure.test :refer :all]
+            [clojurewerkz.welle.testkit :refer [drain]])
   (:import  com.basho.riak.client.http.util.Constants))
 
 (wc/connect!)

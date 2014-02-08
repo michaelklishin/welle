@@ -1,10 +1,10 @@
 (ns clojurewerkz.welle.test.ring.session-store-test
   (:require [clojurewerkz.welle.core :as wc]
-            [clojurewerkz.welle.kv   :as kv])
-  (:use clojure.test
-        [clojurewerkz.welle.testkit :only [drain]]
-        ring.middleware.session.store
-        clojurewerkz.welle.ring.session-store))
+            [clojurewerkz.welle.kv   :as kv]
+            [clojure.test :refer :all]
+            [clojurewerkz.welle.testkit :refer [drain]]
+            [ring.middleware.session.store :refer :all]
+            [clojurewerkz.welle.ring.session-store :refer :all]))
 
 
 (wc/connect!)

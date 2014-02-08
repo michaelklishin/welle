@@ -1,11 +1,11 @@
 (ns clojurewerkz.welle.test.mr-test
-  (:use clojure.test
-        [clojurewerkz.welle.testkit :only [drain]])
   (:require [clojurewerkz.welle.core :as wc]
             [clojurewerkz.welle.kv   :as kv]
             [clojurewerkz.welle.buckets :as wb]
             [clojurewerkz.welle.mr   :as mr]
-            [clojurewerkz.support.js :as js])
+            [clojurewerkz.support.js :as js]
+            [clojure.test :refer :all]
+            [clojurewerkz.welle.testkit :refer [drain]])
   (:import  com.basho.riak.client.http.util.Constants))
 
 (wc/connect!)
