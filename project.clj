@@ -20,7 +20,7 @@
                    :dev {:resource-paths ["test/resources"]
                          :dependencies [[org.clojure/core.cache "0.6.3" :exclusions [org.clojure/clojure]]
                                         [ring/ring-core         "1.2.1"]]
-                         :plugins [[codox "0.6.4"]]
+                         :plugins [[codox 0.6.6]]
                          :codox {:sources ["src/clojure"]
                                  :output-dir "doc/api"}}}
   :mailing-list {:name "clojure-riak"
