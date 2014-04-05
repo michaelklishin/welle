@@ -3,7 +3,7 @@
   :url "http://clojureriak.info"
   :license {:name "Eclipse Public License"}
   :min-lein-version "2.0.0"
-  :dependencies [[org.clojure/clojure        "1.5.1"]
+  :dependencies [[org.clojure/clojure        "1.6.0"]
                  [com.basho.riak/riak-client "1.4.4"]
                  [cheshire                   "5.3.1"]
                  [clojurewerkz/support       "0.20.0"]
