@@ -70,7 +70,7 @@ Cheshire has been updated to `5.3.x`.
 
 ### clj-http Update
 
-clj-http has been updated to `0.7.8`.
+clj-http has been updated to `0.9.1`.
 
 ### Support Update
 
