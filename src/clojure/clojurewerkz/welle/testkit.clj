@@ -25,4 +25,4 @@
   [^RawClient client ^String bucket-name]
   (doseq [k (wb/keys-in client bucket-name)]
     (kv/delete client bucket-name k {:w 1})))
-o
+
