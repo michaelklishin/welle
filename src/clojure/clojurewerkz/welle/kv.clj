@@ -241,11 +241,11 @@
   map/reduce"
   ([^RawClient client ^String bucket-name keys]
      (doall (pmap (fn [^String k]
-                    (delete bucket-name k))
+                    (delete client bucket-name k))
                   keys)))
   ([^RawClient client ^String bucket-name keys & rest]
      (doall (pmap (fn [^String k]
-                    (apply delete (concat [bucket-name k] rest)))
+                    (apply delete (concat [client bucket-name k] rest)))
                   keys))))
 
 (defn delete-all-via-2i
