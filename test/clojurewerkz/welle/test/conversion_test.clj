@@ -10,8 +10,6 @@
            com.basho.riak.client.raw.query.LinkWalkSpec
            [java.util Date UUID]))
 
-(set! *warn-on-reflection* true)
-
 (defn vclock-for
   [^String s]
   (BasicVClock. (CharsetUtils/utf8StringToBytes s)))
