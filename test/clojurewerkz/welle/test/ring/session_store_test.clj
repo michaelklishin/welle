@@ -3,30 +3,30 @@
             [clojurewerkz.welle.kv   :as kv]
             [clojure.test :refer :all]
             [clojurewerkz.welle.testkit :refer [drain]]
+            [clojurewerkz.welle.test.test-helpers :as th]
             [ring.middleware.session.store :refer :all]
             [clojurewerkz.welle.ring.session-store :refer :all]))
 
 
-(wc/connect!)
-
-(defn purge-sessions
+(let [conn (th/connect)]
+  (defn purge-sessions
   [f]
-  (drain "web_sessions")
-  (drain "sessions")
+  (drain conn "web_sessions")
+  (drain conn "sessions")
   (f)
-  (drain "web_sessions")
-  (drain "sessions"))
+  (drain conn "web_sessions")
+  (drain conn "sessions"))
 
 (use-fixtures :each purge-sessions)
 
 
 (deftest test-reading-a-session-that-does-not-exist
-  (let [store (welle-store)]
+  (let [store (welle-store conn)]
     (is (= {} (read-session store "a-missing-key-1228277")))))
 
 
 (deftest test-reading-a-session-that-does-exist
-  (let [store (welle-store)
+  (let [store (welle-store conn)
         sk    (write-session store nil {:library "Welle"})
         m     (read-session store sk)]
     (is sk)
@@ -36,7 +36,7 @@
 
 
 (deftest test-updating-a-session
-  (let [store (welle-store "sessions")
+  (let [store (welle-store conn "sessions")
         sk1   (write-session store nil {:library "Welle"})
         sk2   (write-session store sk1 {:library "Ring"})
         m     (read-session store sk2)]
@@ -48,7 +48,7 @@
 
 
 (deftest test-deleting-a-session
-  (let [store (welle-store "sessions")
+  (let [store (welle-store conn "sessions")
         sk    (write-session store nil {:library "Welle"})]
     (is (nil? (delete-session store sk)))
-    (is (= {} (read-session store sk)))))
+    (is (= {} (read-session store sk))))))
