@@ -8,8 +8,6 @@
   (:import [clojure.core.cache BasicCache FIFOCache LRUCache TTLCache]
            java.util.UUID))
 
-(wc/connect!)
-
 ;;
 ;; Playground/Tests. These were necessary because clojure.core.cache has
 ;; little documentation, incomplete test suite and
@@ -86,37 +84,39 @@
 ;;
 
 (def ^{:private true :const true} bucket-name "welle.test.cache_entries")
-(use-fixtures :each (fn [f]
-                      (wb/update bucket-name :last-write-wins true :r 1 :w 1)
-                      (f)
-                      (drain bucket-name)))
+
+(let [conn (wc/connect)]
+  (use-fixtures :each (fn [f]
+                        (wb/update conn bucket-name {:last-write-wins true :r 1 :w 1})
+                        (f)
+                        (drain conn bucket-name)))
 
 
-(deftest ^{:cache true}
-  test-has?-with-basic-welle-cache
-  (testing "that has? returns false for misses"
-    (let [c    (basic-welle-cache-factory bucket-name)]
-      (is (not (has? c (str (UUID/randomUUID)))))
-      (is (not (has? c (str (UUID/randomUUID)))))))
-  (testing "that has? returns true for hits"
-    (let [c    (basic-welle-cache-factory bucket-name {"a" 1 "b" "cache" "c" 3/4} "application/json" 1)]
-      (is (has? c "a"))
-      (is (has? c "b"))
-      (is (has? c "c"))
-      (is (not (has? c "d"))))))
+  (deftest ^{:cache true}
+    test-has?-with-basic-welle-cache
+    (testing "that has? returns false for misses"
+      (let [c    (basic-welle-cache-factory conn bucket-name)]
+        (is (not (has? c (str (UUID/randomUUID)))))
+        (is (not (has? c (str (UUID/randomUUID)))))))
+    (testing "that has? returns true for hits"
+      (let [c    (basic-welle-cache-factory conn bucket-name {"a" 1 "b" "cache" "c" 3/4} "application/json" 1)]
+        (is (has? c "a"))
+        (is (has? c "b"))
+        (is (has? c "c"))
+        (is (not (has? c "d"))))))
 
 
-(deftest ^{:cache true}
-  test-lookup-with-basic-welle-cache
-  (testing "that lookup returns nil for misses"
-    (let [c    (basic-welle-cache-factory bucket-name)]
-      (are [v] (is (nil? (lookup c v)))
-           (str (UUID/randomUUID))
-           "missing-key"
-           (str (gensym "missing-key")))))
-  (testing "that lookup returns cached values for hits"
-    (let [l (Long/valueOf 10000)
-          c    (basic-welle-cache-factory bucket-name {"skey" "Value" "lkey" l} "application/json" 1)]
-      (are [k v] (is (= v (lookup c k)))
-           "skey" "Value"
-           "lkey" l ))))
+  (deftest ^{:cache true}
+    test-lookup-with-basic-welle-cache
+    (testing "that lookup returns nil for misses"
+      (let [c    (basic-welle-cache-factory conn bucket-name)]
+        (are [v] (is (nil? (lookup c v)))
+             (str (UUID/randomUUID))
+             "missing-key"
+             (str (gensym "missing-key")))))
+    (testing "that lookup returns cached values for hits"
+      (let [l (Long/valueOf 10000)
+            c    (basic-welle-cache-factory conn bucket-name {"skey" "Value" "lkey" l} "application/json" 1)]
+        (are [k v] (is (= v (lookup c k)))
+             "skey" "Value"
+             "lkey" l )))))

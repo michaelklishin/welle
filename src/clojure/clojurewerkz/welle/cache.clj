@@ -11,7 +11,8 @@
   "clojure.core.cache implementation(s) on top of Riak."
   (:require [clojurewerkz.welle.kv :as kv]
             [clojure.core.cache    :as cache])
-  (:import clojure.core.cache.CacheProtocol
+  (:import com.basho.riak.client.raw.RawClient
+           clojure.core.cache.CacheProtocol
            com.basho.riak.client.http.util.Constants))
 
 ;;
@@ -27,31 +28,31 @@
 ;; API
 ;;
 
-(cache/defcache BasicWelleCache [^String bucket ^String content-type ^Integer w]
+(cache/defcache BasicWelleCache [^RawClient client ^String bucket ^String content-type ^Integer w]
   cache/CacheProtocol
   (lookup [c k]
-    (get-in (kv/fetch-one (.bucket c) k) [:result :value]))
+    (get-in (kv/fetch-one (.client c) (.bucket c) k) [:result :value]))
   (has? [c k]
-        (:has-value? (kv/fetch (.bucket c) k :head-only true)))
+        (:has-value? (kv/fetch (.client c) (.bucket c) k {:head-only true})))
   (hit [this k]
     this)
   (miss [c k v]
-    (kv/store (.bucket c) k v :content-type (.content-type c) :w (.w c))
+    (kv/store (.client c) (.bucket c) k v {:content-type (.content-type c) :w (.w c)})
     c)
   (evict [c k]
-    (kv/delete (.bucket c) k :w (.w c))
+    (kv/delete (.client c) (.bucket c) k {:w (.w c)})
     c)
   (seed [c m]
     (doseq [[k v] m]
-      (kv/store (.bucket c) k v :content-type (.content-type c) :w (.w c)))
+      (kv/store (.client c) (.bucket c) k v {:content-type (.content-type c) :w (.w c)}))
     c))
 
 (defn basic-welle-cache-factory
-  ([]
-     (BasicWelleCache. default-cache-bucket default-content-type 1))
-  ([^String bucket]
-     (BasicWelleCache. bucket default-content-type 1))
-  ([^String bucket ^String content-type ^Integer w]
-     (BasicWelleCache. bucket content-type w))
-  ([^String bucket base ^String content-type ^Integer w]
-     (cache/seed (BasicWelleCache. bucket content-type w) base)))
+  ([^RawClient client]
+     (BasicWelleCache. client default-cache-bucket default-content-type 1))
+  ([^RawClient client ^String bucket]
+     (BasicWelleCache. client bucket default-content-type 1))
+  ([^RawClient client ^String bucket ^String content-type ^Integer w]
+     (BasicWelleCache. client bucket content-type w))
+  ([^RawClient client ^String bucket base ^String content-type ^Integer w]
+     (cache/seed (BasicWelleCache. client bucket content-type w) base)))
