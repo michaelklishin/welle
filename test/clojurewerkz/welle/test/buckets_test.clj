@@ -1,8 +1,10 @@
 (ns clojurewerkz.welle.test.buckets-test
-  (:require [clojure.test :refer :all] [clojurewerkz.welle.conversion :refer :all])
   (:require [clojurewerkz.welle.core    :as wc]
             [clojurewerkz.welle.buckets :as wb]
-            [clojurewerkz.welle.kv      :as kv])
+            [clojurewerkz.welle.kv      :as kv]
+            [clojure.test :refer :all]
+            [clojurewerkz.welle.conversion :refer :all]
+            [clojurewerkz.welle.test.test-helpers :as th])
   (:import  [com.basho.riak.client IRiakClient IRiakObject]
             [com.basho.riak.client.bucket Bucket WriteBucket]
             [com.basho.riak.client.operations StoreObject FetchObject]))
@@ -13,7 +15,7 @@
                 :not-found-ok :small-vclock :big-vclock :young-vclock :old-vclock]]
     (is (contains? props prop))))
 
-(let [c (wc/connect)]
+(let [c (th/connect)]
   ;;
   ;; buckets/update
   ;;

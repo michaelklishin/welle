@@ -6,7 +6,8 @@
             [cheshire.custom                :as json]
             [clojure.set                    :as set]
             [clojure.test :refer :all]
-            [clojurewerkz.welle.testkit :refer [drain]])
+            [clojurewerkz.welle.testkit :refer [drain]]
+            [clojurewerkz.welle.test.test-helpers :as th])
   (:import  com.basho.riak.client.http.util.Constants
             java.util.UUID))
 
@@ -23,7 +24,7 @@
   (is (:indexes m))
   (is (:value m)))
 
-(let [conn (wc/connect)]
+(let [conn (th/connect)]
 
   ;;
   ;; Basics
