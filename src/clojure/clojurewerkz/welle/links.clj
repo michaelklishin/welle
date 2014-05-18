@@ -8,10 +8,10 @@
 ;; You must not remove this notice, or any other, from this software.
 
 (ns clojurewerkz.welle.links
-  (:require [clojurewerkz.welle.conversion :refer :all]
-            [clojurewerkz.welle.core :refer [*riak-client*]])
+  (:require [clojurewerkz.welle.conversion :refer :all])
   (:import com.basho.riak.client.raw.query.LinkWalkSpec
-           java.util.LinkedList))
+           java.util.LinkedList
+           com.basho.riak.client.raw.RawClient))
 
 ;;
 ;; Implementation
@@ -56,9 +56,9 @@
    (walk
      (start-at \"people\" \"peter\")
      (step     \"people\" \"friend\" true))"
-  [starting-point & steps]
+  [^RawClient client starting-point & steps]
   (let [[bucket-name key] starting-point
         lws               (LinkWalkSpec. (to-linked-list steps) bucket-name key)
         ;; iterable over a collection of linked lists, each of those has IRiakObjects
-        raw-result        (.linkWalk *riak-client* lws)]
+        raw-result        (.linkWalk client lws)]
     (map map-links (into [] raw-result))))
