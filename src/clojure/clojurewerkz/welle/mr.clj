@@ -8,9 +8,9 @@
 ;; You must not remove this notice, or any other, from this software.
 
 (ns clojurewerkz.welle.mr
-  (:require [cheshire.custom :as json]
-            [clojurewerkz.welle.core :refer :all])
-  (:import com.basho.riak.client.raw.query.MapReduceSpec))
+  (:require [cheshire.custom :as json])
+  (:import com.basho.riak.client.raw.RawClient
+           com.basho.riak.client.raw.query.MapReduceSpec))
 
 
 ;;
@@ -19,6 +19,6 @@
 
 (defn map-reduce
   "Runs a map/reduce query"
-  [query]
-  (let [result (.mapReduce *riak-client* (MapReduceSpec. (json/encode query)))]
+  [^RawClient client query]
+  (let [result (.mapReduce client (MapReduceSpec. (json/encode query)))]
     (json/decode (.getResultRaw result) true)))

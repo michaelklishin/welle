@@ -1,3 +1,13 @@
+## Changes between Welle 2.0.x and 3.0
+
+Welle 2.0 has [breaking API changes](http://blog.clojurewerkz.org/blog/2014/04/26/major-breaking-public-api-changes-coming-in-our-projects/) in most namespaces.
+
+### HTTPComponents 4.3
+
+Welle now excludes HTTPComponents dependency for Riak client and instead
+uses version 4.3 which `clj-http` depends on.
+
+
 ## Changes between Welle 1.5.0 and 2.0
 
 Welle 2.0 has **breaking API changes** in `welle.kv` functions.

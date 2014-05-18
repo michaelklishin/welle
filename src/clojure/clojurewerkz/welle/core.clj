@@ -28,12 +28,10 @@
 
 (def ^{:private true :const true} default-url "http://127.0.0.1:8098/riak")
 
-(def ^:dynamic ^RawClient *riak-client*)
-
 (def ^{:const true} default-cluster-connection-limit 32)
 
 
-(defn ^clojurewerkz.welle.HTTPClient
+(defn ^HTTPClient
   connect
   "Creates an HTTP client for a given URL, optionally with a custom client ID.
   With no arguments, connects to localhost on the default Riak port."
@@ -47,18 +45,7 @@
        (.setClientId c client-id)
        c)))
 
-(defn connect!
-  "Creates an HTTP client for a given URL, and sets the global variable
-  *riak-client*. All Welle functions which are not passed a client will use
-  this client by default."
-  ([]
-     (alter-var-root (var *riak-client*) (constantly (connect))))
-  ([^String url]
-     (alter-var-root (var *riak-client*) (constantly (connect url))))
-  ([^String url ^String client-id]
-     (alter-var-root (var *riak-client*) (constantly (connect url client-id)))))
-
-(defn connect-via-pb
+(defn ^PBClientAdapter connect-via-pb
   "Creates a Protocol Buffers client for the given host and port, or, by
   default, to localhost on the default Riak PB port."
   ([]
@@ -66,15 +53,6 @@
   ([^String host ^long port]
      (doto (PBClientAdapter. (com.basho.riak.pbc.RiakClient. host port))
        (.generateAndSetClientId))))
-
-(defn connect-via-pb!
-  "Creates a Protocol Buffers client for the given host and port, and sets the
-  global variable *riak-client*. All Welle functions which are not passed a
-  client will use this client by default."
-  ([]
-     (alter-var-root (var *riak-client*) (constantly (connect-via-pb))))
-  ([host port]
-     (alter-var-root (var *riak-client*) (constantly (connect-via-pb host port)))))
 
 (defprotocol HTTPClusterConfigurator
   (http-cluster-config-from [self]))
@@ -93,19 +71,12 @@
                             (.build))))
       res)))
 
-(defn ^com.basho.riak.client.raw.RawClient
+(defn ^RawClient
   connect-to-cluster
   "Creates an HTTP cluster client."
   [endpoints]
   (let [^ClusterConfig cc (http-cluster-config-from endpoints)]
     (HTTPClusterClient. cc)))
-
-(defn connect-to-cluster!
-  "Creates an HTTP cluster client, and sets the global variable *riak-client*.
-  All Welle functions which are not passed a client will use this client by
-  default."
-  [endpoints]
-  (alter-var-root (var *riak-client*) (constantly (connect-to-cluster endpoints))))
 
 (defprotocol PBClusterConfigurator
   (pbc-cluster-config-from [self]))
@@ -128,7 +99,7 @@
                               (.build)))))
       res)))
 
-(defn ^com.basho.riak.client.raw.RawClient
+(defn ^PBClusterClient
   connect-to-cluster-via-pb
   "Creates a Protocol Buffers cluster client given a sequence of string
   endpoints."
@@ -136,51 +107,28 @@
   (let [^ClusterConfig cc (pbc-cluster-config-from endpoints)]
     (PBClusterClient. cc)))
 
-(defn connect-to-cluster-via-pb!
-  "Creates a Protocol Buffers cluster client given a sequence of string
-  endpoints, and sets the global variable *riak-client*.  All Welle functions
-  which are not passed a client will use this client by default."
-  [endpoints]
-  (alter-var-root (var *riak-client*) (constantly (connect-to-cluster-via-pb endpoints))))
-
-
-
-(defmacro with-client
-  "Evaluates body within an implicit do, with the Welle client *riak-client*
-  bound to the given Riak client."
-  [client & forms]
-  `(binding [*riak-client* ~client]
-     (do ~@forms)))
-
-
 (defn ping
   "Pings a client."
-  ([]
-     (.ping *riak-client*))
-  ([^RawClient client]
-     (.ping client)))
+  [^RawClient client]
+  (.ping client))
 
 (defn shutdown
   "Shuts down a client."
-  ([]
-     (.shutdown *riak-client*))
-  ([^RawClient client]
-     (.shutdown client)))
+  [^RawClient client]
+  (.shutdown client))
 
 
 (defn get-client-id
   "The client ID used by a given client."
-  []
-  (.getClientId *riak-client*))
+  [^RawClient client]
+  (.getClientId client))
 
 (defn stats
   "Returns statistics for a client."
-  []
-  (.stats *riak-client*))
+  [^RawClient client]
+  (.stats client))
 
 (defn get-base-url
   "Returns base HTTP transport URL (e.g. http://127.0.0.1:8098)"
-  ([]
-     (.getBaseUrl ^HTTPClient *riak-client*))
-  ([^HTTPClient client]
-     (.getBaseUrl client)))
+  [^HTTPClient client]
+  (.getBaseUrl client))

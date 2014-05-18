@@ -7,10 +7,10 @@
 ;; the terms of this license.
 ;; You must not remove this notice, or any other, from this software.
 
-(ns ^{:doc "Provides access to Riak Search via the Solr API.
+(ns clojurewerkz.welle.solr
+  "Provides access to Riak Search via the Solr API.
 
-            Only HTTP transport is supported."}
-  clojurewerkz.welle.solr
+   Only HTTP transport is supported."
   (:require [clojurewerkz.welle.core :as wc]
             [clj-http.client         :as http]
             [cheshire.core           :as json]
@@ -23,24 +23,18 @@
 
 (defn- get-base-solr-url
   "Returns base Sorl API URL (e.g. http://127.0.0.1:8098/solr)"
-  ([]
-     (get-base-solr-url wc/*riak-client*))
-  ([^HTTPClient client]
-     (str (.getBaseUrl client) "/solr")))
+  [^HTTPClient client]
+  (str (.getBaseUrl client) "/solr"))
 
 (defn- get-solr-query-url
   "Returns Sorl query endpoint URL for the given index (e.g. http://127.0.0.1:8098/solr/production_index/select)"
-  ([^String index]
-     (get-solr-query-url wc/*riak-client* index))
-  ([^HTTPClient client ^String index]
-     (str (get-base-solr-url wc/*riak-client*) "/" index "/select")))
+  [^HTTPClient client ^String index]
+  (str (get-base-solr-url client) "/" index "/select"))
 
 (defn- get-solr-update-url
   "Returns Sorl update (index, delete, etc) endpoint URL for the given index (e.g. http://127.0.0.1:8098/solr/production_index/update)"
-  ([^String index]
-     (get-solr-update-url wc/*riak-client* index))
   ([^HTTPClient client ^String index]
-     (str (get-base-solr-url wc/*riak-client*) "/" index "/update")))
+     (str (get-base-solr-url client) "/" index "/update")))
 
 (defn- delete-via-query-body
   [^String query]
@@ -80,40 +74,44 @@
 ;;
 
 (defn delete-via-query
-  ([^String query]
-     (let [url            (get-solr-update-url)
+  ([^HTTPClient client ^String query]
+     (let [url            (get-solr-update-url client)
            {:keys [body]} (http/post url {:content-type application-xml :body (delete-via-query-body query)})]
        nil))
-  ([^String index ^String query]
-     (let [url            (get-solr-update-url index)
+  ([^HTTPClient client ^String index ^String query]
+     (let [url            (get-solr-update-url client index)
            {:keys [body]} (http/post url {:content-type application-xml :body (delete-via-query-body query)})]
        ;; looks like the response is always empty
        nil)))
 
 (defn index
-  ([doc]
+  ([^HTTPClient client doc]
      (let [url            (get-solr-update-url)
            {:keys [body]} (http/post url {:content-type application-xml :body (index-document-body doc)})]
        doc))
-  ([^String idx doc]
+  ([^HTTPClient client ^String idx doc]
      (let [url            (get-solr-update-url idx)
            {:keys [body]} (http/post url {:content-type application-xml :body (index-document-body doc)})]
        ;; looks like the response is always empty
        doc)))
 
 (defn search
-  [^String index ^String query & {:as options}]
-  (let [url            (get-solr-query-url index)
-        qp             (merge options {"wt" "json" "q" query})
-        {:keys [body]} (http/get url {:query-params qp})]
-    (json/parse-string body true)))
+  ([^HTTPClient client ^String index ^String query]
+     (search client index query {}))
+  ([^HTTPClient client ^String index ^String query {:as options}]
+     (let [url            (get-solr-query-url client index)
+           qp             (merge options {"wt" "json" "q" query})
+           {:keys [body]} (http/get url {:query-params qp})]
+       (json/parse-string body true))))
 
 (defn search-across-all-indexes
-  [^String query & {:as options}]
-  (let [url            (get-solr-query-url)
-        qp             (merge options {"wt" "json" "q" query})
-        {:keys [body]} (http/get url {:query-params qp})]
-    (json/parse-string body true)))
+  ([^HTTPClient client ^String query]
+     (search-across-all-indexes client query {}))
+  ([^HTTPClient client ^String query {:as options}]
+     (let [url            (get-solr-query-url client)
+           qp             (merge options {"wt" "json" "q" query})
+           {:keys [body]} (http/get url {:query-params qp})]
+       (json/parse-string body true))))
 
 (defn total-hits
   [response]
