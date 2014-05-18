@@ -9,7 +9,7 @@
                  [clojurewerkz/support       "0.20.0"]
                  ;; for the Riak Search Solr API support. When Riak Client supports
                  ;; search natively, we should be able to just use what it provides.
-                 [clj-http                   "0.9.1"]
+                 [clj-http                   "0.9.1" :exclusions [org.apache.httpcomponents/httpclient]]
                  [org.clojure/data.xml       "0.0.7" :exclusions [org.clojure/clojure]]]
   :source-paths      ["src/clojure"]
   :java-source-paths ["src/java"]
