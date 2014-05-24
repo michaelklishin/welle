@@ -2,6 +2,43 @@
 
 Welle 2.0 has [breaking API changes](http://blog.clojurewerkz.org/blog/2014/04/26/major-breaking-public-api-changes-coming-in-our-projects/) in most namespaces.
 
+### Client (Connection) is Explicit Argument
+
+All Welle public API functions that issue requests to Riak now require
+a client (HTTP or PBC) to be passed as an explicit argument:
+
+``` clojure
+(ns welle.docs.examples
+  (:require [clojurewerkz.welle.core    :as wc]
+            [clojurewerkz.welle.buckets :as wb]
+            [clojurewerkz.welle.kv      :as kv])
+  (:import com.basho.riak.client.http.util.Constants))
+
+(let [conn   (wc/connect)
+      bucket "accounts"
+      key    "novemberain"
+      val    {:name "Michael" :age 27 :username key}]
+  (wb/create conn "accounts")
+  ;; stores data serialized as JSON
+  (kv/store conn bucket key val {:content-type Constants/CTYPE_JSON_UTF8})
+  ;; fetches it back
+  (kv/fetch conn bucket key))
+```
+
+### Options as Maps
+
+Functions that take optional arguments now require them to be proper maps
+(and not pseudo-keywords):
+
+``` clojure
+;; in 2.0
+(kv/store bucket key val :content-type Constants/CTYPE_JSON_UTF8)
+
+;; in 3.0
+(kv/store conn bucket key val {:content-type Constants/CTYPE_JSON_UTF8})
+```
+
+
 ### HTTPComponents 4.3
 
 Welle now excludes HTTPComponents dependency for Riak client and instead
