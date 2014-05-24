@@ -59,12 +59,7 @@
    * old-vclock"
   ([^RawClient client ^String bucket-name]
      (update client bucket-name {}))
-  ([^RawClient client ^String bucket-name { :keys [allow-siblings last-write-wins n-val ^String backend
-                                                   small-vclock big-vclock young-vclock old-vclock
-                                                   r pr w dw pw rw
-                                                   ^Boolean not-found-ok ^Boolean basic-quorum ^Boolean enable-search
-                                                   pre-commit-hooks
-                                                   post-commit-hooks] :as options}]
+  ([^RawClient client ^String bucket-name options]
      (.updateBucket client bucket-name (to-bucket-properties (or options {})))
      (merge {:name bucket-name}
             (from-bucket-properties (.fetchBucket client bucket-name)))))
