@@ -1,8 +1,8 @@
 # Welle, a Clojure client for Riak
 
 Welle is an expressive Clojure client for Riak with batteries included.
-Its API and code style closely follow other [ClojureWerkz Clojure libraries](http://clojurewerkz.org), namely [Neocons](https://github.com/michaelklishin/neocons), [Elastisch](https://github.com/clojurewerkz/elastisch)
-and [Monger](https://github.com/michaelklishin/monger).
+Its API and code style closely follow other [ClojureWerkz Clojure libraries](http://clojurewerkz.org), namely [Langohr](http://clojurerabbitmq.info), [Elastisch](https://clojureelasticsearch.info), [Neocons](http://clojureneo4j.info),
+and [Monger](http://clojuremongodb.info).
 
 
 ## Project Goals
@@ -12,7 +12,7 @@ and [Monger](https://github.com/michaelklishin/monger).
  * Be [well tested](https://github.com/michaelklishin/welle/tree/master/test/clojurewerkz/welle/test)
  * Target modern Clojure versions
  * Batteries included: [clojure.core.cache](http://github.com/clojure/core.cache) implementation on top of Riak and so on
- * Be friendly to Heroku and other PaaS providers
+ * Be PaaS-friendly
 
 
 ## Project Maturity
@@ -44,9 +44,9 @@ The most recent stable Clojure release is highly recommended.
 
 ## Supported Riak Versions
 
-Welle `2.0` targets Riak 1.4+ and has breaking API changes compared to `1.5.0`.
-
-Welle `1.5.0` is compatible with Riak `1.3.0`.
+ * Welle `3.0` targets Riak 1.4+ and has breaking API changes compared to `2.0`.
+ * Welle `2.0` targets Riak 1.4+ and has breaking API changes compared to `1.5`.
+ * Welle `1.5` is compatible with Riak `1.3.0`.
 
 
 ## Getting Started
@@ -72,7 +72,7 @@ Welle artifacts are [released to Clojars](https://clojars.org/com.novemberain/we
 Add dependency in your `project.clj`:
 
 ``` clojure
-[com.novemberain/welle "2.0.0"]
+[com.novemberain/welle "3.0.0-rc1"]
 ```
 
 ### With Maven
@@ -92,7 +92,7 @@ and then the dependency:
 <dependency>
   <groupId>com.novemberain</groupId>
   <artifactId>welle</artifactId>
-  <version>2.0.0</version>
+  <version>3.0.0-rc1</version>
 </dependency>
 ```
 
