@@ -1,6 +1,6 @@
 ## Changes between Welle 2.0.x and 3.0
 
-Welle 2.0 has [breaking API changes](http://blog.clojurewerkz.org/blog/2014/04/26/major-breaking-public-api-changes-coming-in-our-projects/) in most namespaces.
+Welle 3.0 has [breaking API changes](http://blog.clojurewerkz.org/blog/2014/04/26/major-breaking-public-api-changes-coming-in-our-projects/) in most namespaces.
 
 ### Client (Connection) is Explicit Argument
 
