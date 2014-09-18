@@ -2,7 +2,7 @@
   :description "Welle is an expressive Clojure client for Riak with batteries included"
   :url "http://clojureriak.info"
   :license {:name "Eclipse Public License"}
-  :min-lein-version "2.4.3"
+  :min-lein-version "2.5.0"
   :dependencies [[org.clojure/clojure        "1.6.0"]
                  [com.basho.riak/riak-client "1.4.4" :exclusions [org.apache.httpcomponents/httpclient]]
                  [cheshire                   "5.3.1"]
