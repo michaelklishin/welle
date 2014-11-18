@@ -172,7 +172,7 @@
   [^IRiakObject ro]
   (let [indexes (concat (seq (.allBinIndexes ro))
                         (seq (.allIntIndexes ro)))
-        step    (fn [acc-m ^java.util.HashMap$Entry idx]
+        step    (fn [acc-m ^java.util.Map$Entry idx]
                   (let [idx-name   (keyword (.getName ^RiakIndex (.getKey idx)))
                         idx-fields (set ^java.util.Set (.getValue idx))]
                     (merge-with cs/union acc-m {idx-name idx-fields})))]
