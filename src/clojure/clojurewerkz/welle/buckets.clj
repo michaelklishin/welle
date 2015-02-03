@@ -8,7 +8,7 @@
 ;; You must not remove this notice, or any other, from this software.
 
 (ns clojurewerkz.welle.buckets
-  (:refer-clojure :exclude [list])
+  (:refer-clojure :exclude [list update])
   (:require [clojurewerkz.welle.core :refer :all]
             [clojurewerkz.welle.conversion :refer :all])
   (:import com.basho.riak.client.raw.RawClient
