@@ -333,7 +333,9 @@
   (binding [*print-dup* true]
     (pr-str value)))
 
-
+(defmethod serialize :default
+  [value _]
+  (to-bytes value))
 
 (defmulti deserialize (fn [_ content-type]
                         content-type))
