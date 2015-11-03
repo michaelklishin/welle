@@ -318,7 +318,7 @@
     (.finish gzip)
     (.toByteArray out)))
 
-;; Clojure
+;; SMILE (binary JSON)
 (defmethod serialize "application/jackson-smile"
   [value _]
   (json/generate-smile value))
