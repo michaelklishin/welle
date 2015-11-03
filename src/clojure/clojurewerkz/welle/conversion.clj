@@ -383,8 +383,7 @@
 ;; Clojure
 (defmethod deserialize "application/clojure"
   [value _]
-  (binding [*print-dup* true]
-    (read-string (String. ^bytes value))))
+  (read-string (String. ^bytes value "UTF-8")))
 
 
 (defmethod deserialize :default
