@@ -3,7 +3,7 @@
   :url "http://clojureriak.info"
   :license {:name "Eclipse Public License"}
   :min-lein-version "2.5.1"
-  :dependencies [[org.clojure/clojure        "1.6.0"]
+  :dependencies [[org.clojure/clojure        "1.7.0"]
                  [com.basho.riak/riak-client "1.4.4" :exclusions [org.apache.httpcomponents/httpclient]]
                  [cheshire                   "5.3.1"]
                  [clojurewerkz/support       "1.1.0"]
@@ -14,10 +14,8 @@
   :source-paths      ["src/clojure"]
   :java-source-paths ["src/java"]
   :javac-options     ["-target" "1.6" "-source" "1.6"]
-  :profiles       {:1.4 {:dependencies [[org.clojure/clojure "1.4.0"]]}
-                   :1.5 {:dependencies [[org.clojure/clojure "1.5.1"]]}
-                   :1.7 {:dependencies [[org.clojure/clojure "1.7.0"]]}
-                   :master {:dependencies [[org.clojure/clojure "1.8.0-master-SNAPSHOT"]]}
+  :profiles       {:1.6 {:dependencies [[org.clojure/clojure "1.6.0"]]}
+                   :master {:dependencies [[org.clojure/clojure "1.9.0-master-SNAPSHOT"]]}
                    :dev {:resource-paths ["test/resources"]
                          :dependencies [[org.clojure/core.cache "0.6.3" :exclusions [org.clojure/clojure]]
                                         [ring/ring-core         "1.2.1"]]
@@ -27,7 +25,7 @@
   :mailing-list {:name "clojure-riak"
                  :archive "https://groups.google.com/group/clojure-riak"
                  :post "clojure-riak@googlegroups.com"}
-  :aliases        {"all" ["with-profile" "dev:dev,1.4:dev,1.5:dev,1.7:dev,master"]}
+  :aliases        {"all" ["with-profile" "dev:dev,1.6:dev,master"]}
   :test-selectors {:focus   :focus
                    :2i      :2i
                    :cache   :cache
